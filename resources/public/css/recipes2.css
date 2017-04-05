@@ -1,0 +1,93 @@
+/**
+ * Framework starts from here ...
+ * ------------------------------
+ */
+
+.recipe-block {
+	width: 800px;
+	height: 1080px;
+}
+.recipe-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+.rec-buttons-td {
+	width: 267px;
+	text-align: center;
+}
+.btn-spacer {
+	height: 25px;
+}
+
+.rec-title-txt-td {
+	width: 800px;
+	text-align: center;
+	border: 1px solid grey;
+}
+.rec-title-txt {
+	width: 100%;
+	background-color: rgba(200, 200, 200, 0);
+	color: white;
+	border: 0;
+	font-size: 24px;
+}
+
+.recipe-item {
+	background-color: rgba(200, 200, 200, 0);
+	font-size: 18px;
+	color: white;
+	border: 0;
+}
+.rec-item-td {
+	border: 1px solid grey;
+	padding: 0 0 0 10px;
+}
+.recipe-item-name {
+	width: 590px;
+	border-collapse: collapse;
+	padding: 0;
+}
+
+.recipe-item-unit {
+	width: 70px;
+	border-collapse: collapse;
+	padding: 0;
+}
+
+.recipe-item-amount {
+	width: 110px;
+	border-collapse: collapse;
+	padding: 0;
+}
+
+.recipe-url-table {
+    width: 100%;
+    height: 2em;
+}
+.recipe-url1 {
+    width: 70px;
+    font-size: 24px;
+    height: 45px;
+}
+.recipe-url2 {
+    width: 650px;
+    height: 45px;
+    padding: 0 10px 6px 0;
+    border: 1px solid grey;
+}
+.recipe-url-field {
+    width: 100%;
+    font-size: 18px;
+    vertical-align: center;
+}
+
+.rec-area-div {
+	width: 800px;
+	height: 300px;
+}
+.recipe-area {
+	width: 100%;
+	height: 100%;
+	border: 1px solid grey;
+}
+

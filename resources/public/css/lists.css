@@ -1,0 +1,128 @@
+
+.list-master {
+	width: 800px;
+	height: 1080px;
+}
+
+.parent-lbl {
+	font-size: 24px;
+	margin: 0 10px 0 0;
+}
+.parent-dd {
+	font-size: 24px;
+}
+
+.item-row {
+	text-align: left;
+	color: black;
+	background: white;
+	font-size: 24px;
+	border: 2px solid lightgrey;
+	padding: 5px;
+}
+.done-row {
+	text-align: left;
+	color: black;
+	background: white;
+	font-size: 24px;
+	text-decoration: line-through;
+	border: 2px solid lightgrey;
+	padding: 5px;
+}
+.tags-row {
+	text-align: left;
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+	border: 1px solid grey;
+	font-size: 18px;
+	padding: 5px;
+}
+.list-name {
+	text-align: center;
+	text-decoration: none;
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+	font-size: 24px;
+	padding: 20px 0 10px 0;
+}
+.list-table {
+	width: 100%;
+}
+.lists-link {
+	text-align: center;
+	color: blue;
+	background: white;
+	font-size: 18px;
+	padding: 10px;
+}
+.iml {
+	text-align: right;
+	color: blue;
+	background: white;
+	font-size: 18px;
+}
+
+.new-list-cat-title {
+	text-align: left;
+	color: white;
+	font-size: 24px;
+}
+.new-list-cat-new {
+	text-align: left;
+	color: white;
+	background: lightgreen;
+	font-size: 18px;
+}
+.new-list-txt {
+	
+}
+.new-list-lbl {
+	
+}
+.new-list-field {
+	
+}
+.new-cb-td {
+	text-align: right;
+	width: 200px;
+	border: 1px solid grey;
+}
+.new-cb-n {
+	text-align: right;
+	color: white;
+	font-size: 24px;
+	margin: 0 10px 0 0;
+}
+.new-cb {
+	margin: 0 10px 0 0;
+	transform: scale(2);
+}
+
+.new-tag-txt-td {
+	border: 1px solid grey;
+}
+.new-tag-txt {
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+	border: 0;
+	width: 182px;
+	font-size: 24px;
+	margin: 0 10px 0 0;
+}
+
+.new-name-td {
+	border: 1px solid grey;
+}
+.new-name {
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+	border: 0;
+	width: 300px;
+	font-size: 24px;
+	margin: 0 10px 0 0;
+}
+
+.submit-td {
+
+}
+

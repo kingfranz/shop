@@ -1,0 +1,137 @@
+{:lists
+ {"d624d1ae-8f40-4f20-b630-337780d2885a"
+  {:tags #{"ICA" "Mat" "Hova"},
+   :_id "d624d1ae-8f40-4f20-b630-337780d2885a",
+   :entry-name "ICA Hova",
+   :parent "be765494-a2fc-4cae-b3c8-ca6a68bc8ce2",
+   :created "2017-02-22 13:41",
+   :done-items
+   [{:_id "3c38abf0-5225-47c1-a976-f644a23a1005",
+     :num-of 2,
+     :menu "2017-04-04"}],
+   :items
+   ({:_id "7d9a7974-c5b3-4ab0-9e20-164be837c0d1", :num-of 1}
+    {:_id "3c38abf0-5225-47c1-a976-f644a23a1005", :num-of 3}
+    {:_id "1f14b878-571c-4326-a639-0740c0560341", :num-of 1})},
+  "be765494-a2fc-4cae-b3c8-ca6a68bc8ce2"
+  {:tags #{"ICA" "Mat"},
+   :_id "be765494-a2fc-4cae-b3c8-ca6a68bc8ce2",
+   :entry-name "ICA",
+   :parent "ef6489f1-fbe6-4c63-aa88-0c1828d27128",
+   :created "2017-02-22 13:41",
+   :done-items
+   [{:_id "3c38abf0-5225-47c1-a976-f644a23a1005", :num-of 2}],
+   :items [{:_id "3c38abf0-5225-47c1-a976-f644a23a1005", :num-of 2}]},
+  "ef6489f1-fbe6-4c63-aa88-0c1828d27128"
+  {:tags #{"Mat"},
+   :_id "ef6489f1-fbe6-4c63-aa88-0c1828d27128",
+   :entry-name "Mat",
+   :parent nil,
+   :created "2017-02-22 13:41",
+   :done-items
+   [{:_id "3c38abf0-5225-47c1-a976-f644a23a1005", :num-of 2}],
+   :items [{:_id "3c38abf0-5225-47c1-a976-f644a23a1005", :num-of 2}]},
+  "07d38dd7-6aa7-46e8-8189-6f21e5b4bd68"
+  {:_id "07d38dd7-6aa7-46e8-8189-6f21e5b4bd68",
+   :entry-name "Coop",
+   :tags #{"coop"},
+   :parent "ef6489f1-fbe6-4c63-aa88-0c1828d27128"},
+  "21d57145-d413-420a-9b88-c6014478efa5"
+  {:_id "21d57145-d413-420a-9b88-c6014478efa5",
+   :entry-name "Coop Örebro",
+   :tags #{"Mat" "coop"},
+   :parent "07d38dd7-6aa7-46e8-8189-6f21e5b4bd68"},
+  "5d3a1d67-e328-44dc-8e3f-6d65cde95732"
+  {:_id "5d3a1d67-e328-44dc-8e3f-6d65cde95732",
+   :entry-name "Verktyg",
+   :tags #{"Verktyg" "Verkstad"},
+   :parent nil}},
+ :recipes
+ {"150f34dd-98c6-4c7f-80c5-6a0a4f91127c"
+  {:tags #{"Soppa" "Kött" "Mat" "Middag" "Recept"},
+   :_id "150f34dd-98c6-4c7f-80c5-6a0a4f91127c",
+   :entry-name "Köttsoppa",
+   :created "2017-02-22 13:41",
+   :url
+   "https://www.netonnet.se/art/dator/surfplattor/samsung-galaxy-tab-s3-silver/243625.8899/",
+   :items [{:text "oxsvans", :unit "st", :amount "8"}],
+   :text ""}},
+ :projects
+ {"20889273-48ea-4348-997f-365a54ad59b9"
+  {:_id "20889273-48ea-4348-997f-365a54ad59b9",
+   :entry-name "Tak ovanför ingången kalle",
+   :tags #{"Hus" "Svets"},
+   :created "2017-02-22 13:41",
+   :priority 1,
+   :assigned-to "02250685-d6a5-4d8f-bfaf-fe620da5dd5f",
+   :finished "2017-04-03 19:40:12"},
+  "5d95e6be-51c2-4cdc-8d13-39a5f8d2a161"
+  {:_id "5d95e6be-51c2-4cdc-8d13-39a5f8d2a161",
+   :entry-name "Kör bort skräp",
+   :tags #{"Hus"},
+   :priority 1,
+   :finished "2017-03-30 14:48:49"},
+  "a7b5d593-178d-4adf-992b-f6af24471750"
+  {:_id "a7b5d593-178d-4adf-992b-f6af24471750",
+   :entry-name "bygg fågelholkar",
+   :tags #{"Trädgård" "Trä"},
+   :priority 2,
+   :finished "2017-04-03 19:39:52"},
+  "312a3ae5-74f2-445e-a154-20e48dfeabb3"
+  {:_id "312a3ae5-74f2-445e-a154-20e48dfeabb3",
+   :entry-name "gör pipe bender",
+   :tags #{"Trädgård" "Svets"},
+   :priority 1,
+   :finished "2017-04-03 19:40:08"},
+  "15be493e-3eb7-4f52-aa0d-4f20cc54ff7a"
+  {:_id "15be493e-3eb7-4f52-aa0d-4f20cc54ff7a",
+   :entry-name "gör pipe bender",
+   :tags #{"Trädgård" "Svets"},
+   :priority 1,
+   :finished "2017-04-02 07:01:32"},
+  "8f4cf1f6-34ec-4444-8ac6-84895aa1db17"
+  {:_id "8f4cf1f6-34ec-4444-8ac6-84895aa1db17",
+   :entry-name "gör pipe bender again",
+   :tags #{"Trädgård" "Svets"},
+   :priority 1,
+   :finished "2017-04-02 07:19:18"}},
+ :menu
+ {:_id "b1151434-683a-46f3-bf94-bd94e5484dcb",
+  :entry-name "Veckomeny",
+  :tags #{"Mat" "Middag" "Meny"},
+  :created "2017-02-22 13:41",
+  :items
+  {"2017-04-02" {:text "rester"},
+   "2017-03-31" {:text "sprit"},
+   "2017-03-27" {:text "Tacos, sallad"},
+   "2017-04-01" {:text "sushi"},
+   "2017-03-29"
+   {:text "spagetti och köttfärssås",
+    :recipe "150f34dd-98c6-4c7f-80c5-6a0a4f91127c"},
+   "2017-03-30"
+   {:recipe "150f34dd-98c6-4c7f-80c5-6a0a4f91127c",
+    :text "köttsoppa"}}},
+ :items
+ {"3c38abf0-5225-47c1-a976-f644a23a1005"
+  {:amount 1.5,
+   :tags #{"Mat" "Mjölkprodukter"},
+   :_id "3c38abf0-5225-47c1-a976-f644a23a1005",
+   :entry-name "Mjölk",
+   :unit "L",
+   :created "2017-02-22 13:41",
+   :times-used {"d624d1ae-8f40-4f20-b630-337780d2885a" 23},
+   :image [],
+   :price 10.5},
+  "1f14b878-571c-4326-a639-0740c0560341"
+  {:_id "1f14b878-571c-4326-a639-0740c0560341",
+   :entry-name "Falukorv",
+   :tags #{"Kött" "Mat"},
+   :amount 400,
+   :unit "g",
+   :price 20M},
+  "7d9a7974-c5b3-4ab0-9e20-164be837c0d1"
+  {:_id "7d9a7974-c5b3-4ab0-9e20-164be837c0d1",
+   :entry-name "Coke Zero",
+   :tags #{"Dricka" "Mat" "Läsk"},
+   :amount 1.5M,
+   :unit "L"}}}

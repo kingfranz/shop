@@ -1,0 +1,41 @@
+/**
+ * Framework starts from here ...
+ * ------------------------------
+ */
+.menu-master {
+	width: 800px;
+	height: 1080px;
+}
+.menu-table {
+	width: 100%;
+}
+.menu-head-td {
+	width: 50%;
+	text-align: center;
+}
+.menu-date-td {
+	width: 150px;
+	text-align: right;
+	padding: 0 15px 0 0;
+}
+.menu-date {
+	padding: 4px;
+}
+#today.menu-date {
+	background-color: rgb(200, 200, 200);
+    color: black;
+}
+.menu-text-td {
+	width: 540px;
+}
+.menu-text {
+	width: 95%;
+	background: lightgrey;
+	font-size: 1em;
+}
+.menu-text-old {
+	
+}
+.menu-link-td {
+	width: 110px;
+}

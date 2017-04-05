@@ -1,0 +1,83 @@
+.proj-div {
+	width: 800px;
+	height: 1080px;
+}
+
+.proj-tbl {
+	width: 100%;
+}
+.proj-head-td {
+	width: 50%;
+	text-align: center;
+}
+
+.proj-head-th {
+	height: 70px;
+	width: 100%;
+	border: 1px white solid;
+    border-radius: 8px;
+}
+.proj-head-val {
+	font-size: 36px;
+}
+
+.proj-pri-td {
+	width: 40px;
+}
+
+.proj-check-td {
+	width: 20px;
+}
+
+.proj-txt-td {
+	width: 500px;
+}
+
+.proj-tags-td {
+	width: 200px;
+}
+
+.proj-pri-val {
+	width: 100%;
+	font-size: 18px;
+	text-align: center;
+	color: black;
+}
+
+.proj-check-val {
+	width: 100%;
+	border: none;
+    color: white;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.proj-txt-val {
+	width: 100%;
+	font-size: 18px;
+	border: 0;
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+}
+
+.proj-tags-val {
+	width: 100%;
+	font-size: 18px;
+	border: 0;
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+}
+
+.finished-proj {
+	text-decoration: line-through;
+	width: 100%;
+	font-size: 18px;
+	border: 0;
+	color: white;
+	background-color: rgba(200, 200, 200, 0);
+}
