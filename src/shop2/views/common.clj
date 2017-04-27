@@ -1,10 +1,11 @@
 (ns shop2.views.common
   	(:require 	[shop2.db                 :as db]
             	[shop2.views.layout       :as layout]
-            	[clj-time.core            :as t]
-            	[clj-time.local           :as l]
-            	[clj-time.format          :as f]
-            	[clj-time.periodic        :as p]
+            	(clj-time 	[core            :as t]
+            				[local           :as l]
+            				[coerce          :as c]
+            				[format          :as f]
+            				[periodic        :as p])
             	[garden.core              :as g]
             	[garden.units             :as u]
             	[garden.selectors         :as sel]
@@ -37,38 +38,6 @@
 	     (get-tag params :new-tag-2)
 	     (remove nil?)
 	     set))
-
-(def menu-frmt (f/formatter "EEE MMM dd"))
-(def menu-frmt-short (f/formatter "EEE dd"))
-
-(defn menu-date-show
-	[dt]
-	(f/unparse (f/with-zone menu-frmt (t/default-time-zone)) dt))
-
-(defn menu-date-short
-	[dt]
-	(f/unparse (f/with-zone menu-frmt-short (t/default-time-zone)) dt))
-
-(defn menu-date-key
-	[dt]
-	(f/unparse (f/with-zone (f/formatter :date) (t/default-time-zone)) dt))
-
-(defn now-str
-	[]
-	(f/unparse (f/with-zone (f/formatter :mysql) (t/default-time-zone)) (l/local-now)))
-
-(defn time-range
-	"Return a lazy sequence of DateTime's from start to end, incremented
-	by 'step' units of time."
-	[start end step]
-	(let [inf-range (p/periodic-seq start step)
-		  below-end? (fn [t] (t/within? (t/interval start end) t))]
-		(take-while below-end? inf-range)))
-
-(defn is-today?
-	[dt]
-	(let [now (l/local-now)]
-		(and (= (t/month dt) (t/month now)) (= (t/day dt) (t/day now)))))
 
 (def num-tags 4)
 

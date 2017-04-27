@@ -2,21 +2,21 @@
   	(:require 	[shop2.db                 :as db]
             	[shop2.views.layout       :as layout]
             	[shop2.views.common       :as common]
- 	          	[garden.core              :as g]
-            	[garden.units             :as u]
-            	[garden.selectors         :as sel]
-            	[garden.stylesheet        :as stylesheet]
-            	[garden.color             :as color]
-             	[clj-time.core            :as t]
-            	[clj-time.local           :as l]
-            	[clj-time.format          :as f]
-            	[clj-time.periodic        :as p]
-            	[hiccup.core              :as h]
-            	[hiccup.def               :as hd]
-            	[hiccup.element           :as he]
-            	[hiccup.form              :as hf]
-            	[hiccup.page              :as hp]
-            	[hiccup.util              :as hu]
+ 	          	(garden 	[core              :as g]
+            				[units             :as u]
+            				[selectors         :as sel]
+            				[stylesheet        :as ss]
+            				[color             :as color])
+             	(clj-time 	[core            :as t]
+            				[local           :as l]
+            				[format          :as f]
+            				[periodic        :as p])
+            	(hiccup 	[core              :as h]
+            				[def               :as hd]
+            				[element           :as he]
+            				[form              :as hf]
+            				[page              :as hp]
+            				[util              :as hu])
             	[ring.util.anti-forgery   :as ruaf]
             	[clojure.string           :as str]
             	[clojure.set              :as set]))
@@ -116,7 +116,7 @@
 						 :href (str "/finish-project/" (:_id proj))} "&#10004"])]
 			[:td.proj-txt-td (hf/text-field {:class "proj-txt-val"}
 				(mk-tag txt-name id)
-				(:entry-name proj))]
+				(:entryname proj))]
 			[:td.proj-tags-td (hf/text-field {:class "proj-tags-val"}
 				(mk-tag tags-name id)
 				(str/join ", " (:tags proj)))]]))
@@ -127,7 +127,7 @@
 		[:td
 			[:a.finished-proj
 				{:href (str "/unfinish-project/" (:_id proj))}
-				(str (:priority proj) " " (:entry-name proj) " " (:tags proj))]]])
+				(str (:priority proj) " " (:entryname proj) " " (:tags proj))]]])
 
 (defn finished?
 	[p]
@@ -144,15 +144,16 @@
 				-1
 				(if (> (:priority p1) (:priority p2))
 					1
-					(compare (:entry-name p1) (:entry-name p2))))))))
+					(compare (:entryname p1) (:entryname p2))))))))
 
 (defn show-projects-page
     []
-    (layout/common "Projekt" [css-projects]
+    (let [projects (db/get-projects)]
+    	(layout/common "Projekt" [css-projects]
         (hf/form-to {:enctype "multipart/form-data"}
     		[:post "/update-projects"]
         	(ruaf/anti-forgery-field)
-        	(hf/hidden-field :proj-keys (->> (db/get-projects)
+        	(hf/hidden-field :proj-keys (->> projects
         									 (remove finished?)
         									 (map :_id)
         									 (str/join "@")))
@@ -163,7 +164,7 @@
 	        			[:td.proj-head-td (hf/submit-button {:class "button button1"} "Updatera!")]]]
 		        [:table.proj-tbl
 		        	(list
-		        		(let [by-pri (group-by :priority (remove finished? (db/get-projects)))]
+		        		(let [by-pri (group-by :priority (remove finished? projects))]
 		        			(for [pri-key (sort (keys by-pri))]
 		        				(list [:tr [:th.proj-head-th {:colspan 4}
 		        						(hf/label {:class "proj-head-val"} :xxx (str "Prioritet " pri-key))]]
@@ -173,9 +174,9 @@
 		        			(mk-proj-row x)))]
 		        [:table.proj-tbl
 		        	[:tr [:th.proj-head-th (hf/label {:class "proj-head-val"} :xxx "Avklarade")]]
-		        	(let [projs (sort-by proj-comp (filter finished? (db/get-projects)))]
+		        	(let [projs (sort-by proj-comp (filter finished? projects))]
 		        		(map mk-finished-row projs))]]
-    	)))
+    	))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -193,14 +194,14 @@
 			:when (and (seq (get params (mk-tag txt-name pkey)))
 					   (seq (mk-proj-tags params pkey)))]
 		(db/update-project {:_id        pkey
-					   	    :entry-name (get params (mk-tag txt-name pkey))
+					   	    :entryname (get params (mk-tag txt-name pkey))
 					   		:tags       (mk-proj-tags params pkey)
 					   		:priority   (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
 	(doseq [pkey (range num-new-proj)
 			:when (and (seq (get params (mk-tag txt-name pkey)))
 					   (seq (mk-proj-tags params pkey)))]
 		(db/add-project {:_id        (db/mk-id)
-					   	 :entry-name (get params (mk-tag txt-name pkey))
+					   	 :entryname (get params (mk-tag txt-name pkey))
 					   	 :tags       (mk-proj-tags params pkey)
 					   	 :priority   (Integer/valueOf (get params (mk-tag pri-name pkey)))})))
 

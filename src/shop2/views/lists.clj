@@ -128,30 +128,24 @@
         			[:td.new-name-td
         				(hf/drop-down {:class "new-parent"}
         					:list-parent
-        					(conj (map :entry-name (db/get-lists)) top-lvl-name))]]]
+        					(conj (db/get-list-names) top-lvl-name))]]]
             (common/old-tags-tbl)
-            (common/new-tags-tbl)
-            
-            		)))
+            (common/new-tags-tbl))))
 
 ;;-----------------------------------------------------------------------------
 
 (defn added-list!
 	[{params :params}]
 	(let [parent-name (:list-parent params)
-		  parent      (if (= parent-name top-lvl-name)
-		  				nil
-		  				(if (nil? (db/find-list-id parent-name))
-		  					(throw (Exception. "Unknown list parent"))
-		  					(db/find-list-id parent-name)))
+		  parent      (when (not= parent-name top-lvl-name)
+		  				(or (db/find-list-id parent-name)
+		  					(throw (Exception. "Unknown list parent"))))
 		  listname (:new-list-name params)
 		  tags     (common/extract-tags params)]
 		(if (seq listname)
-			(db/add-list {:_id (db/mk-id)
-						  :entry-name listname
+			(db/add-list {:entryname listname
 						  :tags tags
-						  :created (common/now-str)
-		  				  :parent parent})
+						  :parent parent})
 			(layout/common "That didn't work" [css-lists]
 				[:h3 "Failed to add list"]
 				[:h3 (str "Parent " (:list-parent params) (if parent " is OK" " is unknown"))]
@@ -168,36 +162,33 @@
 
 (defn mk-name
 	[item]
-	(if (> (or (:num-of item) 1) 1)
-		(format "%s (%d)" (:entry-name (db/get-item (:_id item))) (:num-of item))
-		(:entry-name (db/get-item (:_id item)))))
-
-(defn mk-menu-name
-	[item]
-	(when (:menu item)
-		(get-in (db/get-menu) [:items (:menu item) :text])))
+	(if (> (or (:numof item) 1) 1)
+		(format "%s (%d)" (:entryname item) (:numof item))
+		(:entryname item)))
 
 (defn mk-item-a
-	[a-list func item]
+	[a-list item s]
 	[:a.item-text
-		{:href (str "/item-undone/" (:_id a-list) "/" (:_id item))}
-		(func item)])
+		{:href (str "/item-undone/" (:_id a-list) "/" (:_id item))} s])
 
 (defn mk-item-row*
 	[a-list item]
 	(list
-		[:td.item-text-td (mk-item-a a-list mk-name item)]
-		[:td.item-menu-td (mk-item-a a-list mk-menu-name item)]))
+		[:td.item-text-td (mk-item-a a-list item (mk-name item))]
+		[:td.item-menu-td (mk-item-a a-list item (get-in item [:menu :text]))]))
 
 (defn mk-item-row
-	[a-list done? item]
-	(if done?
-		[:tr.item-text-tr.done (mk-item-row* a-list item)]
-		[:tr.item-text-tr      (mk-item-row* a-list item)]))
+	[a-list active? item]
+	(if (= active? :active)
+		[:tr.item-text-tr      (mk-item-row* a-list item)]
+		[:tr.item-text-tr.done (mk-item-row* a-list item)]))
 
 (defn mk-items
-	[a-list]
-	(let [item-list     (map #(db/get-item (:_id %)) (:items a-list))
+	[a-list filter-type]
+	(let [filter-func   (if (= filter-type :active)
+		                    (fn [i] (nil? (:finished i)))
+		                    (fn [i] (some? (:finished i))))
+		  item-list     (filter filter-func (:items a-list))
 		  upd-tags      (fn [it lt] (common/filter-tags lt it))
 		  item-tag-list (map #(update % :tags upd-tags (:tags a-list)) item-list)
 		  ]
@@ -206,7 +197,7 @@
     		(list
     			(->> tags common/frmt-tags mk-tags-row)
 	    		(for [item items]
-	    			(mk-item-row a-list false item))))))
+	    			(mk-item-row a-list filter-type item))))))
 	
 (defn mk-list-tbl
 	[a-list]
@@ -214,25 +205,25 @@
     	; row with list name
     	[:tr
     		[:th.list-name-th
-    			(hf/label {:class "list-name"} :xxx (:entry-name a-list))]
+    			(hf/label {:class "list-name"} :xxx (:entryname a-list))]
     		[:th.list-add-th
     			[:a.list-add {:href (str "/add-items/" (:_id a-list))} "+"]]]
     	; rows with not-done items
-    	(mk-items a-list)
+    	(mk-items a-list :active)
     	[:tr [:td.done-td {:colspan "2"} "Avklarade"]]
         ; rows with done items
-        (for [item (:done-items a-list)]
-    		(mk-item-row a-list true item))])
+        (mk-items a-list :inactive)])
 
 (defn show-list-page
-    [the-list-id]
-    (layout/common (:entry-name (db/get-list the-list-id)) [css-lists]
-    	[:h3 [:a.link-head {:href "/"} "Home"]]
-        (loop [list-id  the-list-id
-			   acc      []]
-			(if-let [slist (db/get-list list-id)]
-				(recur (:parent slist)
-					   (conj acc (mk-list-tbl slist)))
-				(seq acc)))))
+    [list-id]
+    (let [a-list (db/get-list list-id)]
+    	(layout/common (:entryname a-list) [css-lists]
+	    	[:h3 [:a.link-head {:href "/"} "Home"]]
+	        (loop [list-id  list-id
+				   acc      []]
+				(if-let [slist a-list]
+					(recur (:parent slist)
+						   (conj acc (mk-list-tbl slist)))
+					(seq acc))))))
 
 ;;-----------------------------------------------------------------------.done-td

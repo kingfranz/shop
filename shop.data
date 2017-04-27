@@ -45,7 +45,25 @@
   {:_id "5d3a1d67-e328-44dc-8e3f-6d65cde95732",
    :entry-name "Verktyg",
    :tags #{"Verktyg" "Verkstad"},
-   :parent nil}},
+   :parent nil},
+  "c5f5ee52-efe2-4bec-89b0-caa958ce17c9"
+  {:_id "c5f5ee52-efe2-4bec-89b0-caa958ce17c9",
+   :entry-name "Biltema",
+   :tags #{"Verktyg" "Verkstad"},
+   :created "2017-04-05 23:27:13",
+   :parent "5d3a1d67-e328-44dc-8e3f-6d65cde95732"},
+  "76a35d39-2445-4154-bf31-78977e21c015"
+  {:_id "76a35d39-2445-4154-bf31-78977e21c015",
+   :entry-name "Jula",
+   :tags #{"Verktyg" "Verkstad"},
+   :created "2017-04-05 23:27:37",
+   :parent "5d3a1d67-e328-44dc-8e3f-6d65cde95732"},
+  "edf425ac-3139-49fb-8f6c-0b84d455a0a1"
+  {:_id "edf425ac-3139-49fb-8f6c-0b84d455a0a1",
+   :entry-name "Tools",
+   :tags #{"Verktyg" "Verkstad"},
+   :created "2017-04-05 23:28:11",
+   :parent "5d3a1d67-e328-44dc-8e3f-6d65cde95732"}},
  :recipes
  {"150f34dd-98c6-4c7f-80c5-6a0a4f91127c"
   {:tags #{"Soppa" "Kött" "Mat" "Middag" "Recept"},
@@ -57,7 +75,53 @@
    :items [{:text "oxsvans", :unit "st", :amount "8"}],
    :text ""}},
  :projects
- {"20889273-48ea-4348-997f-365a54ad59b9"
+ {"c2cb5095-b1b6-4bf2-b8de-a406fd329b00"
+  {:_id "c2cb5095-b1b6-4bf2-b8de-a406fd329b00",
+   :entry-name "service slaghack",
+   :tags #{"Verkstad" "Maskin"},
+   :priority 2},
+  "44bc53a5-e22f-43d9-abc7-2e60e8cf3965"
+  {:_id "44bc53a5-e22f-43d9-abc7-2e60e8cf3965",
+   :entry-name "köp brädor",
+   :tags #{"Växthus"},
+   :priority 1},
+  "90b07a5d-a954-47ff-9016-691188c36058"
+  {:_id "90b07a5d-a954-47ff-9016-691188c36058",
+   :entry-name "fix case sensitivity",
+   :tags #{"shopapp"},
+   :priority 2},
+  "6d089743-7afe-4fb1-baee-575d50c3aac2"
+  {:_id "6d089743-7afe-4fb1-baee-575d50c3aac2",
+   :entry-name "buy steel pipe",
+   :tags #{"svets" "Växthus"},
+   :priority 1},
+  "4585fea2-3733-4e43-b58f-9d6778920f25"
+  {:_id "4585fea2-3733-4e43-b58f-9d6778920f25",
+   :entry-name "gör bågar",
+   :tags #{"svets" "Växthus"},
+   :priority 1},
+  "eccb973c-3395-4861-a14d-382d34b655bb"
+  {:_id "eccb973c-3395-4861-a14d-382d34b655bb",
+   :entry-name "switch to real database",
+   :tags #{"shopapp"},
+   :priority 1},
+  "50b99914-50bb-46b1-b31f-54275b143f49"
+  {:_id "50b99914-50bb-46b1-b31f-54275b143f49",
+   :entry-name "add error page",
+   :tags #{"shopapp"},
+   :priority 1},
+  "1e013277-80f0-44e5-a96d-f47587e26523"
+  {:_id "1e013277-80f0-44e5-a96d-f47587e26523",
+   :entry-name "service ATV",
+   :tags #{"ATV" "Verkstad" "Maskin"},
+   :priority 1},
+  "312a3ae5-74f2-445e-a154-20e48dfeabb3"
+  {:_id "312a3ae5-74f2-445e-a154-20e48dfeabb3",
+   :entry-name "gör pipe bender",
+   :tags #{"Trädgård" "Svets"},
+   :priority 1,
+   :finished "2017-04-03 19:40:08"},
+  "20889273-48ea-4348-997f-365a54ad59b9"
   {:_id "20889273-48ea-4348-997f-365a54ad59b9",
    :entry-name "Tak ovanför ingången kalle",
    :tags #{"Hus" "Svets"},
@@ -71,46 +135,75 @@
    :tags #{"Hus"},
    :priority 1,
    :finished "2017-03-30 14:48:49"},
-  "a7b5d593-178d-4adf-992b-f6af24471750"
-  {:_id "a7b5d593-178d-4adf-992b-f6af24471750",
-   :entry-name "bygg fågelholkar",
-   :tags #{"Trädgård" "Trä"},
-   :priority 2,
-   :finished "2017-04-03 19:39:52"},
-  "312a3ae5-74f2-445e-a154-20e48dfeabb3"
-  {:_id "312a3ae5-74f2-445e-a154-20e48dfeabb3",
-   :entry-name "gör pipe bender",
+  "8f4cf1f6-34ec-4444-8ac6-84895aa1db17"
+  {:_id "8f4cf1f6-34ec-4444-8ac6-84895aa1db17",
+   :entry-name "gör pipe bender again",
    :tags #{"Trädgård" "Svets"},
    :priority 1,
-   :finished "2017-04-03 19:40:08"},
+   :finished "2017-04-02 07:19:18"},
+  "10a080fe-571d-4f71-b4ba-fd9025bca513"
+  {:_id "10a080fe-571d-4f71-b4ba-fd9025bca513",
+   :entry-name "add view by tag in projects",
+   :tags #{"shopapp"},
+   :priority 1},
   "15be493e-3eb7-4f52-aa0d-4f20cc54ff7a"
   {:_id "15be493e-3eb7-4f52-aa0d-4f20cc54ff7a",
    :entry-name "gör pipe bender",
    :tags #{"Trädgård" "Svets"},
    :priority 1,
    :finished "2017-04-02 07:01:32"},
-  "8f4cf1f6-34ec-4444-8ac6-84895aa1db17"
-  {:_id "8f4cf1f6-34ec-4444-8ac6-84895aa1db17",
-   :entry-name "gör pipe bender again",
-   :tags #{"Trädgård" "Svets"},
-   :priority 1,
-   :finished "2017-04-02 07:19:18"}},
+  "a7b5d593-178d-4adf-992b-f6af24471750"
+  {:_id "a7b5d593-178d-4adf-992b-f6af24471750",
+   :entry-name "bygg fågelholkar",
+   :tags #{"Trädgård" "Trä"},
+   :priority 2,
+   :finished "2017-04-03 19:39:52"},
+  "df1b1aae-67e6-4a97-a105-b579c6fe2184"
+  {:_id "df1b1aae-67e6-4a97-a105-b579c6fe2184",
+   :entry-name "add error checking",
+   :tags #{"shopapp"},
+   :priority 1},
+  "eceb132a-fd41-4e22-adad-dc86ffc1fee4"
+  {:_id "eceb132a-fd41-4e22-adad-dc86ffc1fee4",
+   :entry-name "add error handling",
+   :tags #{"shopapp"},
+   :priority 1},
+  "512f65fb-cb41-4c7b-8b97-ef239bf8475a"
+  {:_id "512f65fb-cb41-4c7b-8b97-ef239bf8475a",
+   :entry-name "add security",
+   :tags #{"shopapp"},
+   :priority 2},
+  "7b0d8891-caeb-4c02-a2b8-b91a138425c7"
+  {:_id "7b0d8891-caeb-4c02-a2b8-b91a138425c7",
+   :entry-name "oljebyte subban",
+   :tags #{"Bil" "Verkstad"},
+   :priority 1}},
  :menu
  {:_id "b1151434-683a-46f3-bf94-bd94e5484dcb",
   :entry-name "Veckomeny",
   :tags #{"Mat" "Middag" "Meny"},
   :created "2017-02-22 13:41",
   :items
-  {"2017-04-02" {:text "rester"},
+  {"2017-04-09" {:text ""},
+   "2017-04-13" {:text ""},
+   "2017-04-07" {:text "grilla kyckling sallad"},
+   "2017-04-02" {:text "rester"},
+   "2017-04-05" {:text "snitzel grönisar potatis"},
+   "2017-04-12" {:text ""},
+   "2017-04-06"
+   {:text "köttfärslimpa med ägg och bacon potatis grönisar"},
+   "2017-04-11" {:text ""},
    "2017-03-31" {:text "sprit"},
+   "2017-04-10" {:text ""},
    "2017-03-27" {:text "Tacos, sallad"},
    "2017-04-01" {:text "sushi"},
    "2017-03-29"
    {:text "spagetti och köttfärssås",
     :recipe "150f34dd-98c6-4c7f-80c5-6a0a4f91127c"},
+   "2017-04-14" {:text ""},
    "2017-03-30"
-   {:recipe "150f34dd-98c6-4c7f-80c5-6a0a4f91127c",
-    :text "köttsoppa"}}},
+   {:recipe "150f34dd-98c6-4c7f-80c5-6a0a4f91127c", :text "köttsoppa"},
+   "2017-04-08" {:text ""}}},
  :items
  {"3c38abf0-5225-47c1-a976-f644a23a1005"
   {:amount 1.5,

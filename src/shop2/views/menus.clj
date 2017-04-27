@@ -1,25 +1,27 @@
 (ns shop2.views.menus
-  	(:require 	[shop2.db                 :as db]
-            	[shop2.views.layout       :as layout]
-            	[shop2.views.common       :as common]
-          		[garden.core       :as g]
-            	[garden.units      :as u]
-            	[garden.selectors  :as sel]
-            	[garden.stylesheet :as stylesheet]
-            	[garden.color      :as color]
-            	[clj-time.core            :as t]
-            	[clj-time.local           :as l]
-            	[clj-time.format          :as f]
-            	[clj-time.periodic        :as p]
-            	[hiccup.core              :as h]
-            	[hiccup.def               :as hd]
-            	[hiccup.element           :as he]
-            	[hiccup.form              :as hf]
-            	[hiccup.page              :as hp]
-            	[hiccup.util              :as hu]
-            	[ring.util.anti-forgery   :as ruaf]
-            	[clojure.string           :as str]
-            	[clojure.set              :as set]))
+  	(:require 	(shop2 			[db         :as db]
+  								[utils		:as utils])
+            	(shop2.views 	[layout     :as layout]
+            					[common     :as common])
+          		(garden 		[core       :as g]
+            					[units      :as u]
+            					[selectors  :as sel]
+            					[stylesheet :as ss]
+            					[color      :as color])
+            	(clj-time 		[core       :as t]
+            					[local      :as l]
+            					[format     :as f]
+            					[coerce 	:as c]
+            					[periodic   :as p])
+            	(hiccup 		[core       :as h]
+            					[def        :as hd]
+            					[element    :as he]
+            					[form       :as hf]
+            					[page       :as hp]
+            					[util       :as hu])
+            	[ring.util.anti-forgery     :as ruaf]
+            	(clojure 		[string     :as str]
+            					[set        :as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -50,6 +52,7 @@
 		[:.menu-text {
 			:width (u/percent 95)
 			:background (layout/grey% 80)
+			:font-size (u/px 24)
 		}]
 		[:.menu-text-old {
 		}]
@@ -58,40 +61,65 @@
 		}]))
 
 
+;;-----------------------------------------------------------------------------
+
 (def delta-days 10)
 
-(defn before-range
+(defn before-from
 	[]
-	(common/time-range (t/minus (l/local-now) (t/days delta-days))
-	        		   (t/minus (l/local-now) (t/days 1))
-	        		   (t/days 1)))
+	(c/to-date (t/minus (c/from-date (utils/today)) (t/days delta-days))))
+
+(defn before-to
+	[]
+	(c/to-date (t/minus (c/from-date (utils/today)) (t/days 1))))
+
+(defn after-from
+	[]
+	(utils/today))
+
+(defn after-to
+	[]
+	(c/to-date (t/plus (c/from-date (utils/today)) (t/days delta-days))))
 
 (defn after-range
 	[]
-	(common/time-range (l/local-now)
-	        		   (t/plus (l/local-now) (t/days delta-days))
-	        		   (t/days 1)))
+	(utils/time-range (l/local-now)
+        		       (t/plus (l/local-now) (t/days delta-days))
+        		       (t/days 1)))
 
 (defn mk-recipe-link
-	[menu r-link? dt]
-	(let [recipe-id (get-in menu [:items (common/menu-date-key dt) :recipe])]
+	[menu r-link?]
+	(let [recipe-id (:recipe menu)]
 		(if recipe-id
 			[:a.link-thin {:href (str "/recipe/" recipe-id)} "Recept"]
 			(when r-link?
-				[:a.link-thin {:href (str "/choose-recipe/" (common/menu-date-key dt))} "+"]))))
+				[:a.link-thin {:href (str "/choose-recipe/" (utils/menu-date-key menu))} "+"]))))
 
 (defn mk-menu-row
-	[menu r-link? dt]
+	[menu r-link?]
 	; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
-	(let [date-id (when (common/is-today? dt) "today")]
+	(let [date-id (when (utils/is-today? (:date menu)) "today")]
 		[:tr
-			[:td.menu-date-td (hf/label {:id date-id :class "menu-date"} :dummy (common/menu-date-show dt))]
+			[:td.menu-date-td
+				(hf/label {:id date-id :class "menu-date"} :x
+						  (utils/menu-date-show menu))]
 			(if r-link?
-				[:td.menu-text-td (hf/text-field {:class "menu-text"} (common/menu-date-key dt)
-								(get-in menu [:items (common/menu-date-key dt) :text]))]
-				[:td.menu-text-td (hf/label {:class "menu-text-old"} :dummy
-								(get-in menu [:items (common/menu-date-key dt) :text]))])
-			[:td.menu-link-td (mk-recipe-link menu r-link? dt)]]))
+				[:td.menu-text-td
+					(hf/text-field {:class "menu-text"}
+								   (utils/menu-date-key menu)
+								   (:text menu))]
+				[:td.menu-text-td
+					(hf/label {:class "menu-text-old"} :x
+								(:text menu))])
+			[:td.menu-link-td (mk-recipe-link menu r-link?)]]))
+
+(defn mk-menu-rows
+	[menu-part]
+	(let [range-start (if (= menu-part :old) (before-from) (utils/today))
+		  range-end   (if (= menu-part :old) (utils/yesterday) (after-to))
+		  menus       (db/get-menus range-start range-end)]
+		(for [day (utils/time-range range-start range-end ())]
+			)))
 
 (defn show-menu-page
     []
@@ -104,8 +132,9 @@
         			[:td.menu-head-td [:a.link-head {:href "/"} "Home"]]
         			[:td.menu-head-td (hf/submit-button {:class "button button1"} "Updatera!")]]]
 	        [:table.menu-table
-	        	(map #(mk-menu-row (db/get-menu) false %) (before-range))
-	        	(map #(mk-menu-row (db/get-menu) true %) (after-range))])))
+	        	(mk-menu-rows :old)
+	        	(map #(mk-menu-row % false) (db/get-menus (before-from) (utils/yesterday)))
+	        	(map #(mk-menu-row % true)  (db/get-menus (utils/today) (after-to)))])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -113,18 +142,28 @@
 	[{params :params}]
 	(doseq [dt (after-range)
 			:let [dk (common/menu-date-key dt)]
-			:when (some? (get params dk))]
+			:when (seq (get params dk))]
 		(db/update-menu dk :text (get params dk))))
+
+;;-----------------------------------------------------------------------------
 
 (defn add-recipe-to-menu
 	[recipe-id menu-date]
-	(db/update-menu menu-date :recipe recipe-id))
+	(db/add-recipe-to-menu menu-date recipe-id))
+
+;;-----------------------------------------------------------------------------
 
 (defn choose-recipe
 	[menu-date]
 	(layout/common "Välj recept" [css-menus]
 		[:table
 			[:tr [:th [:a {:href "/menu"} "Cancel"]]]
-			(map (fn [r] [:tr [:td [:a {:href (str "/add-recipe-to-menu/" (:_id r) "/" menu-date)}
-										(:entry-name r)]]]) (db/get-recipes))]))
+			(map (fn [r]
+				[:tr
+					[:td
+						[:a {:href (str "/add-recipe-to-menu/" (:_id r) "/" menu-date)}
+							(:entryname r)]]])
+				(db/get-recipes))]))
+
+;;-----------------------------------------------------------------------------
 

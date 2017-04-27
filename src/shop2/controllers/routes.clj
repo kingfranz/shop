@@ -12,7 +12,6 @@
               [shop2.db           :as db]))
 
 (cc/defroutes routes
-	(db/load-db)
 	(cc/GET "/" []
 	    (home/home-page))
 
@@ -46,16 +45,16 @@
 		(ring/redirect "/projects"))
 
 	(cc/GET "/add-items/:id" [id]
-	    (items/add-items-page (db/get-list id)))
+	    (items/add-items-page id))
 	(cc/GET "/add-to-list/:lid/:iid" [lid iid]
-	    (items/add-item-page lid iid))
+	    (ring/redirect (str "/add-items/" (items/add-item-page lid iid))))
 	(cc/POST "/new-item" request
-		(items/new-item! request))
+	    (ring/redirect (str "/add-items/" (items/new-item! request))))
 
 	(cc/GET "/new-list" []
 	    (lists/new-list-page))
 	(cc/POST "/new-list" request
 		(lists/added-list! request)
-		(ring/redirect "/new-list"))
+		(ring/redirect "/"))
 	(cc/GET "/list/:id" [id]
 		(lists/show-list-page id)))

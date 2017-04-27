@@ -98,6 +98,7 @@
 			:height layout/full
 			:border [[(u/px 1) :solid :grey]]}]))
 
+;;-----------------------------------------------------------------------------
 
 (defn mk-tag
 	[s i]
@@ -143,7 +144,7 @@
 	        [:table
 	        	[:tr
 	        		[:td.rec-title-txt-td (hf/text-field {:class "rec-title-txt"}
-	        			:recipe-name (:entry-name recipe))]]
+	        			:recipe-name (:entryname recipe))]]
 	        	[:tr [:td.btn-spacer ""]]]
 	        [:table.recipe-table
 	        	[:tr [:th "Ingrediens"] [:th "Enhet"] [:th "Mängd"]]
@@ -163,20 +164,26 @@
 	        			 			   :recipe-area
 	        			 			   (:text recipe))])))
 
+;;-----------------------------------------------------------------------------
+
 (defn edit-recipe
     [recipe-id]
 	(show-recipe-page (db/get-recipe recipe-id)))
+
+;;-----------------------------------------------------------------------------
 
 (defn new-recipe
     []
 	(show-recipe-page {
 		:tags #{"Recept"},
    		:_id (db/mk-id),
-   		:entry-name "",
+   		:entryname "",
    		:added (common/now-str),
    		:url "",
    		:items [],
    		:text ""}))
+
+;;-----------------------------------------------------------------------------
 
 (defn get-r-item
 	[params i]
@@ -193,7 +200,7 @@
 	[{params :params}]
 	(db/update-recipe {:_id   (:recipe-id params)
 					   :url   (:recipe-url params)
-					   :entry-name (:recipe-name params)
+					   :entryname (:recipe-name params)
 					   :text  (:recipe-area params)
 					   :items (get-r-items params)})
 	(:recipe-id params))

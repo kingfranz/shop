@@ -1,12 +1,11 @@
 (ns shop2.views.layout
-  	(:require 	[hiccup.core 	   :as hc]
-          		[hiccup.page 	   :as hp]
-          		[garden.core       :as g]
-            	[garden.units      :as u]
-            	[garden.selectors  :as sel]
-            	[garden.stylesheet :as stylesheet]
-            	[garden.color      :as color]
-            	))
+  	(:require 	(hiccup [core 	   :as hc]
+          				[page 	   :as hp])
+          		(garden [core       :as g]
+            			[units      :as u]
+            			[selectors  :as sel]
+            			[stylesheet :as ss]
+            			[color      :as color])))
 
 (def line-size (u/px 24))
 (def transparent (color/rgba 200 200 200 0))
@@ -45,6 +44,10 @@
 		 :a.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
 		[:a.link-head:hover
 		 :a.link-head:active {:background-color :green}]
+		[:a.link-home:link
+		 :a.link-home:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/percent 90))]
+		[:a.link-home:hover
+		 :a.link-home:active {:background-color :green}]
 		[:.button (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
 		[:.button:hover {:background-color :green}]
     		))
@@ -63,8 +66,12 @@
 	        ;:-webkit-text-size-adjust :none
 			}]
 		[:.app-div {
-			:width (u/px 800)
-			:height (u/px 1080)}]
+			:width  full
+			:height (u/px 1080)}
+			(ss/at-media {:screen true :min-width (u/px 480)}
+				[:& {
+					:width  (u/px 1080)
+					:height (u/px 1080)}])]
 		[:.master-table {
 			:width full}]))
 
