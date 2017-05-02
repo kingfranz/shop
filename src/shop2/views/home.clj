@@ -1,5 +1,6 @@
 (ns shop2.views.home
-  	(:require 	(shop2 		 [db                 :as db])
+  	(:require 	(shop2 		 [db           :as db]
+  							 [utils        :as utils])
             	(shop2.views [layout       :as layout]
             				 [common       :as common])
             	(clj-time 	 [core            :as t]
@@ -116,17 +117,13 @@
 	[menu]
 	; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
 	[:tr
-		[:td.home-margin.r-align.date-col (utils/menu-date-short (:date menu))]
-		[:td [:div.menu-txt (hf/label {:class "home-margin"} :x (:text menu))]]])
-
-(defn today+10
-	[]
-	(c/to-date (t/plus (c/from-date (common/today)) (t/days 10))))
+		[:td.home-margin.r-align.date-col (utils/menu-date-short menu)]
+		[:td [:div.menu-txt (hf/label {:class "home-margin"} :x (:entryname menu))]]])
 
 (defn menu-list
 	[]
 	[:table
-		(map mk-menu-row (db/get-menus (common/today) (today+10)))])
+		(map mk-menu-row (db/get-menus (utils/today) (utils/new-menu-end)))])
 
 (defn mk-proj-row
 	[r]
@@ -156,6 +153,26 @@
 					              (:entryname r)]]])
 			(take 10 (db/get-recipes)))])
 
+(defn item-list
+	[]
+	[:table
+		(map (fn [i]
+			[:tr
+				[:td.home-margin
+					[:a.link-thin {:href (str "/item/" (:_id i))}
+					              (:entryname i)]]])
+			(db/get-items))])
+
+(defn tags-list
+	[]
+	[:table
+		(map (fn [t]
+			[:tr
+				[:td.home-margin
+					[:a.link-thin {:href (str "/tag/" (:_id t))}
+					              (:entryname t)]]])
+			(db/get-tags))])
+
 (defn home-page
 	[]
 	(layout/common "Shopping" [css-home-header css-home-tree css-home-misc]
@@ -172,6 +189,12 @@
 	  		[:tr
 	  			[:td.tree-top [:div.home-box (projekt-list)]]
 	  			[:td.tree-top [:div.home-box (recipe-list)]]]
+	  		[:tr
+	  			[:th.home-header [:a.link-home {:href "/projects"} "Saker"]]
+	  			[:th.home-header [:a.link-home {:href "/new-recipe"} "Kategorier"]]]
+	  		[:tr
+	  			[:td.tree-top [:div.home-box (item-list)]]
+	  			[:td.tree-top [:div.home-box (tags-list)]]]
 	  	]))
 
 ;;-----------------------------------------------------------------------------

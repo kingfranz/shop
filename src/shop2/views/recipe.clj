@@ -1,25 +1,27 @@
 (ns shop2.views.recipe
-  	(:require 	[shop2.db                 :as db]
-            	[shop2.views.layout       :as layout]
-            	[shop2.views.common       :as common]
-            	[clj-time.core            :as t]
-            	[clj-time.local           :as l]
-            	[clj-time.format          :as f]
-            	[clj-time.periodic        :as p]
-            	[garden.core       :as g]
-            	[garden.units      :as u]
-            	[garden.selectors  :as sel]
-            	[garden.stylesheet :as stylesheet]
-            	[garden.color      :as color]
-            	[hiccup.core              :as h]
-            	[hiccup.def               :as hd]
-            	[hiccup.element           :as he]
-            	[hiccup.form              :as hf]
-            	[hiccup.page              :as hp]
-            	[hiccup.util              :as hu]
-            	[ring.util.anti-forgery   :as ruaf]
-            	[clojure.string           :as str]
-            	[clojure.set              :as set]))
+  	(:require 	(shop2 			[db         :as db]
+  								[utils      :as utils])
+            	(shop2.views 	[layout     :as layout]
+            					[common     :as common])
+          		(garden 		[core       :as g]
+            					[units      :as u]
+            					[selectors  :as sel]
+            					[stylesheet :as ss]
+            					[color      :as color])
+            	(clj-time 		[core       :as t]
+            					[local      :as l]
+            					[format     :as f]
+            					[coerce 	:as c]
+            					[periodic   :as p])
+            	(hiccup 		[core       :as h]
+            					[def        :as hd]
+            					[element    :as he]
+            					[form       :as hf]
+            					[page       :as hp]
+            					[util       :as hu])
+            	[ring.util.anti-forgery     :as ruaf]
+            	(clojure 		[string     :as str]
+            					[set        :as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -33,7 +35,7 @@
 			:height (u/px 25)
 		}]
 		[:.rec-title-txt-td {
-			:width (u/px 800)
+			:width layout/full
 			:text-align :center
 			:border [[(u/px 1) :solid :grey]]
 		}]
@@ -69,6 +71,9 @@
 			:border-collapse :collapse
 			:padding 0
 		}]
+		[:.recipe-table {
+			:border-collapse :collapse
+		}]
 		[:.recipe-url-table {
 			:width layout/full
 			:height (u/px 48)
@@ -90,7 +95,7 @@
 			:vertical-align :center
 		}]
 		[:.rec-area-div {
-			:width (u/px 800)
+			:width layout/full
 			:height (u/px 300)
 		}]
 		[:.recipe-area {
@@ -131,17 +136,19 @@
     [recipe]
 	(layout/common "Recept" [css-recipe]
         (hf/form-to {:enctype "multipart/form-data"}
-    		[:post "/update-recipe"]
+    		[:post (if (nil? recipe) "/create-recipe" "/update-recipe")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
         	(hf/hidden-field :num-items (+ (count (:items recipe)) 10))
         	[:table.master-table
         		[:tr
         			[:td.rec-buttons-td [:a.button.button1 {:href "/"} "Home"]]
-        			[:td.rec-buttons-td (hf/submit-button {:class "button button1"} "Updatera!")]
-	        		[:td.rec-buttons-td (hf/reset-button {:class "button button1"} "Ta bort!")]]
+        			[:td.rec-buttons-td
+        				(hf/submit-button {:class "button button1"}
+        					(if (nil? recipe) "Skapa" "Updatera!"))]]
 	        	[:tr [:td.btn-spacer ""]]]
 	        [:table
+	        	[:tr [:th "Namn"]]
 	        	[:tr
 	        		[:td.rec-title-txt-td (hf/text-field {:class "rec-title-txt"}
 	        			:recipe-name (:entryname recipe))]]
@@ -170,27 +177,29 @@
     [recipe-id]
 	(show-recipe-page (db/get-recipe recipe-id)))
 
-;;-----------------------------------------------------------------------------
-
 (defn new-recipe
     []
-	(show-recipe-page {
-		:tags #{"Recept"},
-   		:_id (db/mk-id),
-   		:entryname "",
-   		:added (common/now-str),
-   		:url "",
-   		:items [],
-   		:text ""}))
+	(show-recipe-page nil))
 
 ;;-----------------------------------------------------------------------------
+
+(defn assoc-if
+	([k v]
+	(if (or (nil? v) (and (string? v) (str/blank? v)))
+		{}
+		(hash-map k v)))
+	([k v m]
+	(if (or (nil? v) (and (string? v) (str/blank? v)))
+		m
+		(assoc m k v))))
 
 (defn get-r-item
 	[params i]
-	(when (some? (get params (mk-tag "recipe-item-name-" i)))
-		{:text   (get params (mk-tag "recipe-item-name-" i))
-		 :unit   (get params (mk-tag "recipe-item-unit-" i))
-		 :amount (get params (mk-tag "recipe-item-amount-" i))}))
+	(let [item (->> (assoc-if :text   (get params (mk-tag "recipe-item-name-" i)))
+		            (assoc-if :unit   (get params (mk-tag "recipe-item-unit-" i)))
+		            (assoc-if :amount (get params (mk-tag "recipe-item-amount-" i))))]
+		(when-not (empty? item)
+			item)))
 
 (defn get-r-items
 	[params]
@@ -198,11 +207,19 @@
 
 (defn update-recipe!
 	[{params :params}]
-	(db/update-recipe {:_id   (:recipe-id params)
-					   :url   (:recipe-url params)
-					   :entryname (:recipe-name params)
-					   :text  (:recipe-area params)
-					   :items (get-r-items params)})
+	(db/update-recipe (->> (assoc-if :_id (:recipe-id params))
+						   (assoc-if :url (:recipe-url params))
+						   (assoc-if :entryname (:recipe-name params))
+						   (assoc-if :text  (:recipe-area params))
+						   (assoc-if :items (get-r-items params))))
 	(:recipe-id params))
+
+(defn create-recipe!
+	[{params :params}]
+	(let [ret (db/add-recipe (->> (assoc-if :url (:recipe-url params))
+								  (assoc-if :entryname (:recipe-name params))
+								  (assoc-if :text  (:recipe-area params))
+								  (assoc-if :items (get-r-items params))))]
+		(:_id ret)))
 
 ;;-----------------------------------------------------------------------------

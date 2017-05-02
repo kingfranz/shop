@@ -5,6 +5,8 @@
             	[shop2.db                 :as db]
             	[shop2.controllers.routes :as sr]
             	[shop2.views.layout       :as layout]
+            	(taoensso 	[timbre   :as log])
+            	[taoensso.timbre.appenders.core :as appenders]
             	[ring.middleware.defaults :as rmd]
             	[ring.middleware.reload   :as rmr]
             	[ring.middleware.stacktrace :as rmst]
@@ -26,7 +28,10 @@
 
 (defn start
 	[port]
-  	(ring/run-jetty application {:port port
+  	(log/set-level! :trace)
+  	(log/merge-config!
+  		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
+	(ring/run-jetty application {:port port
                                  :join? false}))
 
 (defn -main []

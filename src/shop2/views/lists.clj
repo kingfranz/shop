@@ -16,7 +16,7 @@
             	[garden.core              :as g]
             	[garden.units             :as u]
             	[garden.selectors         :as sel]
-            	[garden.stylesheet        :as stylesheet]
+            	[garden.stylesheet        :as ss]
             	[garden.color             :as color]
             	[ring.util.anti-forgery   :as ruaf]
             	[clojure.string           :as str]
@@ -73,7 +73,8 @@
 			:color :white
 			:font-size (u/px 24)
 			:padding [[(u/px 20) 0 (u/px 10) 0]]
-		}]))
+		}]
+		[:.list-plus {:font-size (u/px 36)}]))
 
 (def css-lists-new
 	(g/css
@@ -106,7 +107,7 @@
 
 (defn new-list-page
     []
-    (layout/common "Skapa ny lista" [css-lists-new]
+    (layout/common "Skapa ny lista" [css-lists-new common/css-tags-tbl]
         (hf/form-to {:enctype "multipart/form-data"}
         	[:post "/new-list"]
         	(ruaf/anti-forgery-field)
@@ -167,25 +168,26 @@
 		(:entryname item)))
 
 (defn mk-item-a
-	[a-list item s]
+	[a-list item active? text]
 	[:a.item-text
-		{:href (str "/item-undone/" (:_id a-list) "/" (:_id item))} s])
+		{:href (str (if active? "/item-done/" "/item-undo/") (:_id a-list) "/" (:_id item))}
+		text])
 
 (defn mk-item-row*
-	[a-list item]
+	[a-list item active?]
 	(list
-		[:td.item-text-td (mk-item-a a-list item (mk-name item))]
-		[:td.item-menu-td (mk-item-a a-list item (get-in item [:menu :text]))]))
+		[:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
+		[:td.item-menu-td (mk-item-a a-list item active? (get-in item [:menu :entryname]))]))
 
 (defn mk-item-row
 	[a-list active? item]
-	(if (= active? :active)
-		[:tr.item-text-tr      (mk-item-row* a-list item)]
-		[:tr.item-text-tr.done (mk-item-row* a-list item)]))
+	(if active?
+		[:tr.item-text-tr      (mk-item-row* a-list item active?)]
+		[:tr.item-text-tr.done (mk-item-row* a-list item active?)]))
 
 (defn mk-items
-	[a-list filter-type]
-	(let [filter-func   (if (= filter-type :active)
+	[a-list row-type]
+	(let [filter-func   (if (= row-type :active)
 		                    (fn [i] (nil? (:finished i)))
 		                    (fn [i] (some? (:finished i))))
 		  item-list     (filter filter-func (:items a-list))
@@ -197,7 +199,7 @@
     		(list
     			(->> tags common/frmt-tags mk-tags-row)
 	    		(for [item items]
-	    			(mk-item-row a-list filter-type item))))))
+	    			(mk-item-row a-list (= row-type :active) item))))))
 	
 (defn mk-list-tbl
 	[a-list]
@@ -207,7 +209,8 @@
     		[:th.list-name-th
     			(hf/label {:class "list-name"} :xxx (:entryname a-list))]
     		[:th.list-add-th
-    			[:a.list-add {:href (str "/add-items/" (:_id a-list))} "+"]]]
+    			[:a.list-add {:href (str "/add-items/" (:_id a-list))}
+    				(hf/label {:class "list-plus"} :x "+")]]]
     	; rows with not-done items
     	(mk-items a-list :active)
     	[:tr [:td.done-td {:colspan "2"} "Avklarade"]]
@@ -216,14 +219,25 @@
 
 (defn show-list-page
     [list-id]
-    (let [a-list (db/get-list list-id)]
-    	(layout/common (:entryname a-list) [css-lists]
-	    	[:h3 [:a.link-head {:href "/"} "Home"]]
-	        (loop [list-id  list-id
-				   acc      []]
-				(if-let [slist a-list]
-					(recur (:parent slist)
-						   (conj acc (mk-list-tbl slist)))
-					(seq acc))))))
+	(layout/common (:entryname (db/get-list list-id)) [css-lists]
+    	[:h3 [:a.link-head {:href "/"} "Home"]]
+        (loop [listid  list-id
+			   acc     []]
+			(if (some? listid)
+				(let [slist (db/get-list listid)]
+					(recur (:parent slist) (conj acc (mk-list-tbl slist))))
+				(seq acc)))))
 
-;;-----------------------------------------------------------------------.done-td
+;;-----------------------------------------------------------------------
+
+(defn item-done
+	[list-id item-id]
+	(db/finish-list-item list-id item-id)
+	list-id)
+
+(defn item-undo
+	[list-id item-id]
+	(db/unfinish-list-item list-id item-id)
+	list-id)
+
+

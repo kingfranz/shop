@@ -30,7 +30,9 @@
 	(cc/GET "/new-recipe" []
 	    (recipe/new-recipe))
 	(cc/POST "/update-recipe" request
-		(ring/redirect (str "/menu/" (recipe/update-recipe! request))))
+		(ring/redirect (str "/recipe/" (recipe/update-recipe! request))))
+	(cc/POST "/create-recipe" request
+		(ring/redirect (str "/recipe/" (recipe/create-recipe! request))))
 
 	(cc/GET "/projects" []
 	    (projects/show-projects-page))
@@ -50,6 +52,13 @@
 	    (ring/redirect (str "/add-items/" (items/add-item-page lid iid))))
 	(cc/POST "/new-item" request
 	    (ring/redirect (str "/add-items/" (items/new-item! request))))
+	(cc/GET "/item/:id" [id]
+	    (items/edit-item-page id))
+	(cc/GET "/delete-item/:id" [id]
+	    (items/delete-item id)
+	    (ring/redirect "/"))
+	(cc/POST "/update-item" request
+	    (items/update-item request))
 
 	(cc/GET "/new-list" []
 	    (lists/new-list-page))
@@ -57,4 +66,9 @@
 		(lists/added-list! request)
 		(ring/redirect "/"))
 	(cc/GET "/list/:id" [id]
-		(lists/show-list-page id)))
+		(lists/show-list-page id))
+	(cc/GET "/item-done/:listid/:itemid" [listid itemid]
+		(ring/redirect (str "/list/" (lists/item-done listid itemid))))
+	(cc/GET "/item-undo/:listid/:itemid" [listid itemid]
+		(ring/redirect (str "/list/" (lists/item-undo listid itemid))))
+	)

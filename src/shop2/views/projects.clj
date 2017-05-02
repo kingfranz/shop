@@ -119,7 +119,7 @@
 				(:entryname proj))]
 			[:td.proj-tags-td (hf/text-field {:class "proj-tags-val"}
 				(mk-tag tags-name id)
-				(str/join ", " (:tags proj)))]]))
+				(str/join ", " (map :entryname (:tags proj))))]]))
 
 (defn mk-finished-row
 	[proj]
@@ -127,7 +127,9 @@
 		[:td
 			[:a.finished-proj
 				{:href (str "/unfinish-project/" (:_id proj))}
-				(str (:priority proj) " " (:entryname proj) " " (:tags proj))]]])
+				(str (:priority proj) " " 
+					 (:entryname proj) " " 
+					 "[" (str/join ", " (map :entryname (:tags proj))) "]" )]]])
 
 (defn finished?
 	[p]
@@ -180,30 +182,38 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn lspy
+	[l]
+	(prn "lspy:" (type l))
+	(doseq [e l] (prn "lspy:" e))
+	l)
+
 (defn mk-proj-tags
 	[params pkey]
-	(some-> params
+	(map #(db/add-tag %)
+		(some-> params
 		    (get (mk-tag tags-name pkey))
 		    (str/replace "\"" "")
 		    (str/split #"(,| )+")
-			set))
+			set)))
 
 (defn update-projects!
 	[{params :params}]
 	(doseq [pkey (str/split (:proj-keys params) #"@")
-			:when (and (seq (get params (mk-tag txt-name pkey)))
-					   (seq (mk-proj-tags params pkey)))]
+		    :let [f-name (get params (mk-tag txt-name pkey))
+		          f-tags (mk-proj-tags params pkey)]
+			:when (and (seq f-name) (seq f-tags))]
 		(db/update-project {:_id        pkey
-					   	    :entryname (get params (mk-tag txt-name pkey))
-					   		:tags       (mk-proj-tags params pkey)
-					   		:priority   (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
+					   	    :entryname f-name
+					   		:tags      f-tags
+					   		:priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
 	(doseq [pkey (range num-new-proj)
-			:when (and (seq (get params (mk-tag txt-name pkey)))
-					   (seq (mk-proj-tags params pkey)))]
-		(db/add-project {:_id        (db/mk-id)
-					   	 :entryname (get params (mk-tag txt-name pkey))
-					   	 :tags       (mk-proj-tags params pkey)
-					   	 :priority   (Integer/valueOf (get params (mk-tag pri-name pkey)))})))
+		    :let [f-name (get params (mk-tag txt-name pkey))
+		          f-tags (mk-proj-tags params pkey)]
+			:when (and (seq f-name) (seq f-tags))]
+		(db/add-project {:entryname f-name
+					   	 :tags      f-tags
+					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))})))
 
 (defn unfinish-project
 	[id]

@@ -56,7 +56,7 @@
 	(g/css
 		[:html {
 			;:background (color/linear-gradient [(color/as-rgb 32) (color/as-rgb 64)])
-			:background "linear-gradient(rgb(32, 32, 32), rgb(64, 64, 64))"
+			:background (grey% 10)
 			:background-size :contain}]
 		[:body {
 			:font-family ["HelveticaNeue" "Helvetica Neue" "Helvetica" "Arial" "sans-serif"]

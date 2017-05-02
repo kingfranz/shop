@@ -1,12 +1,13 @@
 (ns shop2.views.common
   	(:require 	[shop2.db                 :as db]
             	[shop2.views.layout       :as layout]
-            	(clj-time 	[core            :as t]
-            				[local           :as l]
-            				[coerce          :as c]
-            				[format          :as f]
-            				[periodic        :as p])
-            	[garden.core              :as g]
+            	(clj-time 	[core         :as t]
+            				[local        :as l]
+            				[coerce       :as c]
+            				[format       :as f]
+            				[periodic     :as p])
+            	(taoensso 	[timbre       :as log])
+				[garden.core              :as g]
             	[garden.units             :as u]
             	[garden.selectors         :as sel]
             	[garden.stylesheet        :as stylesheet]
@@ -29,17 +30,23 @@
 		(conj l (get p t))
 		l))
 
+(def num-tags 4)
+
+(defn mk-new-tk
+	[idx]
+	(keyword (str "new-tag-" idx)))
+
 (defn extract-tags
 	[params]
-	(->> (db/get-tags)
-		 (map (fn [tn] (when (get params (keyword tn)) tn)))
-		 (get-tag params :new-tag-0)
-	     (get-tag params :new-tag-1)
-	     (get-tag params :new-tag-2)
-	     (remove nil?)
-	     set))
-
-(def num-tags 4)
+	(log/debug params)
+	(concat (for [db-tag (db/get-tags)
+		  		  :when (or (get params (keyword (:entryname db-tag)))
+		  		 	        (get params (:entryname db-tag)))]
+		  		db-tag)
+		    (for [idx (range num-tags)
+		  		  :let [tag-name (get params (mk-new-tk idx))]
+		  		  :when (not (str/blank? tag-name))]
+		  		(db/add-tag tag-name))))
 
 (def css-tags-tbl
 	(g/css
@@ -61,7 +68,7 @@
 			:text-align :right
 			:margin [[(u/px 5) (u/px 10) (u/px 5) 0]]
 		}]
-		[:.new-cb {
+		[:input.new-cb {
 			:margin [[0 (u/px 10) 0 0]]
 			:transform "scale(2)"
 		}]
@@ -89,7 +96,8 @@
 
 (defn filter-tags
 	[list-tags item-tags]
-	(let [tags-left (set/difference item-tags list-tags)]
+	(let [tags-left (set/difference (set (map :entryname item-tags))
+									(set (map :entryname list-tags)))]
 		(if (seq tags-left)
 			tags-left
 			#{"Allmänt"})))
@@ -98,7 +106,7 @@
 	[tname]
 	[:td.new-cb-td
 		(hf/label {:class "new-cb-n"} :xxx tname)
-		(hf/check-box {:id tname :class "new-cb"} tname)])
+		(hf/check-box {:id tname :class "new-cb"} (keyword tname))])
 
 (defn old-tags-tbl
 	[]
@@ -107,7 +115,7 @@
     		[:th.cat-choice-th {:colspan 4}
     			(hf/label {:class "cat-choice"} :xxx "Välj kategorier")]]
 	    (map (fn [r] [:tr r])
-        	(partition-all num-tags (map mk-tag-entry (db/get-tags))))])
+        	(partition-all num-tags (map mk-tag-entry (sort (db/get-tag-names)))))])
 
 (defn new-tags-tbl
 	[]
@@ -118,4 +126,4 @@
 	    [:tr
 	    	(for [i (range num-tags)]
 	    		[:td.new-tag-txt-td
-	    			(hf/text-field {:class "new-tag-txt"} (str "new-tag-" i))])]])
+	    			(hf/text-field {:class "new-name"} (mk-new-tk i))])]])

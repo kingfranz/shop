@@ -21,6 +21,7 @@
             					[util       :as hu])
             	[ring.util.anti-forgery     :as ruaf]
             	(clojure 		[string     :as str]
+            					[pprint 	:as pp]
             					[set        :as set])))
 
 ;;-----------------------------------------------------------------------------
@@ -63,37 +64,16 @@
 
 ;;-----------------------------------------------------------------------------
 
-(def delta-days 10)
-
-(defn before-from
-	[]
-	(c/to-date (t/minus (c/from-date (utils/today)) (t/days delta-days))))
-
-(defn before-to
-	[]
-	(c/to-date (t/minus (c/from-date (utils/today)) (t/days 1))))
-
-(defn after-from
-	[]
-	(utils/today))
-
-(defn after-to
-	[]
-	(c/to-date (t/plus (c/from-date (utils/today)) (t/days delta-days))))
-
-(defn after-range
-	[]
-	(utils/time-range (l/local-now)
-        		       (t/plus (l/local-now) (t/days delta-days))
-        		       (t/days 1)))
+(defn mk-mtag
+	[s dt]
+	(keyword (str s "-" (utils/menu-date-key dt))))
 
 (defn mk-recipe-link
 	[menu r-link?]
-	(let [recipe-id (:recipe menu)]
-		(if recipe-id
-			[:a.link-thin {:href (str "/recipe/" recipe-id)} "Recept"]
-			(when r-link?
-				[:a.link-thin {:href (str "/choose-recipe/" (utils/menu-date-key menu))} "+"]))))
+	(if (:recipe menu)
+		[:a.link-thin {:href (str "/recipe/" (:_id (:recipe menu)))} (:entryname (:recipe menu))]
+		(when r-link?
+			[:a.link-thin {:href (str "/choose-recipe/" (utils/menu-date-key (:date menu)))} "+"])))
 
 (defn mk-menu-row
 	[menu r-link?]
@@ -105,21 +85,14 @@
 						  (utils/menu-date-show menu))]
 			(if r-link?
 				[:td.menu-text-td
+					(hf/hidden-field (mk-mtag "id" (:date menu)) (:_id menu))
 					(hf/text-field {:class "menu-text"}
-								   (utils/menu-date-key menu)
-								   (:text menu))]
+								   (mk-mtag "txt" (:date menu))
+								   (:entryname menu))]
 				[:td.menu-text-td
 					(hf/label {:class "menu-text-old"} :x
-								(:text menu))])
+							  (:entryname menu))])
 			[:td.menu-link-td (mk-recipe-link menu r-link?)]]))
-
-(defn mk-menu-rows
-	[menu-part]
-	(let [range-start (if (= menu-part :old) (before-from) (utils/today))
-		  range-end   (if (= menu-part :old) (utils/yesterday) (after-to))
-		  menus       (db/get-menus range-start range-end)]
-		(for [day (utils/time-range range-start range-end ())]
-			)))
 
 (defn show-menu-page
     []
@@ -132,24 +105,29 @@
         			[:td.menu-head-td [:a.link-head {:href "/"} "Home"]]
         			[:td.menu-head-td (hf/submit-button {:class "button button1"} "Updatera!")]]]
 	        [:table.menu-table
-	        	(mk-menu-rows :old)
-	        	(map #(mk-menu-row % false) (db/get-menus (before-from) (utils/yesterday)))
-	        	(map #(mk-menu-row % true)  (db/get-menus (utils/today) (after-to)))])))
+	        	(map #(mk-menu-row % false) (db/get-menus (utils/old-menu-start) (utils/today)))
+	        	(map #(mk-menu-row % true)  (db/get-menus (utils/today) (utils/new-menu-end)))])))
 
 ;;-----------------------------------------------------------------------------
 
 (defn update-menu!
 	[{params :params}]
-	(doseq [dt (after-range)
-			:let [dk (common/menu-date-key dt)]
-			:when (seq (get params dk))]
-		(db/update-menu dk :text (get params dk))))
+	(let [db-menus (db/get-menus (utils/today) (utils/new-menu-end))]
+		(doseq [dt (utils/menu-new-range)
+				:let [id (get params (mk-mtag "id" dt))
+					  txt (get params (mk-mtag "txt" dt))
+					  db-menu (some #(when (= (:date %) dt) %) db-menus)]
+				:when (and (seq txt) (not= txt (:entryname db-menu)))]
+			;(println "update-menu!:" (mk-mtag "txt" dt) id txt db-menu)
+			(if (seq id)
+				(db/update-menu (merge db-menu {:entryname txt}))
+				(db/add-menu {:date dt :entryname txt})))))
 
 ;;-----------------------------------------------------------------------------
 
 (defn add-recipe-to-menu
 	[recipe-id menu-date]
-	(db/add-recipe-to-menu menu-date recipe-id))
+	(db/add-recipe-to-menu (f/parse menu-date) recipe-id))
 
 ;;-----------------------------------------------------------------------------
 
