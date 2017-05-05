@@ -17,9 +17,10 @@
             				[form              :as hf]
             				[page              :as hp]
             				[util              :as hu])
-            	[ring.util.anti-forgery   :as ruaf]
-            	[clojure.string           :as str]
-            	[clojure.set              :as set]))
+            	(ring.util 	[anti-forgery :as ruaf]
+            				[response     :as ring])
+              	(clojure 	[string           :as str]
+            				[set              :as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -213,12 +214,15 @@
 			:when (and (seq f-name) (seq f-tags))]
 		(db/add-project {:entryname f-name
 					   	 :tags      f-tags
-					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))})))
+					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
+	(ring/redirect "/projects"))
 
 (defn unfinish-project
 	[id]
-	(db/unfinish-project id))
+	(db/unfinish-project id)
+	(ring/redirect "/projects"))
 
 (defn finish-project
 	[id]
-	(db/finish-project id))
+	(db/finish-project id)
+	(ring/redirect "/projects"))

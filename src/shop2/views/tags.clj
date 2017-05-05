@@ -1,4 +1,4 @@
-(ns shop2.views.items
+(ns shop2.views.tags
   	(:require 	[shop2.db                   :as db]
             	(shop2.views 	[layout     :as layout]
             				 	[common     :as common]
@@ -131,40 +131,27 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn edit-item-page
-	[item-id]
-	(let [item (db/get-item item-id)]
-		(layout/common "Edit item" [css-items common/css-tags-tbl]
+(defn edit-tag-page
+	[tag-id]
+	(let [tag (db/get-tag tag-id)]
+		(layout/common "Edit tag" [css-tags common/css-tags-tbl]
 			(hf/form-to {:enctype "multipart/form-data"}
-	    		[:post "/update-item"]
+	    		[:post "/update-tag"]
 	        	(ruaf/anti-forgery-field)
-	        	(hf/hidden-field :_id (:_id item))
+	        	(hf/hidden-field :_id (:_id tag))
 	        	[:table.master-table
 		            [:tr
 		            	[:td.head-td
 	    					[:a.link-head {:href "/"} "Home"]]
 	    				[:td.head-td
-	    					[:a.link-head {:href (str "/delete-item/" item-id)} "Ta bort"]]
+	    					[:a.link-head {:href (str "/delete-tag/" tag-id)} "Ta bort"]]
 	    				[:td.head-td
 	    					[:a.link-head (hf/submit-button {:class "button button1"} "Uppdatera")]]]]
 		        [:table.master-table.group
 	    			[:tr
 	    				[:td (hf/label :xx "Namn")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :entryname (:entryname item))]]
-	        		[:tr
-	    				[:td (hf/label :xx "Enhet")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :unit (:unit item))]]
-	        		[:tr
-	    				[:td (hf/label :xx "Mängd")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :amount (:amount item))]]
-	        		[:tr
-	    				[:td (hf/label :xx "Pris")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :price (:price item))]]
-	        		[:tr
-	    				[:td (hf/label :xx "Kategorier")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :tags
-	    					(str/join ", " (map :entryname (:tags item))))]]]
-			    ))))
+	    				[:td (hf/text-field {:class "new-item-txt"}
+	    									:entryname (:entryname item))]]]))))
 
 (defn mk-num
 	[v t]
@@ -205,21 +192,17 @@
 																	set vec)))
 			)))))
 
-(defn update-item
+(defn update-tag
 	[{params :params}]
 	(let [input (parse-params params {
 					:_id       [:string :must]
-					:entryname [:string :must]
-					:unit      [:string]
-					:amount    [:pos-decimal]
-					:price     [:pos-decimal]
-					:tags      [:tag-list]})]
-		(db/update-item input)
-		(ring/redirect (str "/item/" (:_id input)))))
+					:entryname [:string :must]})]
+		(db/update-tag input)
+		(ring/redirect (str "/tag/" (:_id input)))))
 
-(defn delete-item
-	[item-id]
-	(db/delete-item item-id)
+(defn delete-tag
+	[tag-id]
+	(db/delete-tag tag-id)
 	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------

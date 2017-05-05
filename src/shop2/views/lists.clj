@@ -18,8 +18,9 @@
             	[garden.selectors         :as sel]
             	[garden.stylesheet        :as ss]
             	[garden.color             :as color]
-            	[ring.util.anti-forgery   :as ruaf]
-            	[clojure.string           :as str]
+            	(ring.util 		[anti-forgery :as ruaf]
+            					[response     :as ring])
+              	[clojure.string           :as str]
             	[clojure.set              :as set]))
 
 ;;-----------------------------------------------------------------------------
@@ -147,12 +148,11 @@
 			(db/add-list {:entryname listname
 						  :tags tags
 						  :parent parent})
-			(layout/common "That didn't work" [css-lists]
-				[:h3 "Failed to add list"]
-				[:h3 (str "Parent " (:list-parent params) (if parent " is OK" " is unknown"))]
-				[:h3 (str "Listname " (:new-list-name params) (if (seq listname) " is OK" " is unknown"))]
-				[:h3 (str "Tags " (prn-str tags) (if (seq tags) " is OK" " is unknown"))]
-				[:h1 "WTF!"]))))
+			(throw (Exception. (str "Failed to add list, "
+				"Parent " (:list-parent params) (if parent " is OK" " is unknown") ", "
+				"Listname " (:new-list-name params) (if (seq listname) " is OK" " is unknown") ", "
+				"Tags " (prn-str tags) (if (seq tags) " is OK" " is unknown"))))))
+	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------
 
@@ -233,11 +233,11 @@
 (defn item-done
 	[list-id item-id]
 	(db/finish-list-item list-id item-id)
-	list-id)
+	(ring/redirect (str "/list/" list-id)))
 
 (defn item-undo
 	[list-id item-id]
 	(db/unfinish-list-item list-id item-id)
-	list-id)
+	(ring/redirect (str "/list/" list-id)))
 
 

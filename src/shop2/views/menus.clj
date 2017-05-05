@@ -19,8 +19,9 @@
             					[form       :as hf]
             					[page       :as hp]
             					[util       :as hu])
-            	[ring.util.anti-forgery     :as ruaf]
-            	(clojure 		[string     :as str]
+            	(ring.util 		[anti-forgery :as ruaf]
+            					[response     :as ring])
+              	(clojure 		[string     :as str]
             					[pprint 	:as pp]
             					[set        :as set])))
 
@@ -59,7 +60,11 @@
 		}]
 		[:.menu-link-td {
 			:width (u/px 110)
-		}]))
+		}]
+		[:.menu-ad-td {
+			:width (u/px 30)
+		}]
+		))
 
 
 ;;-----------------------------------------------------------------------------
@@ -70,10 +75,17 @@
 
 (defn mk-recipe-link
 	[menu r-link?]
-	(if (:recipe menu)
-		[:a.link-thin {:href (str "/recipe/" (:_id (:recipe menu)))} (:entryname (:recipe menu))]
-		(when r-link?
-			[:a.link-thin {:href (str "/choose-recipe/" (utils/menu-date-key (:date menu)))} "+"])))
+	(when (:recipe menu)
+		[:a.link-thin {:href (str "/recipe/" (:_id (:recipe menu)))}
+					  (:entryname (:recipe menu))]))
+
+(defn mk-recipe-add-del
+	[menu r-link?]
+	(when r-link?
+		(if (:recipe menu)
+			[:a.link-thin {:href (str "/remove-recipe/" (utils/menu-date-key (:date menu)))} "-"]
+			[:a.link-thin {:href (str "/choose-recipe/" (utils/menu-date-key (:date menu)))} "+"]
+			)))
 
 (defn mk-menu-row
 	[menu r-link?]
@@ -92,7 +104,9 @@
 				[:td.menu-text-td
 					(hf/label {:class "menu-text-old"} :x
 							  (:entryname menu))])
-			[:td.menu-link-td (mk-recipe-link menu r-link?)]]))
+			[:td.menu-ad-td (mk-recipe-add-del menu r-link?)]
+			[:td.menu-link-td (mk-recipe-link menu r-link?)]
+			]))
 
 (defn show-menu-page
     []
@@ -121,25 +135,35 @@
 			;(println "update-menu!:" (mk-mtag "txt" dt) id txt db-menu)
 			(if (seq id)
 				(db/update-menu (merge db-menu {:entryname txt}))
-				(db/add-menu {:date dt :entryname txt})))))
+				(db/add-menu {:date dt :entryname txt}))))
+	(ring/redirect "/menu"))
 
 ;;-----------------------------------------------------------------------------
 
 (defn add-recipe-to-menu
 	[recipe-id menu-date]
-	(db/add-recipe-to-menu (f/parse menu-date) recipe-id))
+	(db/add-recipe-to-menu (f/parse menu-date) recipe-id)
+	(ring/redirect "/menu"))
+
+(defn remove-recipe-from-menu
+	[menu-date]
+	(db/remove-recipe-from-menu (f/parse menu-date))
+	(ring/redirect "/menu"))
 
 ;;-----------------------------------------------------------------------------
 
 (defn choose-recipe
 	[menu-date]
 	(layout/common "Välj recept" [css-menus]
-		[:table
-			[:tr [:th [:a {:href "/menu"} "Cancel"]]]
+		[:table.menu-table
+    		[:tr
+    			[:td.menu-head-td [:a.link-head {:href "/"} "Home"]]
+    			[:td.menu-head-td [:a.link-head {:href "/menu"} "Cancel"]]]]
+		[:table.menu-table
 			(map (fn [r]
 				[:tr
 					[:td
-						[:a {:href (str "/add-recipe-to-menu/" (:_id r) "/" menu-date)}
+						[:a.link-thin {:href (str "/add-recipe-to-menu/" (:_id r) "/" menu-date)}
 							(:entryname r)]]])
 				(db/get-recipes))]))
 

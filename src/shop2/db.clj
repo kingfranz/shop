@@ -31,6 +31,7 @@
 (defonce projects "projects")
 (defonce items    "items")
 (defonce tags     "tags")
+(defonce sessions "sessions")
 
 ;(let [admin-db   "admin"
 ;      u    "username"
@@ -290,6 +291,13 @@
 		(mc/update shopdb menus {:date menu-dt}
 			{$set {:recipe (select-keys recipe [:_id :entryname])}})))
 
+(defn remove-recipe-from-menu
+	[menu-dt]
+	{:pre [(q-valid? :shop/date menu-dt)]
+	 :post [(p-trace "remove-recipe-from-menu" %)]}
+	(log/trace "remove-recipe-from-menu: (mc/update shopdb menus {:date menu-dt} {$unset :recipe})")
+	(mc/update shopdb menus {:date menu-dt} {$unset {:recipe nil}}))
+
 ;;-----------------------------------------------------------------------------
 
 (defn finish-list-item
@@ -389,4 +397,18 @@
 	 :post [(p-trace "find-list-id" %) (q-valid? :shop/_id %)]}
 	(log/trace "find-list-id: (mc/find-one-as-map shopdb lists {:entryname " e-name "})")
 	(get (mc/find-one-as-map shopdb lists {:entryname e-name}) :_id))
+
+;;-----------------------------------------------------------------------------
+
+(defn save-session-data
+	[key data]
+	(mc/insert shopdb sessions (assoc {:_id key} :data data)))
+
+(defn read-session-data
+	[key]
+	(get (mc/find-one-as-map shopdb sessions {:_id key}) :data))
+
+(defn delete-session-data
+	[key]
+	(mc/remove-by-id shopdb sessions key))
 

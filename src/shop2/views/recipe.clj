@@ -19,8 +19,9 @@
             					[form       :as hf]
             					[page       :as hp]
             					[util       :as hu])
-            	[ring.util.anti-forgery     :as ruaf]
-            	(clojure 		[string     :as str]
+            	(ring.util 		[anti-forgery :as ruaf]
+            					[response     :as ring])
+              	(clojure 		[string     :as str]
             					[set        :as set])))
 
 ;;-----------------------------------------------------------------------------
@@ -212,7 +213,7 @@
 						   (assoc-if :entryname (:recipe-name params))
 						   (assoc-if :text  (:recipe-area params))
 						   (assoc-if :items (get-r-items params))))
-	(:recipe-id params))
+	(ring/redirect (str "/recipe/" (:recipe-id params))))
 
 (defn create-recipe!
 	[{params :params}]
@@ -220,6 +221,6 @@
 								  (assoc-if :entryname (:recipe-name params))
 								  (assoc-if :text  (:recipe-area params))
 								  (assoc-if :items (get-r-items params))))]
-		(:_id ret)))
+		(ring/redirect (str "/recipe/" (:_id ret)))))
 
 ;;-----------------------------------------------------------------------------

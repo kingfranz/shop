@@ -19,5 +19,9 @@
   :plugins [[lein-ring "0.11.0"]]
   :ring {:handler shop2.core/application
   		 :auto-reload? true
-         :auto-refresh? true}
+         :auto-refresh? true
+         :ssl? true
+         :ssl-port 9443
+         :keystore "./keystore"
+         :key-password "Benq.fp731"}
   :profiles {:dev {:uberjar {:aot :all}}})
