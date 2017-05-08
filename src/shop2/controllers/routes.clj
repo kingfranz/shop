@@ -6,6 +6,7 @@
               				[recipe   :as recipe]
               				[items    :as items]
               				[menus    :as menus]
+              				[tags     :as tags]
               				[lists    :as lists]
               				[projects :as projects])
               (shop2 		[db       :as db])))
@@ -66,4 +67,13 @@
 		(lists/item-done listid itemid))
 	(cc/GET "/item-undo/:listid/:itemid" [listid itemid]
 		(lists/item-undo listid itemid))
+
+	(cc/GET "/tag/:id" [id]
+	    (tags/edit-tag-page id))
+	(cc/GET "/delete-tag/:id" [id]
+	    (tags/delete-tag! id))
+	(cc/GET "/delete-tag-all/:id" [id]
+	    (tags/delete-tag-all! id))
+	(cc/POST "/update-tag" request
+		(tags/update-tag! request))
 	)

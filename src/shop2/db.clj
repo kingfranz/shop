@@ -32,13 +32,7 @@
 (defonce items    "items")
 (defonce tags     "tags")
 (defonce sessions "sessions")
-
-;(let [admin-db   "admin"
-;      u    "username"
-;      p    (.toCharArray "password")
-;      cred (mcr/create u admin-db p)
-;      host "127.0.0.1"]
-;  (mg/connect-with-credentials host cred))
+(defonce item-usage "item-usage")
 
 ;;-----------------------------------------------------------------------------
 
@@ -84,6 +78,46 @@
 	{:post [(p-trace "get-tags" %) (q-valid? :shop/tags %)]}
 	(log/trace "get-tags: (mc/find-maps shopdb tags)")
 	(mc/find-maps shopdb tags))
+
+(defn get-tag
+	[id]
+	{:pre [(q-valid? :shop/_id id)]
+	 :post [(p-trace "get-tag" %) (q-valid? :shop/tag %)]}
+	(log/trace "get-tag: (mc/find-mapmap-by-id shopdb tags " id ")")
+	(mc/find-map-by-id shopdb tags id))
+
+(defn delete-tag
+	[id]
+	{:pre [(q-valid? :shop/_id id)]}
+	(log/trace "delete-tag: (mc/remove-by-id shopdb tags " id ")")
+	(mc/remove-by-id shopdb tags id))
+
+(defn delete-tag-all
+	[id]
+	{:pre [(q-valid? :shop/_id id)]}
+	(log/trace "delete-tag: (mc/remove-by-id shopdb tags " id ")")
+	(delete-tag id)
+	(mc/update shopdb lists {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc/update shopdb recipes {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc/update shopdb menus {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc/update shopdb projects {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc/update shopdb items {} {$pull {:tags {:_id id}}} {:multi true})
+	)
+
+(defn update-tag
+	[tag-id tag-name]
+	{:pre [(q-valid? :shop/_id tag-id)]
+	 :post [(p-trace "update-tag" %)]}
+	(log/trace "update-tag: (mc/update-by-id shopdb tags (:_id " tag-id ") {$set {:entryname " tag-name "}})")
+	(mc/update-by-id shopdb tags (:_id tag-id)
+		{$set {:entryname tag-name}}))
+
+(defn add-item-usage
+	[list-id item-id action numof]
+	(log/trace "add-item-usage")
+	(mc/insert shopdb item-usage
+		(merge {:listid list-id :itemid item-id :action action :numof numof}
+			   (mk-std-field))))
 
 (defn get-tag-names
 	[]
@@ -233,6 +267,7 @@
 	 :post [(p-trace "add-item" %) (q-valid? :shop/item %)]}
 	(add-tags (:tags entry))
 	(let [entry* (merge entry (mk-std-field))]
+		(add-item-usage nil (:_id entry*) :create 0)
 		(log/trace "add-item: (mc/insert shopdb items " entry* ")")
 		(mc/insert shopdb items entry*)
 		entry*))
@@ -241,14 +276,16 @@
 	[entry]
 	{:pre [(q-valid? :shop/item* entry)]
 	 :post [(p-trace "update-item" %)]}
-	(log/trace "update-item: (mc/update-by-id shopdb items " (:_id entry) " " (select-keys entry [:entryname :unit :amount :price :tags]) ")")
+	(add-item-usage nil (:_id entry) :update 0)
+	(log/trace "update-item: (mc/update-by-id shopdb items " (:_id entry) " " (select-keys entry [:entryname :unit :url :amount :price :tags]) ")")
 	(mc/update-by-id shopdb items (:_id entry)
-		{$set (select-keys entry [:entryname :unit :amount :price :tags])}))
+		{$set (select-keys entry [:entryname :unit :url :amount :price :tags])}))
 
 (defn delete-item
 	[item-id]
 	{:pre [(q-valid? :shop/_id item-id)]
 	 :post [(p-trace "delete-item" %)]}
+	(add-item-usage nil item-id :delete 0)
 	(log/trace "delete-item: (mc/remove-by-id shopdb items " item-id ")")
 	(mc/remove-by-id shopdb items item-id))
 
@@ -304,6 +341,7 @@
 	[list-id item-id]
 	{:pre [(q-valid? :shop/_id list-id) (q-valid? :shop/_id item-id)]
 	 :post [(p-trace "finish-list-item" %)]}
+	(add-item-usage list-id item-id :finish 0)
 	(log/trace "finish-list-item: (mc/update shopdb lists {:_id " list-id " :items._id " item-id "} {$set {:items.$.finished " (l/local-now) "}})")
 	(mc/update shopdb lists
 		{:_id list-id :items._id item-id}
@@ -313,6 +351,7 @@
 	[list-id item-id]
 	{:pre [(q-valid? :shop/_id list-id) (q-valid? :shop/_id item-id)]
 	 :post [(p-trace "unfinish-list-item" %)]}
+	(add-item-usage list-id item-id :unfinish 0)
 	(log/trace "unfinish-list-item: (mc/update shopdb lists {:_id " list-id " :items {:_id " item-id" }} {$set {:finished nil}})")
 	(mc/update shopdb lists
 		{:_id list-id :items._id item-id}
@@ -320,6 +359,7 @@
 
 (defn- remove-item
 	[list-id item-id]
+	(add-item-usage list-id item-id :remove 0)
 	(log/trace "remove-item: (mc/update shopdb lists {:_id " list-id "} {$pull {:items {:_id " item-id "}}})")
 	(mc/update shopdb lists
 		{:_id list-id}
@@ -327,6 +367,7 @@
 
 (defn- mod-item
 	[list-id item-id num-of]
+	(add-item-usage list-id item-id :mod num-of)
 	(log/trace "mod-item: (mc/update shopdb lists {:_id " list-id " :items._id " item-id "} {$inc {:items.$.numof " num-of "}})")
 	(mc/update shopdb lists
 		{:_id list-id :items._id item-id}
@@ -344,6 +385,7 @@
 			(remove-item list-id item-id)
 			(mod-item list-id item-id num-of))
 		(when (pos? num-of)
+			(add-item-usage list-id item-id :add-to 0)
 			(log/trace "item->list: (mc/update-by-id shopdb lists {$addToSet {:items (assoc (get-item " item-id ") :numof " num-of ")}})")
 			(mc/update-by-id shopdb lists list-id
 			{$addToSet {:items (assoc (get-item item-id) :numof num-of)}}))))

@@ -20,8 +20,5 @@
   :ring {:handler shop2.core/application
   		 :auto-reload? true
          :auto-refresh? true
-         :ssl? true
-         :ssl-port 9443
-         :keystore "./keystore"
-         :key-password "Benq.fp731"}
+         :port 3000}
   :profiles {:dev {:uberjar {:aot :all}}})

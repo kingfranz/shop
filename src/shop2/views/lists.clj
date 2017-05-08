@@ -173,11 +173,26 @@
 		{:href (str (if active? "/item-done/" "/item-undo/") (:_id a-list) "/" (:_id item))}
 		text])
 
+(defn imenu
+	[item]
+	(get-in item [:menu :entryname]))
+
+(defn ilink
+	[item]
+	(get item :url))
+
 (defn mk-item-row*
 	[a-list item active?]
 	(list
 		[:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
-		[:td.item-menu-td (mk-item-a a-list item active? (get-in item [:menu :entryname]))]))
+		(cond
+			(and (imenu item) (ilink item)) (list
+				[:td.item-menu-td [:a.item-text {:href "/menu"} "Meny"]]
+				[:td.item-menu-td [:a.item-text {:href (ilink item) :target "_blank"} "Link"]])
+			(imenu item)
+				[:td.item-menu-td [:a.item-text {:href "/menu"} "Meny"]]
+			(ilink item)
+				[:td.item-menu-td [:a.item-text {:href (ilink item) :target "_blank"} "Link"]])))
 
 (defn mk-item-row
 	[a-list active? item]

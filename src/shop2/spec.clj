@@ -18,9 +18,9 @@
 (s/def :shop/entryname (and string? seq))
 (s/def :shop/numof     (and int? pos?))
 (s/def :shop/parent    (s/nilable :shop/_id))
-(s/def :shop/amount    decimal?)
+(s/def :shop/amount    float?)
 (s/def :shop/unit      (and string? seq))
-(s/def :shop/price     decimal?)
+(s/def :shop/price     float?)
 (s/def :shop/text      (and string? seq))
 (s/def :menu/recipe    (s/keys :req-un [:shop/_id :shop/entryname]))
 (s/def :shop/priority  (s/int-in 1 6))
@@ -41,7 +41,7 @@
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/item*   (s/keys :req-un [:shop/entryname]
-							 :opt-un [:shop/tags :shop/finished :shop/numof
+							 :opt-un [:shop/tags :shop/finished :shop/numof :shop/url
 							 		  :shop/amount :shop/unit :shop/price]))
 
 (s/def :shop/item    (s/and :shop/item* :shop/std-keys))

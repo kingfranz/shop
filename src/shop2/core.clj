@@ -42,7 +42,7 @@
   (DBSessionStore.))
 
 (def ring-default
-	(-> rmd/secure-site-defaults
+	(-> rmd/site-defaults
 		(assoc-in [:session :store] (mem/memory-store))
 		(assoc-in [:session :cookie-attrs :max-age] 3600)
 		(assoc-in [:session :cookie-name] "secure-shop-session")
@@ -52,15 +52,15 @@
 	(-> routes
 		(rmr/wrap-reload)
 		(rmst/wrap-stacktrace)
-		(rmd/wrap-defaults ring-default)))
+		(rmd/wrap-defaults rmd/site-defaults)))
 
 (defn start
 	[port]
   	(log/set-level! :trace)
   	(log/merge-config!
   		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
-	(ring/run-jetty application {:ssl-port port
+	(ring/run-jetty application {:port port
                                  :join? false}))
 
 (defn -main []
-  	(start 443))
+  	(start 3000))

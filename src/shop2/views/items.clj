@@ -91,16 +91,19 @@
 			[:td (hf/label {:class "new-item-lbl"} :new-name "Namn:")]
 			[:td (hf/text-field {:class "new-item-txt"} "new-item-name")]]
 		[:tr
-				[:td (hf/label {:class "new-item-lbl"} :new-name "Enhet:")]
+			[:td (hf/label {:class "new-item-lbl"} :new-name "Enhet:")]
 			[:td (hf/text-field {:class "new-item-txt"} "new-item-unit")]]
 		[:tr
-				[:td (hf/label {:class "new-item-lbl"} :new-name "Mängd:")]
+			[:td (hf/label {:class "new-item-lbl"} :new-name "Mängd:")]
 			[:td (hf/text-field {:class "new-item-txt"} "new-item-amount")]]
 		[:tr
-				[:td (hf/label {:class "new-item-lbl"} :new-name "Pris:")]
+			[:td (hf/label {:class "new-item-lbl"} :new-name "Pris:")]
 			[:td (hf/text-field {:class "new-item-txt"} "new-item-price")]]
 		[:tr
-				[:td {:colspan 2} (hf/submit-button {:class "button button1"} "Skapa")]]])
+			[:td (hf/label {:class "new-item-lbl"} :new-url "URL:")]
+			[:td (hf/text-field {:class "new-item-txt"} "new-item-url")]]
+		[:tr
+			[:td {:colspan 2} (hf/submit-button {:class "button button1"} "Skapa")]]])
 
 (defn add-items-page
 	[list-id]
@@ -121,7 +124,8 @@
 	    			[:tr
 	    				[:th.group-head-th {:colspan 2}
 	    					(hf/label :xxx "Välj en existerande")]]
-	        		(map #(mk-add-item a-list %) (db/get-items))]
+	        		(map #(mk-add-item a-list %)
+	        			 (sort-by #(str/lower-case (:entryname %)) (db/get-items)))]
 			    [:table.master-table.group
 			        [:tr
 			        	[:th.group-head-th "Skapa en ny"]]
@@ -161,6 +165,9 @@
 	    				[:td (hf/label :xx "Pris")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :price (:price item))]]
 	        		[:tr
+	    				[:td (hf/label :xx "URL")]
+	    				[:td (hf/text-field {:class "new-item-txt"} :url (:url item))]]
+	        		[:tr
 	    				[:td (hf/label :xx "Kategorier")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :tags
 	    					(str/join ", " (map :entryname (:tags item))))]]]
@@ -170,7 +177,6 @@
 	[v t]
 	(try
 		(cond
-			(= t :BigDecimal) (BigDecimal. v)
 			(= t :Integer)    (Integer/valueOf v)
 			(= t :Double)     (Double/valueOf v)
 			)
@@ -196,9 +202,9 @@
 				(= ptype :pos-int)     	(if (isneg? (mk-num pvalue :Integer))
 											(throw (Exception. (str pkey " is invalid")))
 											(hash-map pkey (mk-num pvalue :Integer)))
-				(= ptype :pos-decimal) 	(if (isneg? (mk-num pvalue :BigDecimal))
+				(= ptype :pos-float) 	(if (isneg? (mk-num pvalue :Double))
 											(throw (Exception. (str pkey " is invalid")))
-											(hash-map pkey (mk-num pvalue :BigDecimal)))
+											(hash-map pkey (mk-num pvalue :Double)))
 				(= ptype :tag-list)    	(hash-map pkey (map #(db/add-tag %)
 															(some-> pvalue
 																	(str/split #"(,| )+")
@@ -211,8 +217,9 @@
 					:_id       [:string :must]
 					:entryname [:string :must]
 					:unit      [:string]
-					:amount    [:pos-decimal]
-					:price     [:pos-decimal]
+					:amount    [:pos-float]
+					:price     [:pos-float]
+					:url       [:string]
 					:tags      [:tag-list]})]
 		(db/update-item input)
 		(ring/redirect (str "/item/" (:_id input)))))
@@ -239,7 +246,7 @@
 
 (defn assoc-num-if
 	[m k txt]
-	(if-let [n (some->> txt (re-matches #"\d+(\.\d+)?") first BigDecimal.)]
+	(if-let [n (some->> txt (re-matches #"\d+(\.\d+)?") first Double/valueOf)]
 		(assoc m k n)
 		m))
 
@@ -251,8 +258,9 @@
 		(if (and (some? target-list) (seq itemname) (seq tags))
 			(let [new-item (db/add-item (-> {:entryname itemname :tags tags}
 							     			(assoc-num-if :amount (:new-item-amount params))
-							     			(assoc-if     :unit (:new-item-unit params))
-							     			(assoc-num-if :price (:new-item-price params))))]
+							     			(assoc-if     :unit   (:new-item-unit params))
+							     			(assoc-if     :url    (:new-item-url params))
+							     			(assoc-num-if :price  (:new-item-price params))))]
 				(db/item->list (:list-id params) (:_id new-item) 1)
 				(ring/redirect (str "/add-items/" (:list-id params))))
 			(throw (Exception. (str

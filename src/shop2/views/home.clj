@@ -102,10 +102,14 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn mk-list-name
+	[slist]
+	(str (:entryname slist) " - " (count (filter #(nil? (:finished %)) (:items slist)))))
+
 (defn sub-tree
 	[slist]
 	(let [sub-lists (db/get-sub-lists (:_id slist))]
-		[:li [:a.link-thick {:href (str "/list/" (:_id slist))} (:entryname slist)]
+		[:li [:a.link-thick {:href (str "/list/" (:_id slist))} (mk-list-name slist)]
 			(when (seq sub-lists)
 				[:ul (map sub-tree sub-lists)])]))
 
@@ -161,7 +165,7 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/item/" (:_id i))}
 					              (:entryname i)]]])
-			(db/get-items))])
+			(sort-by #(str/lower-case (:entryname %)) (db/get-items)))])
 
 (defn tags-list
 	[]
@@ -171,7 +175,7 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/tag/" (:_id t))}
 					              (:entryname t)]]])
-			(db/get-tags))])
+			(sort-by #(str/lower-case (:entryname %)) (db/get-tags)))])
 
 (defn home-page
 	[]
