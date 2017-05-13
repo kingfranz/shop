@@ -45,9 +45,13 @@
 		(projects/update-projects! request))
 
 	(cc/GET "/add-items/:id" [id]
-	    (items/add-items-page id))
+	    (items/add-items-page id :a-z))
+	(cc/GET "/add-items/:id/:stype" [id stype]
+	    (items/add-items-page id (keyword stype)))
 	(cc/GET "/add-to-list/:lid/:iid" [lid iid]
 	    (items/add-item-page lid iid))
+	(cc/GET "/mk-new-item/:listid" [listid]
+	    (items/mk-new-item-page listid))
 	(cc/POST "/new-item" request
 	    (items/new-item! request))
 	(cc/GET "/item/:id" [id]
@@ -57,10 +61,18 @@
 	(cc/POST "/update-item" request
 	    (items/update-item request))
 
+	(cc/GET "/pick-list" []
+	    (home/pick-list))
 	(cc/GET "/new-list" []
 	    (lists/new-list-page))
 	(cc/POST "/new-list" request
 		(lists/added-list! request))
+	(cc/GET "/delete-list/:listid" [listid]
+	    (lists/delete-list! listid))
+	(cc/GET "/edit-list/:listid" [listid]
+	    (lists/edit-list-page listid))
+	(cc/POST "/edit-list" request
+		(lists/edit-list! request))
 	(cc/GET "/list/:id" [id]
 		(lists/show-list-page id))
 	(cc/GET "/item-done/:listid/:itemid" [listid itemid]

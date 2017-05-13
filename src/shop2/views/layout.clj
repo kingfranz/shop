@@ -5,7 +5,8 @@
             			[units      :as u]
             			[selectors  :as sel]
             			[stylesheet :as ss]
-            			[color      :as color])))
+            			[color      :as color])
+          		(clojure [string 	:as str])))
 
 (def line-size (u/px 24))
 (def transparent (color/rgba 200 200 200 0))
@@ -44,6 +45,22 @@
 		 :a.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
 		[:a.link-head:hover
 		 :a.link-head:active {:background-color :green}]
+		[:a.link-flex:link
+		 :a.link-flex:visited (mk-lnk 8 16 4 2 36 2)]
+		[:a.link-flex:hover
+		 :a.link-flex:active {:background-color :green}]
+		[:a.link-icon:link
+		 :a.link-icon:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 60))]
+		[:a.link-icon:hover
+		 :a.link-icon:active {:background-color :green}]
+		[:a.link-half:link
+		 :a.link-half:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 120))]
+		[:a.link-half:hover
+		 :a.link-half:active {:background-color :green}]
+		[:div.link-head:link
+		 :div.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
+		[:div.link-head:hover
+		 :div.link-head:active {:background-color :green}]
 		[:a.link-home:link
 		 :a.link-home:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/percent 90))]
 		[:a.link-home:hover
@@ -62,18 +79,25 @@
 			:font-family ["HelveticaNeue" "Helvetica Neue" "Helvetica" "Arial" "sans-serif"]
 			:font-size line-size
 			:color :white
-	        ;:-webkit-font-smoothing :antialiased
-	        ;:-webkit-text-size-adjust :none
+	        :-webkit-font-smoothing :antialiased
+	        :-webkit-text-size-adjust :none
 			}]
 		[:.app-div {
-			:width  full
-			:height (u/px 1080)}
-			(ss/at-media {:screen true :min-width (u/px 480)}
+			:width (u/px 1000)
+			}
+			(ss/at-media {:screen true :max-width (u/px 700)}
 				[:& {
-					:width  (u/px 1080)
-					:height (u/px 1080)}])]
+					:width full}])]
 		[:.master-table {
 			:width full}]))
+
+(defmacro proj-version
+	[]
+  	(some->> (slurp "project.clj")
+  			 clojure.edn/read-string
+  			 (drop 1)
+  			 (take 2)
+  			 (str/join " ")))
 
 (defn common
 	[title css & body]
@@ -85,11 +109,11 @@
 			[:title title]
 			[:style css-html]
 			[:style css-misc]
-			(map (fn [x] [:style x]) css)
-			;(hp/include-css css)
-			]
+			(map (fn [x] [:style x]) css)]
 		[:body
-			[:div.app-div body]]))
+			[:div.app-div
+				[:p {:style "margin: 0px 0px 3px 2px"} (proj-version)]
+				body]]))
 
 (defn four-oh-four
 	[]

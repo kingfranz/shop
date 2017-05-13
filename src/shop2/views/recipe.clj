@@ -131,7 +131,7 @@
 	(map #(mk-recipe-item %
 						  (when (< % (count (:items recipe)))
 						  	(nth (:items recipe) %)))
-		 (range (+ (count (:items recipe)) 10))))
+		 (range (+ (count (:items recipe)) 5))))
 
 (defn show-recipe-page
     [recipe]
@@ -140,14 +140,11 @@
     		[:post (if (nil? recipe) "/create-recipe" "/update-recipe")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
-        	(hf/hidden-field :num-items (+ (count (:items recipe)) 10))
-        	[:table.master-table
-        		[:tr
-        			[:td.rec-buttons-td [:a.button.button1 {:href "/"} "Home"]]
-        			[:td.rec-buttons-td
-        				(hf/submit-button {:class "button button1"}
-        					(if (nil? recipe) "Skapa" "Updatera!"))]]
-	        	[:tr [:td.btn-spacer ""]]]
+        	(hf/hidden-field :num-items (+ (count (:items recipe)) 5))
+        	[:div
+        		(common/home-button)
+        		(hf/submit-button {:class "button button1"}
+        			(if (nil? recipe) "Skapa" "Updatera!"))]
 	        [:table
 	        	[:tr [:th "Namn"]]
 	        	[:tr
@@ -166,7 +163,7 @@
 	        				{:class "recipe-item recipe-url-field"}
 	        				:recipe-url
 	        				(:url recipe))]
-	        		[:td [:a.link-thin {:href (:url recipe)} "GO"]]]
+	        		[:td [:a.link-thin {:href (:url recipe) :target "_blank"} "GO"]]]
 	        	[:tr [:td.btn-spacer ""]]]
 	        [:div.rec-area-div (hf/text-area {:class "recipe-item recipe-area"}
 	        			 			   :recipe-area
@@ -194,11 +191,18 @@
 		m
 		(assoc m k v))))
 
+(defn float-if
+	[s]
+	(when-not (str/blank? s)
+		(Double/valueOf s)))
+
 (defn get-r-item
 	[params i]
 	(let [item (->> (assoc-if :text   (get params (mk-tag "recipe-item-name-" i)))
 		            (assoc-if :unit   (get params (mk-tag "recipe-item-unit-" i)))
-		            (assoc-if :amount (get params (mk-tag "recipe-item-amount-" i))))]
+		            (assoc-if :amount (some->> (mk-tag "recipe-item-amount-" i)
+		            				  		   (get params)
+		            				  		   (float-if))))]
 		(when-not (empty? item)
 			item)))
 

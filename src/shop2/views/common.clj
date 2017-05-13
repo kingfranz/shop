@@ -7,22 +7,23 @@
             				[format       :as f]
             				[periodic     :as p])
             	(taoensso 	[timbre       :as log])
-				[garden.core              :as g]
-            	[garden.units             :as u]
-            	[garden.selectors         :as sel]
-            	[garden.stylesheet        :as stylesheet]
-            	[garden.color             :as color]
-            	[hiccup.core              :as h]
-            	[hiccup.def               :as hd]
-            	[hiccup.element           :as he]
-            	[hiccup.form              :as hf]
-            	[hiccup.page              :as hp]
-            	[hiccup.util              :as hu]
-            	[ring.util.anti-forgery   :as ruaf]
-            	[clojure.string           :as str]
-            	[clojure.set              :as set]))
+				(garden 	[core         :as g]
+            				[units        :as u]
+            				[selectors    :as sel]
+            				[stylesheet   :as ss]
+            				[color        :as color])
+            	(hiccup 	[core         :as h]
+            				[def          :as hd]
+            				[element      :as he]
+            				[form         :as hf]
+            				[page         :as hp]
+            				[util         :as hu])
+            	(clojure 	[string       :as str]
+            				[set          :as set])))
 
 ;;-----------------------------------------------------------------------------
+
+(def top-lvl-name "Ingen")
 
 (defn get-tag
 	[p t l]
@@ -43,25 +44,29 @@
 		  		  :when (or (get params (keyword (:entryname db-tag)))
 		  		 	        (get params (:entryname db-tag)))]
 		  		db-tag)
-		    (for [idx (range num-tags)
-		  		  :let [tag-name (get params (mk-new-tk idx))]
-		  		  :when (not (str/blank? tag-name))]
-		  		(db/add-tag tag-name))))
+			(map #(db/add-tag %)
+				(some-> params
+				    (:new-tags params)
+				    (str/replace "\"" "")
+				    (str/split #"(,| )+")
+					set))))
 
 (def css-tags-tbl
 	(g/css
 		[:.cat-choice {
 			:font-size (u/px 24)
+			:margin    [[0 (u/px 10) 0 0]]
 		}]
 		[:.cat-choice-th {
 			:text-align :left
 			;:font-size (u/px 36)
 			:padding [[(u/px 20) (u/px 20) 0 0]]
 		}]
-		[:.new-cb-td {
+		[:.cb-div {
+			:float :left
 			:text-align :right
 			:width (u/px 200)
-			:border [[(u/px 1) :solid :grey]]
+			;:border [[(u/px 1) :solid :grey]]
 			:padding [[0 (u/px 10) 0 0]]
 		}]
 		[:.new-cb-n {
@@ -80,12 +85,31 @@
 			:border [[(u/px 1) :solid :grey]]
 			:margin [[0 (u/px 10) 0 0]]
 		}]
-		[:.new-name-td {
-			:background-color layout/transparent
-			:border 0
-			;:padding [[(u/px 20) (u/px 20) 0 0]]
+		[:.new-tags {
+			:width (u/px 600)
+		}]
+		[:.named-div {
+			:margin [[(u/px 20) (u/px 20) (u/px 20) (u/px 20)]]
+			:border [[(u/px 1) :solid :grey]]
+		}]
+		[:.named-div-p {
+			:margin [[0 0 (u/px 10) 0]]
+		}]
+		[:.named-div-l {
+			:margin [[0 (u/px 10) 0 0]]
 		}]
 		))
+
+(defn named-div
+	([d-name input]
+	(named-div :break d-name input))
+	([line-type d-name input]
+	[:div.named-div
+		(if (= line-type :inline)
+			(hf/label {:class "named-div-l"} :x d-name)
+			[:p.named-div-p d-name])
+		input
+		[:div {:style "clear:both;float:none;"}]]))
 
 (defn frmt-tags
 	[tags]
@@ -104,26 +128,32 @@
 
 (defn mk-tag-entry
 	[tname]
-	[:td.new-cb-td
+	[:div.cb-div
 		(hf/label {:class "new-cb-n"} :xxx tname)
 		(hf/check-box {:id tname :class "new-cb"} (keyword tname))])
 
 (defn old-tags-tbl
 	[]
-    [:table.master-table
-    	[:tr
-    		[:th.cat-choice-th {:colspan 4}
-    			(hf/label {:class "cat-choice"} :xxx "Välj kategorier")]]
-	    (map (fn [r] [:tr r])
-        	(partition-all num-tags (map mk-tag-entry (sort (db/get-tag-names)))))])
+    (named-div "Existerande kategorier:"
+	    (map mk-tag-entry (sort (map :entryname (db/get-tag-names))))))
 
 (defn new-tags-tbl
 	[]
-	[:table.master-table
-    	[:tr
-    		[:th.cat-choice-th {:colspan 3}
-    			(hf/label {:class "cat-choice"} :xxx "Gör nya kategorier")]]
-	    [:tr
-	    	(for [i (range num-tags)]
-	    		[:td.new-tag-txt-td
-	    			(hf/text-field {:class "new-name"} (mk-new-tk i))])]])
+	(named-div "Nya kategorier:"
+	    (hf/text-field {:class "new-tags"} :new-tags)))
+
+(defn home-button
+	[]
+	[:a.link-icon {:href "/"} (he/image "/images/home32w.png")])
+
+(defn back-button
+	[target]
+	[:a.link-icon {:href target} (he/image "/images/back32w.png")])
+
+(defn homeback-button
+	[target]
+	(list
+		[:a.link-icon {:href "/"} (he/image "/images/home32w.png")]
+		[:a.link-icon {:href target} (he/image "/images/back32w.png")]))
+
+

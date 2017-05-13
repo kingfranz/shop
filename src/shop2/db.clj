@@ -73,6 +73,42 @@
 	[]
 	{:_id (mk-id) :created (utils/now)})
 
+;;-----------------------------------------------------------------------------
+
+;(defn s->d
+;	[s]
+;	(Double/valueOf s))
+
+;(defn fix-recipes
+;	[]
+;	(doseq [r  (mc/find-maps shopdb recipes)
+;	  :let [ni (map #(if (string? (:amount %))
+;	  					(update % :amount s->d)
+;	  					%)
+;	  				(:items r))
+;	        nr (assoc r :items ni)]]
+;		(mc/update-by-id shopdb recipes (:_id r) nr)))
+
+;(defn mkp
+;	[lists pid]
+;	(if (nil? pid)
+;		nil
+;		(let [p (some #(when (= (:_id %) pid) %) lists)]
+;			{:_id pid :entryname (:entryname p) :parent (mkp lists (:parent p))})))
+
+;(defn fix-lists
+;	[]
+;	(let [list-s (mc/find-maps shopdb lists)]
+;		(doseq [l list-s
+;	  	  :let [np (mkp list-s (:parent l))
+;	  	        aa (prn np)
+;		        nl (dissoc l :tags)
+;		        xxx (assoc nl :parent np)]]
+;			(mc/update-by-id shopdb lists (:_id l) xxx))))
+
+
+;;-----------------------------------------------------------------------------
+
 (defn get-tags
 	[]
 	{:post [(p-trace "get-tags" %) (q-valid? :shop/tags %)]}
@@ -83,7 +119,7 @@
 	[id]
 	{:pre [(q-valid? :shop/_id id)]
 	 :post [(p-trace "get-tag" %) (q-valid? :shop/tag %)]}
-	(log/trace "get-tag: (mc/find-mapmap-by-id shopdb tags " id ")")
+	(log/trace "get-tag: (mc/find-map-by-id shopdb tags " id ")")
 	(mc/find-map-by-id shopdb tags id))
 
 (defn delete-tag
@@ -122,8 +158,7 @@
 (defn get-tag-names
 	[]
 	{:post [(p-trace "get-tag-names" %) (q-valid? :shop/strings %)]}
-	(some->> (get-tags)
-			 (map :entryname)))
+	(mc/find-maps shopdb tags {} {:_id true :entryname true}))
 
 (defn get-list
 	[listid]
@@ -134,15 +169,22 @@
 
 (defn get-lists
 	[]
-	{:post [(p-trace "get-listss" %) (q-valid? :shop/lists %)]}
+	{:post [(p-trace "get-lists" %) (q-valid? :shop/lists %)]}
 	(log/trace "get-lists: (mc/find-maps shopdb lists)")
 	(mc/find-maps shopdb lists))
 
 (defn get-list-names
 	[]
 	{:post [(p-trace "get-list-names" %) (q-valid? :shop/strings %)]}
-	(some->> (get-lists)
-			 (map :entryname)))
+	(mc/find-maps shopdb lists {} {:_id true :entryname true}))
+
+(defn get-top-list
+	[a-list]
+	{:pre [(q-valid? :shop/list a-list)]
+	 :post [(p-trace "get-top-list" %) (q-valid? :shop/list %)]}
+	(if (nil? (:parent a-list))
+		a-list
+		(get-top-list (get-list (:parent a-list)))))
 
 (defn get-top-lists
 	[]
@@ -155,7 +197,7 @@
 	{:pre [(q-valid? :shop/_id listid)]
 	 :post [(p-trace "get-sub-lists" %) (q-valid? :shop/lists %)]}
 	(log/trace "get-sub-lists: (mc/find-maps shopdb lists {:parent " listid "})")
-	(mc/find-maps shopdb lists {:parent listid}))
+	(mc/find-maps shopdb lists {:parent._id listid}))
 
 (defn get-recipes
 	[]
@@ -235,31 +277,68 @@
 
 (defn add-tags
 	[tags*]
-	{:pre [(q-valid? :shop/tags tags*)]
+	{:pre [(q-valid? :shop/tags* tags*)]
 	 :post [(p-trace "add-tags" %)]}
 	(log/trace "add-tags: (get-tags)")
-	(let [db-tag-names    (->> (get-tags) (map :entryname) set)
+	(let [db-tags         (get-tags)
+		  db-tag-names    (->> db-tags (map :entryname) set)
 		  clean-tag-names (->> tags*
-		  					   (map #(->> (:entryname %) str/trim str/capitalize))
+		  					   (map #(->> % :entryname str/trim str/capitalize))
 		  					   set)
 		  new-tag-names   (set/difference clean-tag-names db-tag-names)
-		  new-tags        (mapv #(merge {:entryname %} (mk-std-field)) new-tag-names)]
+		  new-tags        (mapv #(merge {:entryname %} (mk-std-field)) new-tag-names)
+		  old-tag-names   (set/difference clean-tag-names new-tag-names)
+		  all-tags        (concat new-tags (map #(utils/find-first (fn [t] (= (:entryname t) %)) db-tags) old-tag-names))]
 		(when (seq new-tags)
 			(if (q-valid? :shop/tags new-tags)
 				(do
 					(log/trace "add-tags: (mc/insert-batch shopdb tags " new-tags ")")
-					(mc/insert-batch shopdb tags new-tags))
+					(mc/insert-batch shopdb tags new-tags)
+					all-tags)
 				(throw (Exception. "Invalid tags"))))))
+
+(defn add-tag-names
+	[names]
+	{:pre [(q-valid? :shop/strings names)]}
+	(add-tags (map #(hash-map :entryname %) names)))
+
+;;-----------------------------------------------------------------------------
 
 (defn add-list
 	[entry]
 	{:pre [(q-valid? :shop/list* entry)]
 	 :post [(p-trace "add-list" %) (q-valid? :shop/list %)]}
-	(add-tags (:tags entry))
 	(let [entry* (merge entry (mk-std-field))]
 		(log/trace "add-list: (mc/insert shopdb lists " entry* ")")
 		(mc/insert shopdb lists entry*)
 		entry*))
+
+(defn update-list
+	[entry]
+	{:pre [(q-valid? :shop/list* entry)]
+	 :post [(p-trace "update-list" %)]}
+	(log/trace "update-list: (mc/update-by-id shopdb lists " (:_id entry) " " (select-keys entry [:entryname :parent]) ")")
+	(mc/update-by-id shopdb lists (:_id entry)
+		{$set (select-keys entry [:entryname :parent])}))
+
+(defn delete-list
+	[list-id]
+	{:pre [(q-valid? :shop/_id list-id)]}
+	(log/trace "delete-list: (mc/remove-by-id shopdb lists " list-id ")")
+	(mc/remove-by-id shopdb lists list-id)
+	(log/trace "delete-list: (mc/find-maps shopdb lists {} {:_id :parent})")
+	(doseq [mlist (mc/find-maps shopdb lists {} {:_id :parent})
+	  :let [np (some->> mlist :parent :parent)]
+	  :when (= (some->> mlist :parent :_id) list-id)]
+		(log/trace "delete-list: (mc/update-by-id shopdb lists " (:_id mlist) " {$set {:parent " np "}})")
+		(mc/update-by-id shopdb lists (:_id mlist) {$set {:parent np}})))
+
+;;-----------------------------------------------------------------------------
+
+(defn item-id-exists?
+	[id]
+	{:pre [(q-valid? :shop/_id id)]}
+	(= (get (mc/find-map-by-id shopdb items id {:_id true}) :_id) id))
 
 (defn add-item
 	[entry]
@@ -279,7 +358,7 @@
 	(add-item-usage nil (:_id entry) :update 0)
 	(log/trace "update-item: (mc/update-by-id shopdb items " (:_id entry) " " (select-keys entry [:entryname :unit :url :amount :price :tags]) ")")
 	(mc/update-by-id shopdb items (:_id entry)
-		{$set (select-keys entry [:entryname :unit :url :amount :price :tags])}))
+		{$set (select-keys entry [:entryname :unit :url :amount :price :tags :parent])}))
 
 (defn delete-item
 	[item-id]
@@ -299,6 +378,8 @@
 		(mc/insert shopdb projects entry*)
 		entry*))
 
+;;-----------------------------------------------------------------------------
+
 (defn add-recipe
 	[entry]
 	{:pre [(q-valid? :shop/recipe* entry)]
@@ -309,6 +390,8 @@
 		(mc/insert shopdb recipes entry*)
 		entry*))
 
+;;-----------------------------------------------------------------------------
+
 (defn add-menu
 	[entry]
 	{:pre [(q-valid? :shop/menu* entry)]
@@ -317,6 +400,14 @@
 		(log/trace "add-menu: (mc/insert shopdb menus " entry* ")")
 		(mc/insert shopdb menus entry*)
 		entry*))
+
+(defn update-menu
+	[entry]
+	{:pre [(q-valid? :shop/menu entry)]
+	 :post [(p-trace "update-menu" %)]}
+	(log/trace "update-menu: (mc/update-by-id shopdb menus " (:_id entry) " {$set " entry "})")
+	(mc/update-by-id shopdb menus (:_id entry)
+		{$set (select-keys entry [:entryname :date :tags :recipe])}))
 
 (defn add-recipe-to-menu
 	[menu-dt recipe-id]
@@ -417,14 +508,6 @@
 	(log/trace "unfinish-project: (mc/update-by-id shopdb projects " project-id " {$unset :finished})")
 	(mc/update-by-id shopdb projects project-id {$set {:finished nil}}))
 
-(defn update-menu
-	[entry]
-	{:pre [(q-valid? :shop/menu entry)]
-	 :post [(p-trace "update-menu" %)]}
-	(log/trace "update-menu: (mc/update-by-id shopdb menus " (:_id entry) " {$set " entry "})")
-	(mc/update-by-id shopdb menus (:_id entry)
-		{$set (select-keys entry [:entryname :date :tags :recipe])}))
-
 (defn update-project
 	[proj]
 	{:pre [(q-valid? :shop/project* proj)]
@@ -433,12 +516,12 @@
 	(mc/update-by-id shopdb projects (:_id proj)
 		{$set (select-keys proj [:entryname :priority :finished :tags])}))
 
-(defn find-list-id
+(defn find-list-by-name
 	[e-name]
 	{:pre [(q-valid? :shop/string e-name)]
-	 :post [(p-trace "find-list-id" %) (q-valid? :shop/_id %)]}
-	(log/trace "find-list-id: (mc/find-one-as-map shopdb lists {:entryname " e-name "})")
-	(get (mc/find-one-as-map shopdb lists {:entryname e-name}) :_id))
+	 :post [(p-trace "find-list-by-name" %) (q-valid? :shop/list %)]}
+	(log/trace "find-list-by-name: (mc/find-one-as-map shopdb lists {:entryname " e-name "})")
+	(mc/find-one-as-map shopdb lists {:entryname e-name}))
 
 ;;-----------------------------------------------------------------------------
 

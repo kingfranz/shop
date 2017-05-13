@@ -74,3 +74,6 @@
 	[]
 	(time-range (today) (new-menu-end) (t/days 1)))
 
+(defn find-first
+	[pred coll]
+	(some (fn [x] (when (pred x) x)) coll))

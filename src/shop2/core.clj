@@ -48,19 +48,29 @@
 		(assoc-in [:session :cookie-name] "secure-shop-session")
 		))
 
+(defn dirty-fix
+	[x]
+	(log/set-level! :trace)
+  	(log/merge-config!
+  		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
+	x)
+
 (def application
 	(-> routes
+		dirty-fix
 		(rmr/wrap-reload)
 		(rmst/wrap-stacktrace)
 		(rmd/wrap-defaults rmd/site-defaults)))
 
 (defn start
 	[port]
-  	(log/set-level! :trace)
-  	(log/merge-config!
-  		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
-	(ring/run-jetty application {:port port
+  	(ring/run-jetty application {:port port
                                  :join? false}))
 
-(defn -main []
+(defn -main
+	[]
+	;(println "fix recipes")
+	;(println (db/fix-recipes))
+	;(println "fix lists")
+	;(println (db/fix-lists)))
   	(start 3000))

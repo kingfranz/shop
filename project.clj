@@ -1,6 +1,6 @@
-(defproject shop2 "0.1.0"
+(defproject shop2 "0.2.0"
   :description "Shopping list"
-  :url "http://example.com/FIXME"
+  :url "http://soahojen.se"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
@@ -15,7 +15,7 @@
                  [compojure "1.5.2"]]
   :main ^:skip-aot shop2.core
   :target-path "target/%s"
-  :uberjar-name "shop-standalone.jar"
+  :uberjar-name "shop-0.2.0-standalone.jar"
   :plugins [[lein-ring "0.11.0"]]
   :ring {:handler shop2.core/application
   		 :auto-reload? true

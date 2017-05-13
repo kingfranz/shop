@@ -1,5 +1,6 @@
 (ns shop2.views.items
-  	(:require 	[shop2.db                   :as db]
+  	(:require 	(shop2 			[db         :as db]
+  								[utils      :as utils])
             	(shop2.views 	[layout     :as layout]
             				 	[common     :as common]
             					[home       :as home])
@@ -59,100 +60,210 @@
 			:color           :lightgrey
 			:text-decoration :none
 		}]
-		[:.inner {
-			:width (u/percent 95)
+		[:.item-div {
+			:float :left
+		}]
+		[:.item-txt-td {
+			:width (u/px 250)
+		}]
+		[:.item-txt {
+			:text-align :right
+			:white-space :nowrap
+		}]
+		[:.item-tags-td {
+			:width (u/px 200)
+		}]
+		[:.item-tags {
+			:text-align :left
+			:margin   [[(u/px 5) (u/px 5) (u/px 0) (u/px 5)]]
+			:font-size (u/px 16)
+			:white-space :nowrap
+		}]
+		[:.sort-div {
+			:margin [[(u/px 10) 0 (u/px 10) 0]]
+		}]
+		[:a.r-space {
+			:margin [[0 (u/px 5) 0 0]]
+		}]
+		[:a.lr-space {
+			:margin [[0 (u/px 5) 0 (u/px 5)]]
+		}]
+		[:a.l-space {
+			:margin [[0 0 0 (u/px 5)]]
+		}]
+		[:.url-td {
+			:width (u/px 500)
 		}]
 		[:.new-item-txt {
 			:font-size (u/px 24)
-			}]
-		))
+			:width layout/full
+		}]
+		[:.tags-head {
+			:font-size (u/px 24)
+			:background-color     (layout/grey% 30)
+ 			:color                :white
+			:width layout/full
+		}]
+	))
 
 ;;-----------------------------------------------------------------------------
 
+(defn get-parents
+	[a-list]
+	(loop [parent (:parent a-list)
+		   acc    #{}]
+		(if (nil? parent)
+			acc
+			(recur (:parent parent) (conj acc (:_id parent))))))
+
+(defn get-items
+	[a-list]
+	(let [items      (db/get-items)
+		  id-parents (get-parents a-list)]
+		filter #(contains? (:parent %) id-parents) items))
+
 (defn mk-add-item
 	[a-list item]
-	[:tr.item-tr
-		[:td.item-td
-			[:a.item-an
-				{:href (str "/add-to-list/" (:_id a-list) "/" (:_id item))}
-				(:entryname item)]]
-		[:td.item-td
-			[:a.item-at
-				{:href (str "/add-to-list/" (:_id a-list) "/" (:_id item))}
-				(some->> item :tags (common/filter-tags (:tags a-list)) common/frmt-tags)]]])
+	[:div.item-div
+		[:table
+			[:tr
+				[:td.item-txt-td
+					[:a.item-an
+						{:href (str "/add-to-list/" (:_id a-list) "/" (:_id item))}
+						(hf/label {:class "item-txt"} :x (:entryname item))]]
+				[:td.item-tags-td
+					(hf/label {:class "item-tags"}
+						:x (some->> item
+									:tags
+									(common/filter-tags (:tags a-list))
+									common/frmt-tags))]]]])
+
+(defn mk-tags-item
+	[a-list item]
+	[:a.item-an
+		{:href (str "/add-to-list/" (:_id a-list) "/" (:_id item))}
+		(hf/label {:class "item-txt"} :x (:entryname item))])
+
+(defn old-items-tags
+	[a-list items-by-tag]
+	(for [kv items-by-tag
+		  :let [tag (key kv)
+		  		items (sort-by #(str/lower-case (:entryname %)) (val kv))]]
+		(list
+			[:table {:style "width: 100%"}
+				[:tr
+					[:td.tags-head {:style "width: 100%"} (hf/label {:class "tags-head"} :x tag)]]
+				[:tr
+					[:td (map #(mk-add-item a-list %) items)]]])))
+
+(defn old-items-name
+	[a-list items]
+	(map #(mk-add-item a-list %) items))
+
+(defn stringify
+	[tags]
+	(str/join " " (sort (map :entryname tags))))
+
+(defn old-items
+	[a-list sort-type]
+	(cond
+		(= sort-type :tags-a-z)
+			(old-items-tags a-list (->> (get-items a-list)
+								 (map #(update-in % [:tags] stringify))
+								 (group-by :tags)
+								 (into (sorted-map))))
+		(= sort-type :tags-z-a)
+			(old-items-tags a-list (->> (get-items a-list)
+								 (map #(update-in % [:tags] stringify))
+								 (group-by :tags)
+								 (into (sorted-map-by (fn [k1 k2] (compare k2 k1))))))
+		(= sort-type :z-a)
+			(old-items-name a-list (->> (get-items a-list)
+								 (sort-by #(str/lower-case (:entryname %)))
+								 reverse))
+		:else
+			(old-items-name a-list (->> (get-items a-list)
+								 (sort-by #(str/lower-case (:entryname %)))))))
+
+(defn add-items-page
+	[list-id sort-type]
+	(let [a-list (db/get-list list-id)]
+		(layout/common "Välj sak" [css-items common/css-tags-tbl]
+	        [:div
+    			(common/homeback-button (str "/list/" list-id))
+	    		[:a.link-head {:href (str "/mk-new-item/" list-id)} "Ny"]]
+	        [:div.sort-div
+	        	[:a.r-space.link-thin {:href (str "/add-items/" list-id "/a-z")} "A-Z"]
+        		[:a.lr-space.link-thin {:href (str "/add-items/" list-id "/z-a")} "Z-A"]
+        		[:a.lr-space.link-thin {:href (str "/add-items/" list-id "/tags-a-z")} "Tags A-Z"]
+        		[:a.l-space.link-thin {:href (str "/add-items/" list-id "/tags-z-a")} "Tags Z-A"]]
+        	[:div
+        		(old-items a-list sort-type)])))
+
+;;-----------------------------------------------------------------------------
 
 (defn info-part
 	[]
-	[:table.master-table
-		[:tr
-			[:th.cat-choice-th {:colspan 2}
-				(hf/label {:class "cat-choice"} :xxx "Information om grejen")]]
+	(common/named-div "Information"
+		[:table
 			[:tr
-			[:td (hf/label {:class "new-item-lbl"} :new-name "Namn:")]
-			[:td (hf/text-field {:class "new-item-txt"} "new-item-name")]]
-		[:tr
-			[:td (hf/label {:class "new-item-lbl"} :new-name "Enhet:")]
-			[:td (hf/text-field {:class "new-item-txt"} "new-item-unit")]]
-		[:tr
-			[:td (hf/label {:class "new-item-lbl"} :new-name "Mängd:")]
-			[:td (hf/text-field {:class "new-item-txt"} "new-item-amount")]]
-		[:tr
-			[:td (hf/label {:class "new-item-lbl"} :new-name "Pris:")]
-			[:td (hf/text-field {:class "new-item-txt"} "new-item-price")]]
-		[:tr
-			[:td (hf/label {:class "new-item-lbl"} :new-url "URL:")]
-			[:td (hf/text-field {:class "new-item-txt"} "new-item-url")]]
-		[:tr
-			[:td {:colspan 2} (hf/submit-button {:class "button button1"} "Skapa")]]])
+				[:td.new-item-td "Namn:"]
+				[:td (hf/text-field {:class "new-item-txt"} "new-item-name")]]
+			[:tr
+				[:td.new-item-td "Enhet:"]
+				[:td (hf/text-field {:class "new-item-txt"} "new-item-unit")]]
+			[:tr
+				[:td.new-item-td "Mängd:"]
+				[:td (hf/text-field {:class "new-item-txt"} "new-item-amount")]]
+			[:tr
+				[:td.new-item-td "Pris:"]
+				[:td (hf/text-field {:class "new-item-txt"} "new-item-price")]]
+			[:tr
+				[:td.new-item-td "URL:"]
+				[:td.url-td (hf/text-field {:class "new-item-txt"} "new-item-url")]]]))
 
-(defn add-items-page
+(defn mk-new-item-page
 	[list-id]
 	(let [a-list (db/get-list list-id)]
-		(layout/common "New items" [css-items common/css-tags-tbl]
+		(layout/common "Skapa ny sak" [css-items common/css-tags-tbl]
 			(hf/form-to {:enctype "multipart/form-data"}
 	    		[:post "/new-item"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :list-id list-id)
-		        [:table.master-table
-		            [:tr
-		            	[:td.head-td
-	    					[:a.link-head {:href "/"} "Home"]]
-	    				[:td.head-td
-	    					[:a.link-head {:href (str "/list/" list-id)}
-	    					(:entryname a-list)]]]]
-		        [:table.master-table.group
-	    			[:tr
-	    				[:th.group-head-th {:colspan 2}
-	    					(hf/label :xxx "Välj en existerande")]]
-	        		(map #(mk-add-item a-list %)
-	        			 (sort-by #(str/lower-case (:entryname %)) (db/get-items)))]
-			    [:table.master-table.group
-			        [:tr
-			        	[:th.group-head-th "Skapa en ny"]]
-			    	[:tr [:td.inner (common/old-tags-tbl)]]
-			    	[:tr [:td.inner (common/new-tags-tbl)]]
-			    	[:tr [:td.inner (info-part)]]]))))
+		        [:div
+	    			(common/homeback-button (str "/add-items/" list-id))
+	    			[:a.link-head {:href (str "/list/" list-id)} (:entryname a-list)]
+	    			[:a.link-head (hf/submit-button {:class "button button1"} "Skapa")]]
+		        [:div
+		        	(info-part)
+		        	(common/new-tags-tbl)
+			    	(common/old-tags-tbl)
+			    	]))))
 
 ;;-----------------------------------------------------------------------------
 
 (defn edit-item-page
 	[item-id]
-	(let [item (db/get-item item-id)]
+	(let [item (db/get-item item-id)
+		  lists (db/get-list-names)
+		  list-names (sort (map :entryname lists))
+		  tl-name (some #(when (= (:_id %) (:parent item)) (:entryname %)) lists)]
+		(prn tl-name list-names)
 		(layout/common "Edit item" [css-items common/css-tags-tbl]
 			(hf/form-to {:enctype "multipart/form-data"}
 	    		[:post "/update-item"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :_id (:_id item))
-	        	[:table.master-table
-		            [:tr
-		            	[:td.head-td
-	    					[:a.link-head {:href "/"} "Home"]]
-	    				[:td.head-td
-	    					[:a.link-head {:href (str "/delete-item/" item-id)} "Ta bort"]]
-	    				[:td.head-td
-	    					[:a.link-head (hf/submit-button {:class "button button1"} "Uppdatera")]]]]
-		        [:table.master-table.group
+	        	[:div
+	    			(common/home-button)
+	    			[:a.link-head {:href (str "/delete-item/" item-id)} "Ta bort"]
+	    			(hf/submit-button {:class "button button1"} "Uppdatera")]
+		        [:table.group
 	    			[:tr
+	    				[:td (hf/label :xx "Parent")]
+	    				[:td (hf/drop-down {:class "new-item-txt"}
+	    					:parent list-names tl-name)]]
+	        		[:tr
 	    				[:td (hf/label :xx "Namn")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :entryname (:entryname item))]]
 	        		[:tr
@@ -173,56 +284,58 @@
 	    					(str/join ", " (map :entryname (:tags item))))]]]
 			    ))))
 
-(defn mk-num
-	[v t]
-	(try
-		(cond
-			(= t :Integer)    (Integer/valueOf v)
-			(= t :Double)     (Double/valueOf v)
-			)
-		(catch Exception e nil)))
+(defn extract-id
+	[params]
+	(if (or (str/blank? (:_id params))
+			(not (db/item-id-exists? (:_id params))))
+		(throw (ex-info "invalid id" {:cause :_id}))
+		(:_id params)))
 
-(defn isneg?
-	[v]
-	(and (some? v) (number? v) (neg? v)))
+(defn extract-name
+	[params]
+	(if (str/blank? (:entryname params))
+		(throw (ex-info "invalid name" {:cause :entryname}))
+		(:entryname params)))
 
-(defn parse-params
-	[params config]
-	(into {} (for [pkey (keys config)
-				  :let [ptype  (first (get config pkey))
-				  		pextra (second (get config pkey))
-				  		pvalue (get params pkey)]
-				  :when (not (str/blank? pvalue))]
-		(do
-			(cond
-				(= ptype :string)    	(hash-map pkey pvalue)
-				(= ptype :date-time) 	(if (and (nil? (f/parse pvalue)) (= pextra :must))
-											(throw (Exception. (str pkey " can not be blank")))
-											(hash-map pkey (f/parse pvalue)))
-				(= ptype :pos-int)     	(if (isneg? (mk-num pvalue :Integer))
-											(throw (Exception. (str pkey " is invalid")))
-											(hash-map pkey (mk-num pvalue :Integer)))
-				(= ptype :pos-float) 	(if (isneg? (mk-num pvalue :Double))
-											(throw (Exception. (str pkey " is invalid")))
-											(hash-map pkey (mk-num pvalue :Double)))
-				(= ptype :tag-list)    	(hash-map pkey (map #(db/add-tag %)
-															(some-> pvalue
-																	(str/split #"(,| )+")
-																	set vec)))
-			)))))
+(defn extract-parent
+	[params]
+	(if (str/blank? (:parent params))
+		(throw (ex-info "invalid name" {:cause :entryname}))
+		(if (= (:parent params) common/top-lvl-name)
+			nil
+			(if-let [found (utils/find-first #(= (:entryname %) (:parent params))
+											 (db/get-list-names))]
+				(:_id found)
+				(throw (ex-info "invalid parent" {:cause :parent}))))))
+
+(defn extract-str
+	[tag params]
+	(when-not (str/blank? (get params tag))
+		(get params tag)))
+
+(defn extract-num
+	[tag params]
+	(when (extract-str tag params)
+		(Double/valueOf (get params tag))))
+
+(defn extract-tags
+	[params]
+	(some-> (extract-str :tags params)
+			(str/split #"(,| )+")
+			(db/add-tag-names)
+		))
 
 (defn update-item
 	[{params :params}]
-	(let [input (parse-params params {
-					:_id       [:string :must]
-					:entryname [:string :must]
-					:unit      [:string]
-					:amount    [:pos-float]
-					:price     [:pos-float]
-					:url       [:string]
-					:tags      [:tag-list]})]
-		(db/update-item input)
-		(ring/redirect (str "/item/" (:_id input)))))
+	(db/update-item {:_id       (extract-id params)
+					 :entryname (extract-name params)
+					 :parent    (extract-parent params)
+					 :unit      (extract-str :unit params)
+					 :amount    (extract-num :amount params)
+					 :price     (extract-num :price params)
+					 :url       (extract-str :url params)
+					 :tags      (extract-tags params)})
+	(ring/redirect (str "/item/" (extract-id params))))
 
 (defn delete-item
 	[item-id]
@@ -256,7 +369,9 @@
 		  itemname    (:new-item-name params)
 		  tags        (common/extract-tags params)]
 		(if (and (some? target-list) (seq itemname) (seq tags))
-			(let [new-item (db/add-item (-> {:entryname itemname :tags tags}
+			(let [new-item (db/add-item (-> {:entryname itemname
+											 :tags tags
+											 :parent (:_id target-list)}
 							     			(assoc-num-if :amount (:new-item-amount params))
 							     			(assoc-if     :unit   (:new-item-unit params))
 							     			(assoc-if     :url    (:new-item-url params))

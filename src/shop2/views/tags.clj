@@ -57,21 +57,20 @@
 	    		[:post "/update-tag"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :_id (:_id tag))
-	        	[:table.master-table
-		            [:tr
-		            	[:td.head-td
-	    					[:a.link-head {:href "/"} "Home"]]
-	    				[:td.head-td
-	    					[:a.link-head {:href (str "/delete-tag/" tag-id)} "Ta bort"]]
-	    				[:td.head-td
-	    					[:a.link-head {:href (str "/delete-tag-all/" tag-id)} "Ta bort överallt"]]
-	    				[:td.head-td
-	    					[:a.link-head (hf/submit-button {:class "button button1"} "Uppdatera")]]]]
-		        [:table.master-table.group
-	    			[:tr
-	    				[:td (hf/label :xx "Namn")]
-	    				[:td (hf/text-field {:class "new-item-txt"}
-	    									:entryname (:entryname tag))]]]))))
+	        	[:table
+	        		[:tr
+	        			[:td {:colspan 2}
+	        				[:div
+				    			(common/home-button)
+				    			[:a.link-flex {:href (str "/delete-tag/" tag-id)} "Ta bort"]
+				    			[:a.link-flex {:href (str "/delete-tag-all/" tag-id)} "Rensa"]
+				    			[:a.link-flex (hf/submit-button {:class "button button1"} "Uppdatera")]]]]
+		        	[:tr
+		        		[:td {:style "padding: 40px 25px; width: 50px"}
+		        			(hf/label :xx "Namn")]
+		        		[:td
+	    					(hf/text-field {:class "new-item-txt"}
+	    							:entryname (:entryname tag))]]]))))
 
 (defn update-tag!
 	[{params :params}]

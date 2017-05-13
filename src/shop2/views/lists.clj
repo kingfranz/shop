@@ -1,5 +1,6 @@
 (ns shop2.views.lists
-  	(:require 	[shop2.db                 :as db]
+  	(:require 	(shop2 			[db                 :as db]
+  								[utils    :as utils])
             	[shop2.views.layout       :as layout]
             	[shop2.views.common       :as common]
             	[shop2.views.home         :as home]
@@ -83,79 +84,88 @@
 			:color :white
 			:font-size (u/px 24)
 			:background-color layout/transparent
+			:width layout/full
 			:border [[(u/px 1) :solid :grey]]
-			:margin [[(u/px 20) (u/px 20) 0 0]]
+			:margin [[(u/px 0) (u/px 0) 0 0]]
 		}]
 		[:.new-parent {
 			:font-size (u/px 24)
-			:margin [[(u/px 20) (u/px 20) 0 0]]
+			:margin [[(u/px 0) (u/px 0) 0 0]]
 		}]
-		[:.new-lbl {
-			:color :white
-			:font-size (u/px 24)
-			;:margin [[0 (u/px 10) 0 0]]
-		}]
-		[:.new-lbl-td {
-			:text-align :right
-			:background-color layout/transparent
-			:border 0
-			:width (u/px 200)
-			:padding [[(u/px 20) (u/px 20) 0 0]]
-		}]))
-
-
-(def top-lvl-name "Ingen")
-
-(defn new-list-page
-    []
-    (layout/common "Skapa ny lista" [css-lists-new common/css-tags-tbl]
-        (hf/form-to {:enctype "multipart/form-data"}
-        	[:post "/new-list"]
-        	(ruaf/anti-forgery-field)
-    		[:table.master-table
-    			[:tr
-    				[:td
-    					[:a.link-head {:href "/"} "Home"]]
-    				[:td
-    					(hf/submit-button {:class "button button1"} "Skapa")]]]
-            [:table.master-table
-            	[:tr
-            		[:td.new-lbl-td
-            			(hf/label {:class "new-lbl"} :xxx "Listans namn:")]
-            		[:td.new-name-td
-            			(hf/text-field {:class "new-name"} "new-list-name")]]
-        		[:tr
-        			[:td.new-lbl-td
-        				(hf/label {:class "new-lbl"} :xxx "Överornad lista:")]
-        			[:td.new-name-td
-        				(hf/drop-down {:class "new-parent"}
-        					:list-parent
-        					(conj (db/get-list-names) top-lvl-name))]]]
-            (common/old-tags-tbl)
-            (common/new-tags-tbl))))
+		))
 
 ;;-----------------------------------------------------------------------------
 
+(defn new-list-page
+    []
+    (layout/common "Skapa ny lista" [css-lists-new]
+        (hf/form-to {:enctype "multipart/form-data"}
+        	[:post "/new-list"]
+        	(ruaf/anti-forgery-field)
+    		[:div
+    			(common/home-button)
+    			(hf/submit-button {:class "button button1"} "Skapa")]
+            (common/named-div "Listans namn:"
+            	(hf/text-field {:class "new-name"} :entryname))
+        	(common/named-div "Överornad lista:"
+        		(hf/drop-down {:class "new-parent"}
+        					:list-parent
+        					(conj (map :entryname (db/get-list-names)) common/top-lvl-name)))
+            )))
+
+(defn mk-parent-map
+	[params]
+	(when-not (or (str/blank? (:list-parent params))
+				  (= (:list-parent params) common/top-lvl-name))
+		(let [p-list (db/find-list-by-name (:list-parent params))]
+			(select-keys p-list [:_id :entryname :parent]))))
+
 (defn added-list!
 	[{params :params}]
-	(let [parent-name (:list-parent params)
-		  parent      (when (not= parent-name top-lvl-name)
-		  				(or (db/find-list-id parent-name)
-		  					(throw (Exception. "Unknown list parent"))))
-		  listname (:new-list-name params)
-		  tags     (common/extract-tags params)]
-		(if (seq listname)
-			(db/add-list {:entryname listname
-						  :tags tags
-						  :parent parent})
-			(throw (Exception. (str "Failed to add list, "
-				"Parent " (:list-parent params) (if parent " is OK" " is unknown") ", "
-				"Listname " (:new-list-name params) (if (seq listname) " is OK" " is unknown") ", "
-				"Tags " (prn-str tags) (if (seq tags) " is OK" " is unknown"))))))
+	(if (seq (:entryname params))
+		(db/add-list {:entryname (:entryname params)
+					  :parent (mk-parent-map params)})
+		(throw (Exception. "list name is blank")))
 	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------
 
+(defn edit-list-page
+    [list-id]
+    (let [a-list (db/get-list list-id)]
+    	(layout/common "Ändra lista" [css-lists-new]
+	        (hf/form-to
+	        	[:post "/edit-list"]
+	        	(ruaf/anti-forgery-field)
+	        	(hf/hidden-field :list-id list-id)
+	    		[:div
+	    			(common/home-button)
+	    			[:a.link-head {:href (str "/delete-list/" list-id)} "Ta bort"]
+	    			(hf/submit-button {:class "button button1"} "Uppdatera")]
+	            (common/named-div "Listans namn:"
+	            	(hf/text-field {:class "new-name"} :entryname (:entryname a-list)))
+	        	(common/named-div "Överornad lista:"
+	        		(hf/drop-down {:class "new-parent"}
+	        					:list-parent
+	        					(conj (map :entryname (db/get-list-names)) common/top-lvl-name)
+	        					(some->> a-list :parent :entryname)))
+            ))))
+
+(defn edit-list!
+	[{params :params}]
+	(if (seq (:entryname params))
+		(db/update-list {:_id (:list-id params)
+						 :entryname (:entryname params)
+						 :parent (mk-parent-map params)})
+		(throw (Exception. "list name is blank")))
+	(ring/redirect "/"))
+
+(defn delete-list!
+	[list-id]
+	(db/delete-list list-id)
+	(ring/redirect "/"))
+
+;;-----------------------------------------------------------------------------
 
 (defn mk-tags-row
 	[tags]
@@ -235,7 +245,7 @@
 (defn show-list-page
     [list-id]
 	(layout/common (:entryname (db/get-list list-id)) [css-lists]
-    	[:h3 [:a.link-head {:href "/"} "Home"]]
+    	(common/home-button)
         (loop [listid  list-id
 			   acc     []]
 			(if (some? listid)

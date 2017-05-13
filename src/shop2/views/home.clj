@@ -28,12 +28,6 @@
 
 (def indentation layout/line-size)
 
-(def css-home-header
-	(g/css
-		[:.home-header {
-	    	:width             (u/percent 50)
-	    	:height            (u/px 36)}]))
-
 (def css-home-tree
 	(g/css
 		[:.tree
@@ -77,7 +71,7 @@
 			:bottom 0}]
 		[:.tree-top {:vertical-align :top}]))
 
-(def css-home-misc
+(def css-home
 	(g/css
 		[:.date-col {
 			:width (u/px 90)}]
@@ -91,13 +85,21 @@
 			:height (u/px 30)
 			:overflow :hidden
 		}]
+		[:.column {
+	    	:float  :left
+	    	:height (u/px 500)
+	    	:width layout/half}
+	    	(ss/at-media {:screen true :max-width (u/px 700)}
+	    		[:& {:float :none
+	    			 :width layout/full}])]
+		[:.header {
+	    	:margin (u/px 0)}]
 		[:.home-box {
-			:height (u/px 400)
+			:height (u/px 410)
 			:overflow-x :hidden
 			:overflow-y :auto
 			}]
 		[:.proj-pri {:width (u/px 20)}]
-		[:.home-table {:width (u/px 1080)}]
 		))
 
 ;;-----------------------------------------------------------------------------
@@ -107,15 +109,18 @@
 	(str (:entryname slist) " - " (count (filter #(nil? (:finished %)) (:items slist)))))
 
 (defn sub-tree
-	[slist]
-	(let [sub-lists (db/get-sub-lists (:_id slist))]
-		[:li [:a.link-thick {:href (str "/list/" (:_id slist))} (mk-list-name slist)]
+	[action slist]
+	(let [sub-lists (db/get-sub-lists (:_id slist))
+		  link      (if (= action :edit)
+		  				(str "/edit-list/" (:_id slist))
+		  				(str "/list/" (:_id slist)))]
+		[:li [:a.link-thick {:href link} (mk-list-name slist)]
 			(when (seq sub-lists)
-				[:ul (map sub-tree sub-lists)])]))
+				[:ul (map #(sub-tree action %) sub-lists)])]))
 
 (defn list-tree
-	[]
-	[:ul.tree (map sub-tree (db/get-top-lists))])
+	[action]
+	[:ul.tree (map #(sub-tree action %) (db/get-top-lists))])
 
 (defn mk-menu-row
 	[menu]
@@ -177,28 +182,41 @@
 					              (:entryname t)]]])
 			(sort-by #(str/lower-case (:entryname %)) (db/get-tags)))])
 
+(defn pick-list
+	[]
+	(layout/common "Välj lista" [css-home-tree css-home]
+		[:table {:style "width:500px"}
+			[:tr
+				[:td {:style "width:500px"}
+					(common/home-button)]]
+			[:tr
+				[:td {:style "width:500px"}
+					[:div
+						(hf/label {} :x "Välj lista att editera")
+						(list-tree :edit)]]]]))
+
 (defn home-page
 	[]
-	(layout/common "Shopping" [css-home-header css-home-tree css-home-misc]
-	  	[:table.home-table
-	  		[:tr
-	  			[:th.home-header [:a.link-home {:href "/new-list"} "Listor"]]
-	  			[:th.home-header [:a.link-home {:href "/menu"} "Veckomeny"]]]
-	  		[:tr
-	  			[:td.tree-top [:div.home-box (list-tree)]]
-	  			[:td.tree-top (menu-list)]]
-	  		[:tr
-	  			[:th.home-header [:a.link-home {:href "/projects"} "Projekt"]]
-	  			[:th.home-header [:a.link-home {:href "/new-recipe"} "Recept"]]]
-	  		[:tr
-	  			[:td.tree-top [:div.home-box (projekt-list)]]
-	  			[:td.tree-top [:div.home-box (recipe-list)]]]
-	  		[:tr
-	  			[:th.home-header [:a.link-home {:href "/projects"} "Saker"]]
-	  			[:th.home-header [:a.link-home {:href "/new-recipe"} "Kategorier"]]]
-	  		[:tr
-	  			[:td.tree-top [:div.home-box (item-list)]]
-	  			[:td.tree-top [:div.home-box (tags-list)]]]
-	  	]))
+	(layout/common "Shopping" [css-home-tree css-home]
+	  	[:div.column
+			[:a.link-half {:href "/new-list" :style "width:40%"} "Ny"]
+			[:a.link-half {:href "/pick-list" :style "width:40%"} "Edit"]
+			[:div.home-box (list-tree :show)]]
+		[:div.column
+			[:p.header [:a.link-home {:href "/menu"} "Veckomeny"]]
+			[:div.home-box (menu-list)]]
+		[:div.column
+			[:p.header [:a.link-home {:href "/projects"} "Projekt"]]
+			[:div.home-box (projekt-list)]]
+		[:div.column
+			[:p.header [:a.link-home {:href "/new-recipe"} "Recept"]]
+			[:div.home-box (recipe-list)]]
+		[:div.column
+			[:p.header [:a.link-home {:href "/projects"} "Saker"]]
+			[:div.home-box (item-list)]]
+		[:div.column
+			[:p.header [:a.link-home {:href "/new-recipe"} "Kategorier"]]
+			[:div.home-box (tags-list)]]
+	  	))
 
 ;;-----------------------------------------------------------------------------
