@@ -3,6 +3,12 @@
             	(shop2.views 	[layout     	:as layout]
             				 	[common     	:as common]
             					[home       	:as home])
+            	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
             	(clj-time       [core       	:as t]
             	                [local      	:as l]
             	                [format     	:as f]
@@ -51,7 +57,7 @@
 
 (defn edit-tag-page
 	[tag-id]
-	(let [tag (db/get-tag tag-id)]
+	(let [tag (dbtags/get-tag tag-id)]
 		(layout/common "Edit tag" [css-tags common/css-tags-tbl]
 			(hf/form-to {:enctype "multipart/form-data"}
 	    		[:post "/update-tag"]
@@ -75,17 +81,17 @@
 (defn update-tag!
 	[{params :params}]
 	(when (and (seq (:_id params)) (seq (:entryname params)))
-		(db/update-tag (:_id params) (:entryname params)))
+		(dbtags/update-tag (:_id params) (:entryname params)))
 	(ring/redirect (str "/tag/" (:_id params))))
 
 (defn delete-tag!
 	[tag-id]
-	(db/delete-tag tag-id)
+	(dbtags/delete-tag tag-id)
 	(ring/redirect "/"))
 
 (defn delete-tag-all!
 	[tag-id]
-	(db/delete-tag-all tag-id)
+	(dbtags/delete-tag-all tag-id)
 	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------

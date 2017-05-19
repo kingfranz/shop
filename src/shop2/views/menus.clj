@@ -3,7 +3,13 @@
   								[utils		:as utils])
             	(shop2.views 	[layout     :as layout]
             					[common     :as common])
-          		(garden 		[core       :as g]
+          		(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(garden 		[core       :as g]
             					[units      :as u]
             					[selectors  :as sel]
             					[stylesheet :as ss]
@@ -119,14 +125,14 @@
         			[:td.menu-head-td [:a.link-head {:href "/"} "Home"]]
         			[:td.menu-head-td (hf/submit-button {:class "button button1"} "Updatera!")]]]
 	        [:table.menu-table
-	        	(map #(mk-menu-row % false) (db/get-menus (utils/old-menu-start) (utils/today)))
-	        	(map #(mk-menu-row % true)  (db/get-menus (utils/today) (utils/new-menu-end)))])))
+	        	(map #(mk-menu-row % false) (dbmenus/get-menus (utils/old-menu-start) (utils/today)))
+	        	(map #(mk-menu-row % true)  (dbmenus/get-menus (utils/today) (utils/new-menu-end)))])))
 
 ;;-----------------------------------------------------------------------------
 
 (defn update-menu!
 	[{params :params}]
-	(let [db-menus (db/get-menus (utils/today) (utils/new-menu-end))]
+	(let [db-menus (dbmenus/get-menus (utils/today) (utils/new-menu-end))]
 		(doseq [dt (utils/menu-new-range)
 				:let [id (get params (mk-mtag "id" dt))
 					  txt (get params (mk-mtag "txt" dt))
@@ -134,20 +140,20 @@
 				:when (and (seq txt) (not= txt (:entryname db-menu)))]
 			;(println "update-menu!:" (mk-mtag "txt" dt) id txt db-menu)
 			(if (seq id)
-				(db/update-menu (merge db-menu {:entryname txt}))
-				(db/add-menu {:date dt :entryname txt}))))
+				(dbmenus/update-menu (merge db-menu {:entryname txt}))
+				(dbmenus/add-menu {:date dt :entryname txt}))))
 	(ring/redirect "/menu"))
 
 ;;-----------------------------------------------------------------------------
 
 (defn add-recipe-to-menu
 	[recipe-id menu-date]
-	(db/add-recipe-to-menu (f/parse menu-date) recipe-id)
+	(dbmenus/add-recipe-to-menu (f/parse menu-date) recipe-id)
 	(ring/redirect "/menu"))
 
 (defn remove-recipe-from-menu
 	[menu-date]
-	(db/remove-recipe-from-menu (f/parse menu-date))
+	(dbmenus/remove-recipe-from-menu (f/parse menu-date))
 	(ring/redirect "/menu"))
 
 ;;-----------------------------------------------------------------------------
@@ -165,7 +171,7 @@
 					[:td
 						[:a.link-thin {:href (str "/add-recipe-to-menu/" (:_id r) "/" menu-date)}
 							(:entryname r)]]])
-				(db/get-recipes))]))
+				(dbrecipes/get-recipes))]))
 
 ;;-----------------------------------------------------------------------------
 

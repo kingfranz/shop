@@ -2,7 +2,13 @@
   	(:require 	[shop2.db                 :as db]
             	[shop2.views.layout       :as layout]
             	[shop2.views.common       :as common]
- 	          	(garden 	[core              :as g]
+ 	          	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(garden 	[core              :as g]
             				[units             :as u]
             				[selectors         :as sel]
             				[stylesheet        :as ss]
@@ -149,36 +155,95 @@
 					1
 					(compare (:entryname p1) (:entryname p2))))))))
 
+(defn tags-head
+	[stags]
+	(hf/label {:class "proj-head-val"} :xxx stags))
+
+(defn t->s
+	[tags]
+	(if-let [s (some->> tags
+						(map :entryname)
+						sort
+						(str/join " "))]
+		s
+		"Allmänt"))
+
+(defn by-tags
+	[projects]
+	(let [by-tag (->> projects
+		  			  (remove finished?)
+		  			  (map #(assoc % :stags (t->s (:tags %))))
+		  			  (group-by :stags))]
+		[:table
+			(for [tag-key (sort (keys by-tag))]
+				(list
+					[:tr
+						[:th.proj-head-th {:colspan 4} (tags-head tag-key)]]
+					(map mk-proj-row (->> tag-key
+										  (get by-tag)
+										  (sort-by proj-comp)))))]))
+
+(defn prio-head
+	[pri]
+	(hf/label {:class "proj-head-val"} :xxx (str "Prioritet " pri)))
+
+(defn by-prio
+	[projects]
+	(let [by-pri (group-by :priority (remove finished? projects))]
+		[:table
+			(for [pri-key (sort (keys by-pri))]
+				(list
+					[:tr
+						[:th.proj-head-th {:colspan 4} (prio-head pri-key)]]
+					(map mk-proj-row (->> pri-key
+										  (get by-pri)
+										  (sort-by proj-comp)))))]))
+
 (defn show-projects-page
-    []
-    (let [projects (db/get-projects)]
+    [grouping]
+    (let [projects (dbprojects/get-projects)]
     	(layout/common "Projekt" [css-projects]
-        (hf/form-to {:enctype "multipart/form-data"}
-    		[:post "/update-projects"]
-        	(ruaf/anti-forgery-field)
-        	(hf/hidden-field :proj-keys (->> projects
-        									 (remove finished?)
-        									 (map :_id)
-        									 (str/join "@")))
-        	[:div.proj-div
+	        (hf/form-to {:enctype "multipart/form-data"}
+	    		[:post "/update-projects"]
+	        	(ruaf/anti-forgery-field)
+	        	(hf/hidden-field :proj-keys (->> projects
+	        									 (remove finished?)
+	        									 (map :_id)
+	        									 (str/join "@")))
 	        	[:table.proj-tbl
-	        		[:tr
-	        			[:td.proj-head-td [:a.link-head {:href "/"} "Home"]]
-	        			[:td.proj-head-td (hf/submit-button {:class "button button1"} "Updatera!")]]]
-		        [:table.proj-tbl
-		        	(list
-		        		(let [by-pri (group-by :priority (remove finished? projects))]
-		        			(for [pri-key (sort (keys by-pri))]
-		        				(list [:tr [:th.proj-head-th {:colspan 4}
-		        						(hf/label {:class "proj-head-val"} :xxx (str "Prioritet " pri-key))]]
-		        					(map mk-proj-row (sort-by proj-comp (get by-pri pri-key))))))
-		        		[:tr [:th.proj-head-th {:colspan 4} (hf/label {:class "proj-head-val"} :xxx "Nya projekt ")]]
-		        		(for [x (range num-new-proj)]
-		        			(mk-proj-row x)))]
-		        [:table.proj-tbl
-		        	[:tr [:th.proj-head-th (hf/label {:class "proj-head-val"} :xxx "Avklarade")]]
-		        	(let [projs (sort-by proj-comp (filter finished? projects))]
-		        		(map mk-finished-row projs))]]
+		        	[:tr
+		        		[:td
+			        		(common/home-button)
+			        		(if (= grouping :by-prio)
+			        			[:a.link-flex {:href "/projects/by-tag"} "Kat-Sort"]
+			        			[:a.link-flex {:href "/projects/by-prio"} "Pri-Sort"])
+			        		[:a.link-flex {:href "/clear-projects"} "Rensa"]
+			        		(hf/submit-button {:class "button button1"} "Updatera!")]]
+			        [:tr
+			        	[:td
+			        		(if (= grouping :by-prio)
+			        			(by-prio projects)
+			        			(by-tags projects))]]
+					[:tr
+						[:td
+							[:table
+								[:tr
+									[:th.proj-head-th {:colspan 4}
+										(hf/label
+											{:class "proj-head-val"}
+											:xxx "Nya projekt ")]]
+								(for [x (range num-new-proj)]
+									(mk-proj-row x))]]]
+					[:tr
+						[:td
+							[:table
+								[:tr
+			        				[:th.proj-head-th
+			        					(hf/label
+			        						{:class "proj-head-val"}
+			        						:xxx "Avklarade")]]
+			        			(let [projs (sort-by proj-comp (filter finished? projects))]
+			        				(map mk-finished-row projs))]]]]
     	))))
 
 ;;-----------------------------------------------------------------------------
@@ -191,7 +256,7 @@
 
 (defn mk-proj-tags
 	[params pkey]
-	(map #(db/add-tag %)
+	(map #(dbtags/add-tag %)
 		(some-> params
 		    (get (mk-tag tags-name pkey))
 		    (str/replace "\"" "")
@@ -204,7 +269,7 @@
 		    :let [f-name (get params (mk-tag txt-name pkey))
 		          f-tags (mk-proj-tags params pkey)]
 			:when (and (seq f-name) (seq f-tags))]
-		(db/update-project {:_id        pkey
+		(dbprojects/update-project {:_id        pkey
 					   	    :entryname f-name
 					   		:tags      f-tags
 					   		:priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
@@ -212,17 +277,22 @@
 		    :let [f-name (get params (mk-tag txt-name pkey))
 		          f-tags (mk-proj-tags params pkey)]
 			:when (and (seq f-name) (seq f-tags))]
-		(db/add-project {:entryname f-name
+		(dbprojects/add-project {:entryname f-name
 					   	 :tags      f-tags
 					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
 	(ring/redirect "/projects"))
 
 (defn unfinish-project
 	[id]
-	(db/unfinish-project id)
+	(dbprojects/unfinish-project id)
 	(ring/redirect "/projects"))
 
 (defn finish-project
 	[id]
-	(db/finish-project id)
+	(dbprojects/finish-project id)
+	(ring/redirect "/projects"))
+
+(defn clear-projects
+	[]
+	(dbprojects/clear-projects)
 	(ring/redirect "/projects"))

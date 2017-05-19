@@ -1,55 +1,64 @@
 (ns shop2.views.common
-  	(:require 	[shop2.db                 :as db]
-            	[shop2.views.layout       :as layout]
-            	(clj-time 	[core         :as t]
-            				[local        :as l]
-            				[coerce       :as c]
-            				[format       :as f]
-            				[periodic     :as p])
-            	(taoensso 	[timbre       :as log])
-				(garden 	[core         :as g]
-            				[units        :as u]
-            				[selectors    :as sel]
-            				[stylesheet   :as ss]
-            				[color        :as color])
-            	(hiccup 	[core         :as h]
-            				[def          :as hd]
-            				[element      :as he]
-            				[form         :as hf]
-            				[page         :as hp]
-            				[util         :as hu])
-            	(clojure 	[string       :as str]
-            				[set          :as set])))
+  	(:require 	(shop2 			[db             :as db])
+  				(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(shop2.views 	[layout       	:as layout])
+            	(clj-time 		[core         	:as t]
+            					[local        	:as l]
+            					[coerce       	:as c]
+            					[format       	:as f]
+            					[periodic     	:as p])
+            	(taoensso 		[timbre       	:as log])
+				(garden 		[core         	:as g]
+            					[units        	:as u]
+            					[selectors    	:as sel]
+            					[stylesheet 	:as ss]
+            					[color        	:as color])
+            	(hiccup 		[core         	:as h]
+            					[def          	:as hd]
+            					[element      	:as he]
+            					[form         	:as hf]
+            					[page         	:as hp]
+            					[util         	:as hu])
+            	(clojure 		[string       	:as str]
+            					[set          	:as set])))
 
 ;;-----------------------------------------------------------------------------
 
-(def top-lvl-name "Ingen")
+(defonce top-lvl-name "Ingen")
+(defonce old-tag-head "old-tag-")
+(defonce valid-tag-name "[a-zA-ZåäöÅÄÖ0-9_-]+")
+(defonce old-tag-regex (re-pattern (str "^" old-tag-head valid-tag-name "$")))
 
-(defn get-tag
-	[p t l]
-	(if (seq (get p t))
-		(conj l (get p t))
-		l))
+(defn find-old-tags
+	[params]
+	(some->> params
+			 keys
+			 (map name)
+			 (filter #(re-matches old-tag-regex %))
+			 (map #(str/replace-first % (re-pattern old-tag-head) ""))))
 
-(def num-tags 4)
-
-(defn mk-new-tk
-	[idx]
-	(keyword (str "new-tag-" idx)))
+(defn find-new-tags
+	[params]
+	(if (-> params :new-tags str/blank?)
+		[]
+		(let [raw-strings (-> params :new-tags (str/split #","))
+			  trimmed     (some->> raw-strings (map str/trim) (map str/capitalize))
+			  good        (filter #(re-matches (re-pattern valid-tag-name) %) trimmed)]
+			(if (= (count trimmed) (count good))
+				good
+				(throw (ex-info "Invalid tag" {:cause :invalid}))))))
 
 (defn extract-tags
 	[params]
-	(log/debug params)
-	(concat (for [db-tag (db/get-tags)
-		  		  :when (or (get params (keyword (:entryname db-tag)))
-		  		 	        (get params (:entryname db-tag)))]
-		  		db-tag)
-			(map #(db/add-tag %)
-				(some-> params
-				    (:new-tags params)
-				    (str/replace "\"" "")
-				    (str/split #"(,| )+")
-					set))))
+	;(log/debug params)
+	(let [tags (concat (db/spy "old-tags:" (find-old-tags params)) (find-new-tags params))]
+		(when-not (empty? tags)
+			(dbtags/add-tag-names tags))))
 
 (def css-tags-tbl
 	(g/css
@@ -86,6 +95,7 @@
 			:margin [[0 (u/px 10) 0 0]]
 		}]
 		[:.new-tags {
+			:font-size (u/px 24)
 			:width (u/px 600)
 		}]
 		[:.named-div {
@@ -114,28 +124,27 @@
 (defn frmt-tags
 	[tags]
 	(->> tags
-		 seq
+		 (map :entryname)
 		 sort
 		 (str/join " ")))
 
-(defn filter-tags
-	[list-tags item-tags]
-	(let [tags-left (set/difference (set (map :entryname item-tags))
-									(set (map :entryname list-tags)))]
-		(if (seq tags-left)
-			tags-left
-			#{"Allmänt"})))
-
 (defn mk-tag-entry
-	[tname]
+	[tag-strings tname]
 	[:div.cb-div
 		(hf/label {:class "new-cb-n"} :xxx tname)
-		(hf/check-box {:id tname :class "new-cb"} (keyword tname))])
+		(hf/check-box
+			{:id tname :class "new-cb"}
+			(keyword (str old-tag-head tname))
+			(contains? tag-strings tname))])
 
 (defn old-tags-tbl
-	[]
-    (named-div "Existerande kategorier:"
-	    (map mk-tag-entry (sort (map :entryname (db/get-tag-names))))))
+	([]
+	(old-tags-tbl []))
+	([tags]
+    (let [tag-strings (set (map :entryname tags))]
+    	(named-div "Existerande kategorier:"
+	    	(map #(mk-tag-entry tag-strings %)
+	    		(sort (map :entryname (dbtags/get-tag-names))))))))
 
 (defn new-tags-tbl
 	[]

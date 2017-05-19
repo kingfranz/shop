@@ -91,14 +91,6 @@
 		[:.master-table {
 			:width full}]))
 
-(defmacro proj-version
-	[]
-  	(some->> (slurp "project.clj")
-  			 clojure.edn/read-string
-  			 (drop 1)
-  			 (take 2)
-  			 (str/join " ")))
-
 (defn common
 	[title css & body]
 	(hp/html5
@@ -111,8 +103,8 @@
 			[:style css-misc]
 			(map (fn [x] [:style x]) css)]
 		[:body
-			[:div.app-div
-				[:p {:style "margin: 0px 0px 3px 2px"} (proj-version)]
+			[:div
+				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.5.1"]
 				body]]))
 
 (defn four-oh-four

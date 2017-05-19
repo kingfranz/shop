@@ -3,7 +3,13 @@
   								[utils      :as utils])
             	(shop2.views 	[layout     :as layout]
             					[common     :as common])
-          		(garden 		[core       :as g]
+          		(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(garden 		[core       :as g]
             					[units      :as u]
             					[selectors  :as sel]
             					[stylesheet :as ss]
@@ -173,7 +179,7 @@
 
 (defn edit-recipe
     [recipe-id]
-	(show-recipe-page (db/get-recipe recipe-id)))
+	(show-recipe-page (dbrecipes/get-recipe recipe-id)))
 
 (defn new-recipe
     []
@@ -212,7 +218,7 @@
 
 (defn update-recipe!
 	[{params :params}]
-	(db/update-recipe (->> (assoc-if :_id (:recipe-id params))
+	(dbrecipes/update-recipe (->> (assoc-if :_id (:recipe-id params))
 						   (assoc-if :url (:recipe-url params))
 						   (assoc-if :entryname (:recipe-name params))
 						   (assoc-if :text  (:recipe-area params))
@@ -221,7 +227,7 @@
 
 (defn create-recipe!
 	[{params :params}]
-	(let [ret (db/add-recipe (->> (assoc-if :url (:recipe-url params))
+	(let [ret (dbrecipes/add-recipe (->> (assoc-if :url (:recipe-url params))
 								  (assoc-if :entryname (:recipe-name params))
 								  (assoc-if :text  (:recipe-area params))
 								  (assoc-if :items (get-r-items params))))]

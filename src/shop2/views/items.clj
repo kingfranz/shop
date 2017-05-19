@@ -4,6 +4,12 @@
             	(shop2.views 	[layout     :as layout]
             				 	[common     :as common]
             					[home       :as home])
+            	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
             	(clj-time       [core       :as t]
             	                [local      :as l]
             	                [format     :as f]
@@ -104,6 +110,10 @@
  			:color                :white
 			:width layout/full
 		}]
+		[:.info-head {
+			:font-size (u/px 24)
+			:padding (u/px 10)
+		}]
 	))
 
 ;;-----------------------------------------------------------------------------
@@ -111,16 +121,16 @@
 (defn get-parents
 	[a-list]
 	(loop [parent (:parent a-list)
-		   acc    #{}]
+		   acc    #{(:_id a-list)}]
 		(if (nil? parent)
 			acc
 			(recur (:parent parent) (conj acc (:_id parent))))))
 
 (defn get-items
 	[a-list]
-	(let [items      (db/get-items)
+	(let [items      (dbitems/get-items)
 		  id-parents (get-parents a-list)]
-		filter #(contains? (:parent %) id-parents) items))
+		(filter #(contains? id-parents (:parent %)) items)))
 
 (defn mk-add-item
 	[a-list item]
@@ -135,7 +145,6 @@
 					(hf/label {:class "item-tags"}
 						:x (some->> item
 									:tags
-									(common/filter-tags (:tags a-list))
 									common/frmt-tags))]]]])
 
 (defn mk-tags-item
@@ -187,7 +196,7 @@
 
 (defn add-items-page
 	[list-id sort-type]
-	(let [a-list (db/get-list list-id)]
+	(let [a-list (dblists/get-list list-id)]
 		(layout/common "Välj sak" [css-items common/css-tags-tbl]
 	        [:div
     			(common/homeback-button (str "/list/" list-id))
@@ -224,7 +233,7 @@
 
 (defn mk-new-item-page
 	[list-id]
-	(let [a-list (db/get-list list-id)]
+	(let [a-list (dblists/get-list list-id)]
 		(layout/common "Skapa ny sak" [css-items common/css-tags-tbl]
 			(hf/form-to {:enctype "multipart/form-data"}
 	    		[:post "/new-item"]
@@ -244,8 +253,8 @@
 
 (defn edit-item-page
 	[item-id]
-	(let [item (db/get-item item-id)
-		  lists (db/get-list-names)
+	(let [item (dbitems/get-item item-id)
+		  lists (dblists/get-list-names)
 		  list-names (sort (map :entryname lists))
 		  tl-name (some #(when (= (:_id %) (:parent item)) (:entryname %)) lists)]
 		(prn tl-name list-names)
@@ -260,34 +269,32 @@
 	    			(hf/submit-button {:class "button button1"} "Uppdatera")]
 		        [:table.group
 	    			[:tr
-	    				[:td (hf/label :xx "Parent")]
+	    				[:td.info-head (hf/label :xx "Parent")]
 	    				[:td (hf/drop-down {:class "new-item-txt"}
 	    					:parent list-names tl-name)]]
 	        		[:tr
-	    				[:td (hf/label :xx "Namn")]
+	    				[:td.info-head (hf/label :xx "Namn")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :entryname (:entryname item))]]
 	        		[:tr
-	    				[:td (hf/label :xx "Enhet")]
+	    				[:td.info-head (hf/label :xx "Enhet")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :unit (:unit item))]]
 	        		[:tr
-	    				[:td (hf/label :xx "Mängd")]
+	    				[:td.info-head (hf/label :xx "Mängd")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :amount (:amount item))]]
 	        		[:tr
-	    				[:td (hf/label :xx "Pris")]
+	    				[:td.info-head (hf/label :xx "Pris")]
 	    				[:td (hf/text-field {:class "new-item-txt"} :price (:price item))]]
 	        		[:tr
-	    				[:td (hf/label :xx "URL")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :url (:url item))]]
-	        		[:tr
-	    				[:td (hf/label :xx "Kategorier")]
-	    				[:td (hf/text-field {:class "new-item-txt"} :tags
-	    					(str/join ", " (map :entryname (:tags item))))]]]
+	    				[:td.info-head (hf/label :xx "URL")]
+	    				[:td (hf/text-field {:class "new-item-txt"} :url (:url item))]]]
+	        	[:div (common/new-tags-tbl)]
+	    		[:div (common/old-tags-tbl (:tags item))]
 			    ))))
 
 (defn extract-id
 	[params]
 	(if (or (str/blank? (:_id params))
-			(not (db/item-id-exists? (:_id params))))
+			(not (dbitems/item-id-exists? (:_id params))))
 		(throw (ex-info "invalid id" {:cause :_id}))
 		(:_id params)))
 
@@ -304,7 +311,7 @@
 		(if (= (:parent params) common/top-lvl-name)
 			nil
 			(if-let [found (utils/find-first #(= (:entryname %) (:parent params))
-											 (db/get-list-names))]
+											 (dblists/get-list-names))]
 				(:_id found)
 				(throw (ex-info "invalid parent" {:cause :parent}))))))
 
@@ -322,31 +329,31 @@
 	[params]
 	(some-> (extract-str :tags params)
 			(str/split #"(,| )+")
-			(db/add-tag-names)
+			(dbtags/add-tag-names)
 		))
 
 (defn update-item
 	[{params :params}]
-	(db/update-item {:_id       (extract-id params)
+	(dbitems/update-item {:_id       (extract-id params)
 					 :entryname (extract-name params)
 					 :parent    (extract-parent params)
 					 :unit      (extract-str :unit params)
 					 :amount    (extract-num :amount params)
 					 :price     (extract-num :price params)
 					 :url       (extract-str :url params)
-					 :tags      (extract-tags params)})
+					 :tags      (common/extract-tags params)})
 	(ring/redirect (str "/item/" (extract-id params))))
 
 (defn delete-item
 	[item-id]
-	(db/delete-item item-id)
+	(dbitems/delete-item item-id)
 	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------
 
 (defn add-item-page
 	[list-id item-id]
-	(db/item->list list-id item-id 1)
+	(dblists/item->list list-id item-id 1)
 	(ring/redirect (str "/add-items/" list-id)))
 
 ;;-----------------------------------------------------------------------------
@@ -365,23 +372,21 @@
 
 (defn new-item!
 	[{params :params}]
-	(let [target-list (db/get-list (:list-id params))
-		  itemname    (:new-item-name params)
-		  tags        (common/extract-tags params)]
-		(if (and (some? target-list) (seq itemname) (seq tags))
-			(let [new-item (db/add-item (-> {:entryname itemname
-											 :tags tags
-											 :parent (:_id target-list)}
+	(let [tags (common/extract-tags params)]
+		(if (and (dblists/list-id-exists? (:list-id params)) (seq (:new-item-name params)))
+			(let [new-item (dbitems/add-item (-> {:entryname (:new-item-name params)
+											 :parent (:list-id params)}
+							     			(assoc-if     :tags   tags)
 							     			(assoc-num-if :amount (:new-item-amount params))
 							     			(assoc-if     :unit   (:new-item-unit params))
 							     			(assoc-if     :url    (:new-item-url params))
 							     			(assoc-num-if :price  (:new-item-price params))))]
-				(db/item->list (:list-id params) (:_id new-item) 1)
+				(dblists/item->list (:list-id params) (:_id new-item) 1)
 				(ring/redirect (str "/add-items/" (:list-id params))))
 			(throw (Exception. (str
 				"Failed to add item, "
-				"Target " (:list-id params) (if target-list " is OK" " is unknown") ", "
-				"Itemname " (:new-item-name params) (if (seq itemname) " is OK" " is unknown") ", "
-				"Tags " (prn-str tags) (if (seq tags) " is OK" " is unknown")))))))
+				"Target " (:list-id params) (if (dblists/list-id-exists? (:list-id params)) " is OK" " is unknown") ", "
+				"Itemname " (:new-item-name params) ", "
+				"Tags " (prn-str tags)))))))
 
 ;;-----------------------------------------------------------------------------

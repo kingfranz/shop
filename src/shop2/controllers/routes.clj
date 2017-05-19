@@ -1,6 +1,7 @@
 (ns shop2.controllers.routes
   	(:require (clojure 		[string   :as str])
               (ring.util 	[response :as ring])
+              ;[ring.middleware.proxy-headers :as proxy]
               (compojure 	[core     :as cc])
               (shop2.views 	[home     :as home]
               				[recipe   :as recipe]
@@ -11,9 +12,16 @@
               				[projects :as projects])
               (shop2 		[db       :as db])))
 
+(defn get-user
+	[headers]
+	;(db/get-user-data (get headers "x-forwarded-user")))
+	(db/get-user-data "soren"))
+
 (cc/defroutes routes
-	(cc/GET "/" []
-	    (home/home-page))
+	(cc/GET "/" {:keys [headers params body] :as request}
+	    (home/home-page (get-user headers)))
+	(cc/GET "/home/:list-type" {:keys [headers params body] :as request}
+	    (home/set-home-type (get-user headers) (:list-type params)))
 
 	(cc/GET "/menu" []
 	    (menus/show-menu-page))
@@ -36,14 +44,18 @@
 		(recipe/create-recipe! request))
 
 	(cc/GET "/projects" []
-	    (projects/show-projects-page))
+	    (projects/show-projects-page :by-prio))
+	(cc/GET "/projects/:by" [by]
+	    (projects/show-projects-page (keyword by)))
 	(cc/GET "/finish-project/:id" [id]
 	    (projects/finish-project id))
 	(cc/GET "/unfinish-project/:id" [id]
 	    (projects/unfinish-project id))
 	(cc/POST "/update-projects" request
 		(projects/update-projects! request))
-
+	(cc/GET "/clear-projects" []
+	    (projects/clear-projects))
+	
 	(cc/GET "/add-items/:id" [id]
 	    (items/add-items-page id :a-z))
 	(cc/GET "/add-items/:id/:stype" [id stype]
@@ -75,6 +87,12 @@
 		(lists/edit-list! request))
 	(cc/GET "/list/:id" [id]
 		(lists/show-list-page id))
+	(cc/GET "/clean-list/:id" [id]
+		(lists/clean-list id))
+	(cc/GET "/list-up/:listid/:itemid" [listid itemid]
+		(lists/list-up listid itemid))
+	(cc/GET "/list-down/:listid/:itemid" [listid itemid]
+		(lists/list-down listid itemid))
 	(cc/GET "/item-done/:listid/:itemid" [listid itemid]
 		(lists/item-done listid itemid))
 	(cc/GET "/item-undo/:listid/:itemid" [listid itemid]

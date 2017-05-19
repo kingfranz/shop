@@ -3,6 +3,12 @@
   							 [utils        :as utils])
             	(shop2.views [layout       :as layout]
             				 [common       :as common])
+            	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
             	(clj-time 	 [core            :as t]
             				 [local           :as l]
             				 [coerce          :as c]
@@ -20,7 +26,8 @@
             				 [form              :as hf]
             				 [page              :as hp]
             				 [util              :as hu])
-            	(ring.util 	 [anti-forgery   :as ruaf])
+            	(ring.util 		[anti-forgery :as ruaf]
+            					[response     :as ring])
             	(clojure 	 [string           :as str]
             				 [set              :as set])))
 
@@ -106,21 +113,36 @@
 
 (defn mk-list-name
 	[slist]
-	(str (:entryname slist) " - " (count (filter #(nil? (:finished %)) (:items slist)))))
+	(str (:entryname slist) " - " (:count slist)))
 
 (defn sub-tree
-	[action slist]
-	(let [sub-lists (db/get-sub-lists (:_id slist))
+	[action lists slist]
+	(let [sub-lists (filter #(some->> % :parent :_id (= (:_id slist))) lists)
 		  link      (if (= action :edit)
 		  				(str "/edit-list/" (:_id slist))
 		  				(str "/list/" (:_id slist)))]
 		[:li [:a.link-thick {:href link} (mk-list-name slist)]
 			(when (seq sub-lists)
-				[:ul (map #(sub-tree action %) sub-lists)])]))
+				[:ul (map #(sub-tree action lists %) sub-lists)])]))
+
+(defn list-tbl
+	[lists]
+	[:table
+		(for [a-list (->> lists
+						  (filter #(nil? (:finished %)))
+						  (sort-by :count)
+						  reverse)]
+			[:tr [:td
+				[:a.link-thick {:href (str "/list/" (:_id a-list))}
+					(str (:entryname a-list) " " (:count a-list))]]])])
 
 (defn list-tree
-	[action]
-	[:ul.tree (map #(sub-tree action %) (db/get-top-lists))])
+	[action udata]
+	(let [lists (dblists/get-lists-with-count)]
+		(if (= (->> udata :home :list-type) "tree")
+			[:ul.tree (map #(sub-tree action lists %)
+				(filter #(nil? (:parent %)) lists))]
+			(list-tbl lists))))
 
 (defn mk-menu-row
 	[menu]
@@ -132,7 +154,7 @@
 (defn menu-list
 	[]
 	[:table
-		(map mk-menu-row (db/get-menus (utils/today) (utils/new-menu-end)))])
+		(map mk-menu-row (dbmenus/get-menus (utils/today) (utils/new-menu-end)))])
 
 (defn mk-proj-row
 	[r]
@@ -149,7 +171,7 @@
 (defn projekt-list
 	[]
 	[:table
-		(->> (db/get-active-projects)
+		(->> (dbprojects/get-active-projects)
 			 (map mk-proj-row))])
 
 (defn recipe-list
@@ -160,7 +182,7 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/recipe/" (:_id r))}
 					              (:entryname r)]]])
-			(take 10 (db/get-recipes)))])
+			(take 10 (dbrecipes/get-recipe-names)))])
 
 (defn item-list
 	[]
@@ -170,7 +192,7 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/item/" (:_id i))}
 					              (:entryname i)]]])
-			(sort-by #(str/lower-case (:entryname %)) (db/get-items)))])
+			(sort-by #(str/lower-case (:entryname %)) (dbitems/get-item-names)))])
 
 (defn tags-list
 	[]
@@ -180,7 +202,7 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/tag/" (:_id t))}
 					              (:entryname t)]]])
-			(sort-by #(str/lower-case (:entryname %)) (db/get-tags)))])
+			(sort-by #(str/lower-case (:entryname %)) (dbtags/get-tag-names)))])
 
 (defn pick-list
 	[]
@@ -196,12 +218,15 @@
 						(list-tree :edit)]]]]))
 
 (defn home-page
-	[]
+	[udata]
 	(layout/common "Shopping" [css-home-tree css-home]
 	  	[:div.column
-			[:a.link-half {:href "/new-list" :style "width:40%"} "Ny"]
-			[:a.link-half {:href "/pick-list" :style "width:40%"} "Edit"]
-			[:div.home-box (list-tree :show)]]
+			[:a.link-half {:href "/new-list" :style "width:35%"} "Ny"]
+			(if (= (->> udata :home :list-type) "tree")
+				[:a.link-flex {:href "/home/prio" :style "width:10%"} "Num"]
+				[:a.link-flex {:href "/home/tree" :style "width:10%"} "Tree"])
+			[:a.link-half {:href "/pick-list" :style "width:35%"} "Edit"]
+			[:div.home-box (list-tree :show udata)]]
 		[:div.column
 			[:p.header [:a.link-home {:href "/menu"} "Veckomeny"]]
 			[:div.home-box (menu-list)]]
@@ -218,5 +243,11 @@
 			[:p.header [:a.link-home {:href "/new-recipe"} "Kategorier"]]
 			[:div.home-box (tags-list)]]
 	  	))
+
+(defn set-home-type
+	[udata list-type]
+	(println "set-home-type:" udata list-type)
+	(db/set-user-data (assoc-in udata [:home :list-type] list-type))
+	(ring/redirect "/"))
 
 ;;-----------------------------------------------------------------------------
