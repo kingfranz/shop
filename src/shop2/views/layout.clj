@@ -81,15 +81,7 @@
 			:color :white
 	        :-webkit-font-smoothing :antialiased
 	        :-webkit-text-size-adjust :none
-			}]
-		[:.app-div {
-			:width (u/px 1000)
-			}
-			(ss/at-media {:screen true :max-width (u/px 700)}
-				[:& {
-					:width full}])]
-		[:.master-table {
-			:width full}]))
+			}]))
 
 (defn common
 	[title css & body]
@@ -104,7 +96,7 @@
 			(map (fn [x] [:style x]) css)]
 		[:body
 			[:div
-				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.5.1"]
+				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.5.3"]
 				body]]))
 
 (defn four-oh-four

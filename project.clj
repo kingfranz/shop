@@ -1,4 +1,4 @@
-(defproject shop2 "0.5.1"
+(defproject shop2 "0.5.3"
   :description "Shopping list"
   :url "http://soahojen.se"
   :license {:name "Eclipse Public License"
@@ -15,7 +15,7 @@
                  [compojure "1.5.2"]]
   :main ^:skip-aot shop2.core
   :target-path "target/%s"
-  :uberjar-name "shopping-0.5.1.jar"
+  :uberjar-name "shopping-0.5.3.jar"
   :plugins [[lein-ring "0.11.0"]
   			[lein-pprint "1.1.2"]]
   :ring {:handler shop2.core/application

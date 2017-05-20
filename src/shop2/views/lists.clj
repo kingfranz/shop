@@ -45,7 +45,7 @@
 			:font-size  (u/px 24)
 			:padding    (u/px 5)}]
 		[:.item-text-td {
-			:width (u/px 600)}]
+			:width (u/percent 90)}]
 		[:.item-menu-td {
 			:width (u/percent 30)}]
 		[:.done {
@@ -61,13 +61,21 @@
 			:padding (u/px 5)
 			:height (u/px 20)
 		}]
+
 		[:.list-tbl {
 			:border [[(u/px 1) :white :solid]]
 			:border-radius (u/px 8)
 			:padding (u/px 8)
-			:width (u/px 690)
 			:margin [[(u/px 5) (u/px 0)]]
-		}]
+		}
+		(ss/at-media {:screen true
+					  :min-width (u/px 360)}
+			[:& {:width layout/full}])
+		(ss/at-media {:screen true
+					  :min-width (u/px 1024)}
+			[:& {:width (u/px 690)}])
+		]
+
 		[:.list-name-th {
 			:text-align :center
 			:background-color layout/transparent
@@ -91,13 +99,14 @@
 			:padding [[(u/px 20) 0 (u/px 10) 0]]
 		}]
 		[:.list-plus {:font-size (u/px 36)}]
-		[:a.arrow {
+		[:.arrow {
 			:display :block
 			:text-decoration :none
 			:color :black
 			:width (u/px 25)
 		}]
 		[:.align-r {:text-align :right}]
+		[:.align-l {:text-align :left}]
 		))
 
 (def css-lists-new
@@ -215,12 +224,13 @@
 
 (defn mk-item-row*
 	[a-list item active?]
+	(println "mk-item-row*")
 	(list
 		[:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
 		(when active? (list
-			[:td {:style "width:25px"}
+			[:td
 				[:a.arrow {:href (str "/list-up/" (:_id a-list) "/" (:_id item))} "▲"]]
-			[:td {:style "width:25px"}
+			[:td
 				[:a.arrow {:href (str "/list-down/" (:_id a-list) "/" (:_id item))} "▼"]]
 			(cond
 				(and (imenu item) (ilink item)) (list
@@ -237,6 +247,7 @@
 
 (defn mk-item-row
 	[a-list item active?]
+	(println "mk-item-row")
 	(if active?
 		[:tr.item-text-tr      (mk-item-row* a-list item active?)]
 		[:tr.item-text-tr.done (mk-item-row* a-list item active?)]))
@@ -262,11 +273,11 @@
     		[:td
     			[:table {:style "width:100%"}
     				[:tr
-    					[:th {:style "width:60px"} (common/home-button)]
+    					[:th.align-l (common/home-button)]
     					[:th.list-name-th
     						(hf/label {:class "list-name"} :xxx
     							(:entryname a-list))]
-    					[:th {:style "width:60px"}
+    					[:th.align-r
     						[:a.link-flex {:href (str "/add-items/" (:_id a-list))} "+"]]]]]]
     	; rows with not-done items
     	[:tr
@@ -285,14 +296,13 @@
 
 (defn show-list-page
     [list-id]
-	(let [a-list (dblists/get-list list-id)]
-		(layout/common (:entryname a-list) [css-lists]
-	    	(loop [listid  list-id
-				   acc     []]
-				(if (some? listid)
-					(let [slist a-list]
-						(recur (-> slist :parent :_id) (conj acc (mk-list-tbl slist))))
-					(seq acc))))))
+	(layout/common (:entryname (dblists/get-list list-id)) [css-lists]
+    	(loop [listid  list-id
+			   acc     []]
+			(if (some? listid)
+				(let [slist (dblists/get-list listid)]
+					(recur (-> slist :parent :_id) (conj acc (mk-list-tbl slist))))
+				(seq acc)))))
 
 ;;-----------------------------------------------------------------------
 

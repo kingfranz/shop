@@ -107,6 +107,8 @@
 			:overflow-y :auto
 			}]
 		[:.proj-pri {:width (u/px 20)}]
+		[:.clip {:overflow :hidden
+			     :white-space :nowrap}]
 		))
 
 ;;-----------------------------------------------------------------------------
@@ -165,7 +167,7 @@
 				(str (:priority r)))]
 		[:td
 			(hf/label
-				{:class "home-margin"} :dummy
+				{:class "home-margin clip"} :dummy
 				(:entryname r))]])
 
 (defn projekt-list
@@ -221,11 +223,11 @@
 	[udata]
 	(layout/common "Shopping" [css-home-tree css-home]
 	  	[:div.column
-			[:a.link-half {:href "/new-list" :style "width:35%"} "Ny"]
+			[:a.link-flex {:href "/new-list"} "Ny"]
 			(if (= (->> udata :home :list-type) "tree")
-				[:a.link-flex {:href "/home/prio" :style "width:10%"} "Num"]
-				[:a.link-flex {:href "/home/tree" :style "width:10%"} "Tree"])
-			[:a.link-half {:href "/pick-list" :style "width:35%"} "Edit"]
+				[:a.link-flex {:href "/home/prio"} "Num"]
+				[:a.link-flex {:href "/home/tree"} "Tree"])
+			[:a.link-flex {:href "/pick-list"} "Edit"]
 			[:div.home-box (list-tree :show udata)]]
 		[:div.column
 			[:p.header [:a.link-home {:href "/menu"} "Veckomeny"]]
