@@ -90,10 +90,59 @@
 
 ;;-----------------------------------------------------------------------------
 
+;monger.collection$find_one_as_map@5f2b4e24users
+(defn fname
+	[s]
+	(second (re-matches #"^[^$]+\$(.+)@.+$" (str s))))
+
+(defn- do-mc
+	[mc-func caller tbl & args]
+	(log/trace (apply str caller ": " (fname mc-func) " " tbl " " args))
+	(let [ret (apply mc-func shopdb tbl (first args))]
+		(log/trace caller "returned:" (pr-str ret))
+		ret))
+
+(defn mc-aggregate
+	[func tbl & args]
+	(do-mc mc/aggregate func tbl args))
+
+(defn mc-find-maps
+	[func tbl & args]
+	(do-mc mc/find-maps func tbl args))
+
+(defn mc-find-one-as-map
+	[func tbl & args]
+	(do-mc mc/find-one-as-map func tbl (vec args)))
+
+(defn mc-find-map-by-id
+	[func tbl & args]
+	(do-mc mc/find-map-by-id func tbl args))
+
+(defn mc-insert
+	[func tbl & args]
+	(do-mc mc/insert func tbl args))
+
+(defn mc-insert-batch
+	[func tbl & args]
+	(do-mc mc/insert-batch func tbl args))
+
+(defn mc-update
+	[func tbl & args]
+	(do-mc mc/update func tbl args))
+
+(defn mc-update-by-id
+	[func tbl & args]
+	(do-mc mc/update-by-id func tbl args))
+
+(defn mc-remove-by-id
+	[func tbl & args]
+	(do-mc mc/remove-by-id func tbl args))
+
+;;-----------------------------------------------------------------------------
+
 (defn add-item-usage
 	[list-id item-id action numof]
-	(log/trace "add-item-usage")
-	(mc/insert shopdb item-usage
+	(mc-insert "add-item-usage" item-usage
 		(merge {:listid list-id :itemid item-id :action action :numof numof}
 			   (mk-std-field))))
 
@@ -102,9 +151,8 @@
 (defn get-user-data
 	[uname]
 	{:pre [(q-valid? :shop/string uname)]
-	 :post [(p-trace "get-user-data" %) (map? %)]}
-	(log/trace "get-user-data: (mc/find-maps shopdb users {:uname " uname "})")
-	(let [udata (mc/find-one-as-map shopdb users {:uname uname})]
+	 :post [(map? %)]}
+	(let [udata (mc-find-one-as-map "get-user-data" users {:uname uname})]
 		(if (empty? udata)
 			{:uname uname}
 			udata)))
@@ -114,24 +162,20 @@
 	;{:pre [(q-valid? :shop/string uname)]
 	; :post [(p-trace "set-user-data" %) (map? %)]}
 	(if (nil? (:_id udata))
-		(do
-			(log/trace "set-user-data: (mc/insert shopdb users (merge " udata " (mk-std-field)))")
-			(mc/insert shopdb users (merge udata (mk-std-field))))
-		(do
-			(log/trace "set-user-data: (mc/update-by-id shopdb users " (:_id udata) udata ")")
-			(mc/update-by-id shopdb users (:_id udata) udata))))
+		(mc-insert "set-user-data" users (merge udata (mk-std-field)))
+		(mc-update-by-id "set-user-data" users (:_id udata) udata)))
 
 ;;-----------------------------------------------------------------------------
 
 (defn save-session-data
 	[key data]
-	(mc/insert shopdb sessions (assoc {:_id key} :data data)))
+	(mc-insert "save-session-data" sessions (assoc {:_id key} :data data)))
 
 (defn read-session-data
 	[key]
-	(get (mc/find-one-as-map shopdb sessions {:_id key}) :data))
+	(get (mc-find-one-as-map "read-session-data" sessions {:_id key}) :data))
 
 (defn delete-session-data
 	[key]
-	(mc/remove-by-id shopdb sessions key))
+	(mc-remove-by-id "delete-session-data" sessions key))
 

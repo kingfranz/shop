@@ -29,15 +29,12 @@
 
 (defn get-projects
 	[]
-	{:post [(p-trace "get-projects" %) (q-valid? :shop/projects %)]}
-	(log/trace "get-projects: (mc/find-maps shopdb projects)")
-	(mc/find-maps shopdb projects {:cleared nil}))
+	{:post [(q-valid? :shop/projects %)]}
+	(mc-find-maps "get-projects" projects {:cleared nil}))
 
 (defn get-active-projects
 	[]
-	{:post [(p-trace "get-active-projects" %)]}
-	(log/trace "get-active-projects: (mc/find-maps shopdb projects {:finished nil})")
-	(->> (mc/find-maps shopdb projects
+	(->> (mc-find-maps "get-active-projects" projects
 			{:finished nil}
 			{:_id true :entryname true :priority true})
 		 (sort-by :priority)))
@@ -45,45 +42,37 @@
 (defn get-project
 	[id]
 	{:pre [(q-valid? :shop/_id id)]
-	 :post [(p-trace "get-project" %) (q-valid? :shop/project %)]}
-	(log/trace "get-project: (mc/find-one-as-map shopdb projects {:_id " id "})")
-	(mc/find-one-as-map shopdb projects {:_id id}))
+	 :post [(q-valid? :shop/project %)]}
+	(mc-find-one-as-map "get-project" projects {:_id id}))
 
 (defn add-project
 	[entry]
 	{:pre [(q-valid? :shop/project* entry)]
-	 :post [(p-trace "add-project" %) (q-valid? :shop/project %)]}
+	 :post [(q-valid? :shop/project %)]}
 	(dbtags/add-tags (:tags entry))
 	(let [entry* (merge entry (mk-std-field))]
-		(log/trace "add-project: (mc/insert shopdb projects " entry* ")")
-		(mc/insert shopdb projects entry*)
+		(mc-insert "add-project" projects entry*)
 		entry*))
 
 (defn finish-project
 	[project-id]
-	{:pre [(q-valid? :shop/_id project-id)]
-	 :post [(p-trace "finish-project" %)]}
-	(log/trace "finish-project: (mc/update-by-id shopdb projects " project-id " {$set {:finished " (l/local-now) "}})")
-	(mc/update-by-id shopdb projects project-id {$set {:finished (l/local-now)}}))
+	{:pre [(q-valid? :shop/_id project-id)]}
+	(mc-update-by-id "finish-project" projects project-id {$set {:finished (l/local-now)}}))
 
 (defn unfinish-project
 	[project-id]
-	{:pre [(q-valid? :shop/_id project-id)]
-	 :post [(p-trace "unfinish-project" %)]}
-	(log/trace "unfinish-project: (mc/update-by-id shopdb projects " project-id " {$unset :finished})")
-	(mc/update-by-id shopdb projects project-id {$set {:finished nil}}))
+	{:pre [(q-valid? :shop/_id project-id)]}
+	(mc-update-by-id "unfinish-project" projects project-id {$set {:finished nil}}))
 
 (defn update-project
 	[proj]
-	{:pre [(q-valid? :shop/project* proj)]
-	 :post [(p-trace "update-project" %)]}
-	(log/trace "update-project: (mc/update-by-id shopdb projects " (:_id proj) " {$set " proj "})")
-	(mc/update-by-id shopdb projects (:_id proj)
+	{:pre [(q-valid? :shop/project* proj)]}
+	(mc-update-by-id "update-project" projects (:_id proj)
 		{$set (select-keys proj [:entryname :priority :finished :tags])}))
 
 (defn clear-projects
 	[]
-	(mc/update shopdb projects
+	(mc-update clear-projects projects
 		{:finished {$type "date"}}
 		{$set {:cleared (utils/now)}}
 		{:multi true}))

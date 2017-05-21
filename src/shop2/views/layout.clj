@@ -96,7 +96,7 @@
 			(map (fn [x] [:style x]) css)]
 		[:body
 			[:div
-				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.5.3"]
+				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.6.0"]
 				body]]))
 
 (defn four-oh-four

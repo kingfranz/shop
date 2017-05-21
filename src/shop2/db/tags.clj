@@ -29,35 +29,30 @@
 
 (defn get-tags
 	[]
-	{:post [(p-trace "get-tags" %) (q-valid? :shop/tags %)]}
-	(log/trace "get-tags: (mc/find-maps shopdb tags)")
-	(mc/find-maps shopdb tags))
+	{:post [(q-valid? :shop/tags %)]}
+	(mc-find-maps "get-tags" tags))
 
 (defn get-tag
 	[id]
 	{:pre [(q-valid? :shop/_id id)]
-	 :post [(p-trace "get-tag" %) (q-valid? :shop/tag %)]}
-	(log/trace "get-tag: (mc/find-map-by-id shopdb tags " id ")")
-	(mc/find-map-by-id shopdb tags id))
+	 :post [(q-valid? :shop/tag %)]}
+	(mc-find-map-by-id "get-tag" tags id))
 
 (defn update-tag
 	[tag-id tag-name]
-	{:pre [(q-valid? :shop/_id tag-id)]
-	 :post [(p-trace "update-tag" %)]}
-	(log/trace "update-tag: (mc/update-by-id shopdb tags (:_id " tag-id ") {$set {:entryname " tag-name "}})")
-	(mc/update-by-id shopdb tags (:_id tag-id)
+	{:pre [(q-valid? :shop/_id tag-id)]}
+	(mc-update-by-id "update-tag" tags (:_id tag-id)
 		{$set {:entryname tag-name}}))
 
 (defn get-tag-names
 	[]
-	{:post [(p-trace "get-tag-names" %) (q-valid? :shop/strings %)]}
-	(mc/find-maps shopdb tags {} {:_id true :entryname true}))
+	{:post [(q-valid? :shop/strings %)]}
+	(mc-find-maps "get-tag-names" tags {} {:_id true :entryname true}))
 
 (defn add-tag
 	[tag-name]
 	{:pre [(q-valid? :shop/string tag-name)]
-	 :post [(p-trace "add-tag" %) (q-valid? :shop/tag %)]}
-	(log/trace "add-tag: (get-tags)")
+	 :post [(q-valid? :shop/tag %)]}
 	(let [db-tags      (get-tags)
 		  db-tag-names (->> db-tags (map :entryname) set)
 		  clean-tag    (->> tag-name str/trim str/capitalize)
@@ -65,15 +60,12 @@
 		(if (some #{clean-tag} db-tag-names)
 			(some #(when (= (:entryname %) clean-tag) %) db-tags)
 			(do
-				(log/trace "add-tag: (mc/insert shopdb tags " new-tag ")")
-				(mc/insert shopdb tags new-tag)
+				(mc-insert "add-tag" tags new-tag)
 				new-tag))))
 
 (defn add-tags
 	[tags*]
-	{:pre [(q-valid? :shop/tags* tags*)]
-	 :post [(p-trace "add-tags" %)]}
-	(log/trace "add-tags: (get-tags)")
+	{:pre [(q-valid? :shop/tags* tags*)]}
 	(let [db-tags         (get-tags)
 		  db-tag-names    (->> db-tags (map :entryname) set)
 		  clean-tag-names (->> tags*
@@ -87,33 +79,28 @@
 		  						  	   old-tag-names))]
 		(when (seq new-tags)
 			(if (q-valid? :shop/tags new-tags)
-				(do
-					(log/trace "add-tags: (mc/insert-batch shopdb tags " new-tags ")")
-					(mc/insert-batch shopdb tags new-tags))
+				(mc-insert-batch "add-tags" tags new-tags)
 				(throw (Exception. "Invalid tags"))))
 		all-tags))
 
 (defn add-tag-names
 	[names]
 	{:pre [(q-valid? :shop/strings names)]}
-	(log/trace "add-tag-names: " names)
 	(add-tags (map #(hash-map :entryname %) names)))
 
 (defn delete-tag
 	[id]
 	{:pre [(q-valid? :shop/_id id)]}
-	(log/trace "delete-tag: (mc/remove-by-id shopdb tags " id ")")
-	(mc/remove-by-id shopdb tags id))
+	(mc-remove-by-id "delete-tag" tags id))
 
 (defn delete-tag-all
 	[id]
 	{:pre [(q-valid? :shop/_id id)]}
-	(log/trace "delete-tag: (mc/remove-by-id shopdb tags " id ")")
 	(delete-tag id)
-	(mc/update shopdb lists {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc/update shopdb recipes {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc/update shopdb menus {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc/update shopdb projects {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc/update shopdb items {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" lists {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" recipes {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" menus {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" projects {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" items {} {$pull {:tags {:_id id}}} {:multi true})
 	)
 

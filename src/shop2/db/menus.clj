@@ -36,43 +36,34 @@
 (defn add-menu
 	[entry]
 	{:pre [(q-valid? :shop/menu* entry)]
-	 :post [(p-trace "add-menu" %) (q-valid? :shop/menu %)]}
+	 :post [(q-valid? :shop/menu %)]}
 	(let [entry* (merge entry (mk-std-field))]
-		(log/trace "add-menu: (mc/insert shopdb menus " entry* ")")
-		(mc/insert shopdb menus entry*)
+		(mc-insert "add-menu" menus entry*)
 		entry*))
 
 (defn update-menu
 	[entry]
-	{:pre [(q-valid? :shop/menu entry)]
-	 :post [(p-trace "update-menu" %)]}
-	(log/trace "update-menu: (mc/update-by-id shopdb menus " (:_id entry) " {$set " entry "})")
-	(mc/update-by-id shopdb menus (:_id entry)
+	{:pre [(q-valid? :shop/menu entry)]}
+	(mc-update-by-id "update-menu" menus (:_id entry)
 		{$set (select-keys entry [:entryname :date :tags :recipe])}))
 
 (defn add-recipe-to-menu
 	[menu-dt recipe-id]
-	{:pre [(q-valid? :shop/date menu-dt) (q-valid? :shop/_id recipe-id)]
-	 :post [(p-trace "add-recipe-to-menu" %)]}
-	(log/trace "add-recipe-to-menu: (get-recipe " recipe-id ")")
+	{:pre [(q-valid? :shop/date menu-dt) (q-valid? :shop/_id recipe-id)]}
 	(let [recipe (dbrecipes/get-recipe recipe-id)]
-		(log/trace "add-recipe-to-menu: (mc/update shopdb menus {:date " menu-dt "} {$set {:recipe " (select-keys recipe [:_id :entryname]) "}})")
-		(mc/update shopdb menus {:date menu-dt}
+		(mc-update "add-recipe-to-menu" menus {:date menu-dt}
 			{$set {:recipe (select-keys recipe [:_id :entryname])}})))
 
 (defn remove-recipe-from-menu
 	[menu-dt]
-	{:pre [(q-valid? :shop/date menu-dt)]
-	 :post [(p-trace "remove-recipe-from-menu" %)]}
-	(log/trace "remove-recipe-from-menu: (mc/update shopdb menus {:date menu-dt} {$unset :recipe})")
-	(mc/update shopdb menus {:date menu-dt} {$unset {:recipe nil}}))
+	{:pre [(q-valid? :shop/date menu-dt)]}
+	(mc-update "remove-recipe-from-menu" menus {:date menu-dt} {$unset {:recipe nil}}))
 
 (defn get-menus
 	[from to]
 	{:pre [(q-valid? :shop/date from) (q-valid? :shop/date to)]
-	 :post [(p-trace "get-menus" %) (q-valid? :shop/x-menus %)]}
-	(log/trace "get-menus: (mc/find-maps shopdb menus {:date {$gte " from " $lt " to "}})")
-	(let [db-menus* (mc/find-maps shopdb menus {:date {$gte from $lt to}})
+	 :post [(q-valid? :shop/x-menus %)]}
+	(let [db-menus* (mc-find-maps "get-menus" menus {:date {$gte from $lt to}})
 		  db-menus  (map fix-date db-menus*)
 		  new-menus (set/difference (set (utils/time-range from to (t/days 1)))
 		  	                        (set (map :date db-menus)))]
