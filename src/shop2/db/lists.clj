@@ -142,6 +142,12 @@
 		{:_id list-id :items._id item-id}
 		{$inc {:items.$.numof num-of}}))
 
+(defn find-list-by-name
+	[e-name]
+	{:pre [(q-valid? :shop/string e-name)]
+	 :post [(q-valid? :shop/list %)]}
+	(mc-find-one-as-map "find-list-by-name" lists {:entryname e-name}))
+
 (defn find-item
 	[list-id item-id]
 	{:pre [(q-valid? :shop/_id list-id)
@@ -167,10 +173,4 @@
 			(add-item-usage list-id item-id :add-to num-of)
 			(mc-update-by-id "item->list" lists list-id
 				{$addToSet {:items (assoc (dbitems/get-item item-id) :numof num-of)}}))))
-
-(defn find-list-by-name
-	[e-name]
-	{:pre [(q-valid? :shop/string e-name)]
-	 :post [(q-valid? :shop/list %)]}
-	(mc-find-one-as-map "find-list-by-name" lists {:entryname e-name}))
 

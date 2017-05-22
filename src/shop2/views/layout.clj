@@ -83,21 +83,30 @@
 	        :-webkit-text-size-adjust :none
 			}]))
 
-(defn common
-	[title css & body]
+(defn common*
+	[title css refresh & body]
 	(hp/html5
 		[:head {:lang "sv"}
 			[:meta {:charset "utf-8"}]
 			[:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
 			[:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
+			refresh
 			[:title title]
 			[:style css-html]
 			[:style css-misc]
 			(map (fn [x] [:style x]) css)]
 		[:body
 			[:div
-				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.6.0"]
+				[:p {:style "margin: 0px 0px 3px 2px"} "Shopping 0.6.1"]
 				body]]))
+
+(defn common
+	[title css & body]
+	(common* title css nil body))
+
+(defn common-refresh
+	[title css & body]
+	(common* title css [:meta {:http-equiv :refresh :content (* 60 5)}] body))
 
 (defn four-oh-four
 	[]

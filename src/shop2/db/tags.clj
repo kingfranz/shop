@@ -38,27 +38,35 @@
 	 :post [(q-valid? :shop/tag %)]}
 	(mc-find-map-by-id "get-tag" tags id))
 
-(defn update-tag
-	[tag-id tag-name]
-	{:pre [(q-valid? :shop/_id tag-id)]}
-	(mc-update-by-id "update-tag" tags (:_id tag-id)
-		{$set {:entryname tag-name}}))
-
 (defn get-tag-names
 	[]
 	{:post [(q-valid? :shop/strings %)]}
 	(mc-find-maps "get-tag-names" tags {} {:_id true :entryname true}))
 
+(defn update-tag
+	[tag-id tag-name*]
+	{:pre [(q-valid? :shop/_id tag-id)]}
+	(let [tag-name   (->> tag-name* str/trim str/capitalize)
+		  tag-namelc (mk-enlc tag-name)
+		  db-tag     (get-by-enlc tags tag-namelc)]
+		(if (some? db-tag)
+			(if (= (:_id db-tag) tag-id)
+				db-tag
+				(throw (ex-info "duplicate name" {:cause :dup})))
+			(mc-update-by-id "update-tag" tags (:_id tag-id)
+				{$set {:entryname tag-name :entrynamelc tag-namelc}}))))
+
 (defn add-tag
-	[tag-name]
-	{:pre [(q-valid? :shop/string tag-name)]
+	[tag-name*]
+	{:pre [(q-valid? :shop/string tag-name*)]
 	 :post [(q-valid? :shop/tag %)]}
-	(let [db-tags      (get-tags)
-		  db-tag-names (->> db-tags (map :entryname) set)
-		  clean-tag    (->> tag-name str/trim str/capitalize)
-		  new-tag      (merge {:entryname clean-tag} (mk-std-field))]
-		(if (some #{clean-tag} db-tag-names)
-			(some #(when (= (:entryname %) clean-tag) %) db-tags)
+	(let [tag-name   (->> tag-name* str/trim str/capitalize)
+		  tag-namelc (mk-enlc tag-name)
+		  db-tag     (get-by-enlc tags tag-namelc)
+		  new-tag    (merge {:entryname tag-name
+		  					 :entrynamelc tag-namelc} (mk-std-field))]
+		(if (some? db-tag)
+			db-tag
 			(do
 				(mc-insert "add-tag" tags new-tag)
 				new-tag))))
@@ -66,27 +74,12 @@
 (defn add-tags
 	[tags*]
 	{:pre [(q-valid? :shop/tags* tags*)]}
-	(let [db-tags         (get-tags)
-		  db-tag-names    (->> db-tags (map :entryname) set)
-		  clean-tag-names (->> tags*
-		  					   (map #(->> % :entryname str/trim str/capitalize))
-		  					   set)
-		  new-tag-names   (set/difference clean-tag-names db-tag-names)
-		  new-tags        (mapv #(merge {:entryname %} (mk-std-field)) new-tag-names)
-		  old-tag-names   (set/difference clean-tag-names new-tag-names)
-		  all-tags        (concat new-tags
-		  						  (map #(utils/find-first (fn [t] (= (:entryname t) %)) db-tags)
-		  						  	   old-tag-names))]
-		(when (seq new-tags)
-			(if (q-valid? :shop/tags new-tags)
-				(mc-insert-batch "add-tags" tags new-tags)
-				(throw (Exception. "Invalid tags"))))
-		all-tags))
+	(map #(add-tag (:entryname %)) tags*))
 
 (defn add-tag-names
 	[names]
 	{:pre [(q-valid? :shop/strings names)]}
-	(add-tags (map #(hash-map :entryname %) names)))
+	(map add-tag names))
 
 (defn delete-tag
 	[id]

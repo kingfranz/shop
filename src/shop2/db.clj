@@ -140,6 +140,16 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn mk-enlc
+	[en]
+	(-> en str/trim str/lower-case (str/replace #"[ \t-]+" " ")))
+
+(defn get-by-enlc
+	[tbl en]
+	(some? (mc-find-one-as-map "enlc-exists?" tbl {:entrynamelc en})))
+
+;;-----------------------------------------------------------------------------
+
 (defn add-item-usage
 	[list-id item-id action numof]
 	(mc-insert "add-item-usage" item-usage

@@ -296,7 +296,7 @@
 
 (defn show-list-page
     [list-id]
-	(layout/common (:entryname (dblists/get-list list-id)) [css-lists]
+	(layout/common-refresh (:entryname (dblists/get-list list-id)) [css-lists]
     	(loop [listid  list-id
 			   acc     []]
 			(if (some? listid)

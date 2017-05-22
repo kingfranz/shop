@@ -36,12 +36,11 @@
 (s/def :shop/url       (s/nilable string?))
 (s/def :shop/cleared   (s/nilable :shop/date))
 (s/def :shop/std-keys  (s/keys :req-un [:shop/_id :shop/created]))
-(s/def :shop/name-keys (s/keys :req-un [:shop/entryname :shop/entrynamelc]))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/list*   (s/merge :shop/name-keys
-							  (s/keys :opt-un [:shop/items :list/parent])))
+(s/def :shop/list*   (s/keys :req-un [:shop/entryname]
+							 :opt-un [:shop/items :list/parent]))
 
 (s/def :shop/list    (s/merge :shop/list* :shop/std-keys))
 (s/def :shop/lists*  (s/* :shop/list*))
@@ -49,20 +48,19 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/item*   (s/merge :shop/name-keys
-							  (s/keys :opt-un [:shop/tags :shop/finished :shop/numof :shop/url
+(s/def :shop/item*   (s/keys :req-un [:shop/entryname]
+							 :opt-un [:shop/tags :shop/finished :shop/numof :shop/url
 							 		  :shop/amount :shop/unit :shop/price
-							 		  :shop/parent])))
+							 		  :shop/parent]))
 
-(s/def :shop/item    (s/merge :shop/item* :shop/std-keys))
+(s/def :shop/item    (s/merge :shop/item* :shop/std-keys :shop/entrynamelc))
 (s/def :shop/items*  (s/* :shop/item*))
 (s/def :shop/items   (s/* :shop/item))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/menu*     (s/merge :shop/name-keys
-							    (s/keys :req-un [:shop/date]
-							            :opt-un [:menu/recipe])))
+(s/def :shop/menu*     (s/keys :req-un [:shop/entryname :shop/date]
+							   :opt-un [:menu/recipe]))
 
 (s/def :shop/menu      (s/merge :shop/menu* :shop/std-keys))
 (s/def :shop/menus*    (s/* :shop/menu*))
@@ -72,27 +70,26 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/project*   (s/merge :shop/name-keys
-							     (s/keys :req-un [:shop/priority]
-							             :opt-un [:shop/finished :shop/tags :shop/cleared])))
+(s/def :shop/project*   (s/keys :req-un [:shop/entryname :shop/priority]
+						        :opt-un [:shop/finished :shop/tags :shop/cleared]))
 
 (s/def :shop/project    (s/merge :shop/project* :shop/std-keys))
 (s/def :shop/projects*  (s/* :shop/project*))
-(s/def :shop/projects  (s/* :shop/project))
+(s/def :shop/projects   (s/* :shop/project))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/recipe*  (s/merge :shop/name-keys
-							   (s/keys :opt-un [:recipe/items :shop/url :shop/text])))
+(s/def :shop/recipe*  (s/keys :req-un [:shop/entryname]
+							  :opt-un [:recipe/items :shop/url :shop/text]))
 
-(s/def :shop/recipe   (s/merge :shop/recipe* :shop/std-keys))
+(s/def :shop/recipe   (s/merge :shop/recipe* :shop/std-keys :shop/entrynamelc))
 (s/def :shop/recipes* (s/* :shop/recipe*))
 (s/def :shop/recipes  (s/* :shop/recipe))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/tag*  :shop/name-keys)
+(s/def :shop/tag*  (s/keys :req-un [:shop/entryname]))
 
-(s/def :shop/tag   (s/merge :shop/tag* :shop/std-keys))
+(s/def :shop/tag   (s/merge :shop/tag* :shop/std-keys :shop/entrynamelc))
 (s/def :shop/tags* (s/* :shop/tag*))
 (s/def :shop/tags  (s/* :shop/tag))

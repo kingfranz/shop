@@ -49,17 +49,36 @@
 	{:pre [(q-valid? :shop/recipe* entry)]
 	 :post [(q-valid? :shop/recipe %)]}
 	(dbtags/add-tags (:tags entry))
-	(let [entry* (merge entry (mk-std-field))]
-		(mc-insert "add-recipe" recipes entry*)
-		entry*))
+	(let [entrynamelc (mk-enlc (:entryname entry))
+		  db-entry (get-by-enlc recipes entrynamelc)
+		  entry* (-> entry
+		  			 (merge {:entrynamelc entrynamelc} (mk-std-field))
+		  			 (update :entryname str/trim))]
+		(if (some? db-entry)
+			db-entry
+			(do
+				(mc-insert "add-recipe" recipes entry*)
+				entry*))))
 
 (defn update-recipe
-	[recipe]
-	{:pre [(q-valid? :shop/recipe* recipe)]}
-	(mc-update-by-id "update-recipe" recipes (:_id recipe)
-		{$set (select-keys recipe [:entryname :url :items :text])})
-	; now update the recipe in menus
-	(mc-update "update-recipe" menus {:recipe._id (:_id recipe)}
-		{$set {:recipe (select-keys recipe [:_id :entryname])}}
-		{:multi true}))
+	[recipe*]
+	{:pre [(q-valid? :shop/recipe* recipe*)]}
+	(let [entrynamelc (mk-enlc (:entryname recipe*))
+		  recipe (-> recipe*
+		  			 (assoc :entrynamelc entrynamelc)
+		  			 (update :entryname str/trim))
+		  db-entry (get-by-enlc recipes entrynamelc)]
+		(if (some? db-entry)
+			(if (= (:_id db-entry) (:_id recipe))
+				(mc-update-by-id "update-recipe" recipes (:_id recipe)
+					{$set (select-keys recipe [:url :items :text])})
+				(throw (ex-info "duplicate name" {:cause "dup"})))
+			(do
+				(mc-update-by-id "update-recipe" recipes (:_id recipe)
+					{$set (select-keys recipe [:entryname :entrynamelc :url :items :text])})
+				; now update the recipe in menus
+				(mc-update "update-recipe" menus {:recipe._id (:_id recipe)}
+					{$set {:recipe (select-keys recipe [:_id :entryname])}}
+					{:multi true})))
+		recipe))
 

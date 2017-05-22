@@ -221,7 +221,7 @@
 
 (defn home-page
 	[udata]
-	(layout/common "Shopping" [css-home-tree css-home]
+	(layout/common-refresh "Shopping" [css-home-tree css-home]
 	  	[:div.column
 			[:a.link-flex {:href "/new-list"} "Ny"]
 			(if (= (->> udata :home :list-type) "tree")
