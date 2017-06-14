@@ -6,7 +6,6 @@
   								[menus 			:as dbmenus]
   								[projects 		:as dbprojects]
   								[recipes 		:as dbrecipes])
-            	(shop2.views 	[layout       	:as layout])
             	(clj-time 		[core         	:as t]
             					[local        	:as l]
             					[coerce       	:as c]
@@ -25,9 +24,12 @@
             					[page         	:as hp]
             					[util         	:as hu])
             	(clojure 		[string       	:as str]
+            					[spec 			:as s]
             					[set          	:as set])))
 
 ;;-----------------------------------------------------------------------------
+
+(defonce shop-version "0.7.0")
 
 (defonce top-lvl-name "Ingen")
 (defonce old-tag-head "old-tag-")
@@ -55,60 +57,9 @@
 
 (defn extract-tags
 	[params]
-	;(log/debug params)
-	(let [tags (concat (db/spy "old-tags:" (find-old-tags params)) (find-new-tags params))]
+	(let [tags (concat (find-old-tags params) (find-new-tags params))]
 		(when-not (empty? tags)
 			(dbtags/add-tag-names tags))))
-
-(def css-tags-tbl
-	(g/css
-		[:.cat-choice {
-			:font-size (u/px 24)
-			:margin    [[0 (u/px 10) 0 0]]
-		}]
-		[:.cat-choice-th {
-			:text-align :left
-			;:font-size (u/px 36)
-			:padding [[(u/px 20) (u/px 20) 0 0]]
-		}]
-		[:.cb-div {
-			:float :left
-			:text-align :right
-			:width (u/px 200)
-			;:border [[(u/px 1) :solid :grey]]
-			:padding [[0 (u/px 10) 0 0]]
-		}]
-		[:.new-cb-n {
-			:text-align :right
-			:margin [[(u/px 5) (u/px 10) (u/px 5) 0]]
-		}]
-		[:input.new-cb {
-			:margin [[0 (u/px 10) 0 0]]
-			:transform "scale(2)"
-		}]
-		[:.new-tag-txt {
-			:color :white
-			:background-color layout/transparent
-			:font-size (u/px 24)
-			:width (u/px 182)
-			:border [[(u/px 1) :solid :grey]]
-			:margin [[0 (u/px 10) 0 0]]
-		}]
-		[:.new-tags {
-			:font-size (u/px 24)
-			:width (u/px 600)
-		}]
-		[:.named-div {
-			:margin [[(u/px 20) (u/px 20) (u/px 20) (u/px 20)]]
-			:border [[(u/px 1) :solid :grey]]
-		}]
-		[:.named-div-p {
-			:margin [[0 0 (u/px 10) 0]]
-		}]
-		[:.named-div-l {
-			:margin [[0 (u/px 10) 0 0]]
-		}]
-		))
 
 (defn named-div
 	([d-name input]
@@ -153,16 +104,37 @@
 
 (defn home-button
 	[]
-	[:a.link-icon {:href "/"} (he/image "/images/home32w.png")])
+	[:a.link-flex {:href "/user/home"} (he/image "/images/home32w.png")])
 
 (defn back-button
 	[target]
-	[:a.link-icon {:href target} (he/image "/images/back32w.png")])
+	[:a.link-flex {:href target} (he/image "/images/back32w.png")])
 
 (defn homeback-button
 	[target]
 	(list
-		[:a.link-icon {:href "/"} (he/image "/images/home32w.png")]
-		[:a.link-icon {:href target} (he/image "/images/back32w.png")]))
+		[:a.link-flex {:href "/user/home"} (he/image "/images/home32w.png")]
+		[:a.link-flex {:href target} (he/image "/images/back32w.png")]))
+
+(defn udata
+	[req]
+	(if-let [current (get-in req [:session :cemerick.friend/identity :current])]
+		(if-let [udata (get-in req [:session :cemerick.friend/identity :authentications current])]
+			(if (s/valid? :shop/user udata)
+				(db/get-user (:username udata))
+				(throw (ex-info (s/explain-str :shop/user udata) {:cause (str udata)})))
+			(throw (ex-info "invalid session2" {:cause (str udata)})))
+		(throw (ex-info "invalid request" {:cause (str req)}))))
+
+(defn uid
+	[req]
+	(-> req udata :_id))
+
+(defn mk-parent-dd
+	[item]
+	(let [lists      (dblists/get-list-names)
+		  list-names (sort (map :entryname lists))
+		  tl-name    (some #(when (= (:_id %) (:parent item)) (:entryname %)) lists)]
+		(hf/drop-down {:class "new-item-txt"} :parent list-names tl-name)))
 
 

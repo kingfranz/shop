@@ -36,6 +36,11 @@
 (s/def :shop/url       (s/nilable string?))
 (s/def :shop/cleared   (s/nilable :shop/date))
 (s/def :shop/std-keys  (s/keys :req-un [:shop/_id :shop/created]))
+(s/def :shop/username  :shop/string)
+(s/def :shop/roles     (s/every keyword? :kind set?))
+(s/def :shop/password  :shop/string)
+(s/def :shopuser/created :shop/string)
+(s/def :shopuser/properties (s/map-of keyword? map?))
 
 ;;-----------------------------------------------------------------------------
 
@@ -93,3 +98,10 @@
 (s/def :shop/tag   (s/merge :shop/tag* :shop/std-keys :shop/entrynamelc))
 (s/def :shop/tags* (s/* :shop/tag*))
 (s/def :shop/tags  (s/* :shop/tag))
+
+;;-----------------------------------------------------------------------------
+
+(s/def :shop/user    (s/keys :req-un [:shop/_id :shopuser/created
+									  :shop/username :shop/roles]
+							 :opt-un [:shopuser/properties]))
+(s/def :shop/user-db (s/merge :shop/user :shop/password))

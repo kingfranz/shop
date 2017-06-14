@@ -4,8 +4,10 @@
             				[coerce   :as c]
             				[format   :as f]
             				[periodic :as p])
+  				(taoensso 	[timbre   :as log])
             	(clojure 	[string   :as str]
-            				[set      :as set])))
+            				[set      :as set]
+            				[spec 	  :as s])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -77,3 +79,16 @@
 (defn find-first
 	[pred coll]
 	(some (fn [x] (when (pred x) x)) coll))
+
+(defn assoc-str-if
+	[m k txt]
+	(if (seq txt)
+		(assoc m k txt)
+		m))
+
+(defn assoc-num-if
+	[m k txt]
+	(if-let [n (some->> txt (re-matches #"\d+(\.\d+)?") first Double/valueOf)]
+		(assoc m k n)
+		m))
+

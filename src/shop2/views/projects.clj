@@ -1,105 +1,35 @@
 (ns shop2.views.projects
-  	(:require 	[shop2.db                 :as db]
-            	[shop2.views.layout       :as layout]
-            	[shop2.views.common       :as common]
+  	(:require 	(shop2 			[db             :as db])
+            	(shop2.views 	[layout       	:as layout]
+            					[common       	:as common]
+            					[css 			:refer :all])
  	          	(shop2.db 		[tags 			:as dbtags]
   								[items			:as dbitems]
   								[lists 			:as dblists]
   								[menus 			:as dbmenus]
   								[projects 		:as dbprojects]
   								[recipes 		:as dbrecipes])
-            	(garden 	[core              :as g]
-            				[units             :as u]
-            				[selectors         :as sel]
-            				[stylesheet        :as ss]
-            				[color             :as color])
-             	(clj-time 	[core            :as t]
-            				[local           :as l]
-            				[format          :as f]
-            				[periodic        :as p])
-            	(hiccup 	[core              :as h]
-            				[def               :as hd]
-            				[element           :as he]
-            				[form              :as hf]
-            				[page              :as hp]
-            				[util              :as hu])
-            	(ring.util 	[anti-forgery :as ruaf]
-            				[response     :as ring])
-              	(clojure 	[string           :as str]
-            				[set              :as set])))
+            	(garden 		[core           :as g]
+            					[units          :as u]
+            					[selectors      :as sel]
+            					[stylesheet     :as ss]
+            					[color          :as color])
+             	(clj-time 		[core           :as t]
+            					[local          :as l]
+            					[format         :as f]
+            					[periodic       :as p])
+            	(hiccup 		[core           :as h]
+            					[def            :as hd]
+            					[element        :as he]
+            					[form           :as hf]
+            					[page           :as hp]
+            					[util           :as hu])
+            	(ring.util 		[anti-forgery 	:as ruaf]
+            					[response     	:as ring])
+              	(clojure 		[string         :as str]
+            					[set            :as set])))
 
 ;;-----------------------------------------------------------------------------
-
-(def css-projects
-	(g/css
-		[:.proj-tbl {
-			:width layout/full
-		}]
-		[:.proj-head-td {
-			:width layout/half
-			:text-align :center
-		}]
-		[:.proj-head-th {
-			:height (u/px 70)
-			:width layout/full
-			:border [[(u/px 1) :white :solid]]
-		    :border-radius (u/px 8)
-		}]
-		[:.proj-head-val {
-			:font-size (u/px 36)
-		}]
-		[:.proj-pri-td {
-			:width (u/px 40)
-		}]
-		[:.proj-check-td {
-			:width (u/px 20)
-		}]
-		[:.proj-txt-td {
-			:width (u/px 500)
-		}]
-		[:.proj-tags-td {
-			:width (u/px 200)
-		}]
-		[:.proj-pri-val {
-			:width layout/full
-			:font-size (u/px 18)
-			:text-align :center
-			:color :black
-		}]
-		[:.proj-check-val {
-			:width layout/full
-			:border :none
-		    :color :white
-		    :padding 0
-		    :text-align :center
-		    :text-decoration :none
-		    :display :inline-block
-		    :font-size (u/px 18)
-		    :margin 0
-		    :cursor :pointer
-		}]
-		[:.proj-txt-val {
-			:width layout/full
-			:font-size (u/px 18)
-			:border 0
-			:color :white
-			:background-color layout/transparent
-		}]
-		[:.proj-tags-val {
-			:width layout/full
-			:font-size (u/px 18)
-			:border 0
-			:color :white
-			:background-color layout/transparent
-		}]
-		[:.finished-proj {
-			:text-decoration :line-through
-			:width layout/full
-			:font-size (u/px 18)
-			:border 0
-			:color :white
-			:background-color layout/transparent
-		}]))
 
 (def num-new-proj 5)
 (def pri-name "proj-pri-")
@@ -120,7 +50,7 @@
 			[:td.proj-check-td
 				(when (map? proj)
 					[:a {:class "proj-check-val"
-						 :href (str "/finish-project/" (:_id proj))} "&#10004"])]
+						 :href (str "/user/finish-project/" (:_id proj))} "&#10004"])]
 			[:td.proj-txt-td (hf/text-field {:class "proj-txt-val"}
 				(mk-tag txt-name id)
 				(:entryname proj))]
@@ -133,7 +63,7 @@
 	[:tr
 		[:td
 			[:a.finished-proj
-				{:href (str "/unfinish-project/" (:_id proj))}
+				{:href (str "/user/unfinish-project/" (:_id proj))}
 				(str (:priority proj) " " 
 					 (:entryname proj) " " 
 					 "[" (str/join ", " (map :entryname (:tags proj))) "]" )]]])
@@ -200,11 +130,11 @@
 										  (sort-by proj-comp)))))]))
 
 (defn show-projects-page
-    [grouping]
+    [request grouping]
     (let [projects (dbprojects/get-projects)]
     	(layout/common "Projekt" [css-projects]
 	        (hf/form-to {:enctype "multipart/form-data"}
-	    		[:post "/update-projects"]
+	    		[:post "/user/update-projects"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :proj-keys (->> projects
 	        									 (remove finished?)
@@ -215,9 +145,9 @@
 		        		[:td
 			        		(common/home-button)
 			        		(if (= grouping :by-prio)
-			        			[:a.link-flex {:href "/projects/by-tag"} "Kat-Sort"]
-			        			[:a.link-flex {:href "/projects/by-prio"} "Pri-Sort"])
-			        		[:a.link-flex {:href "/clear-projects"} "Rensa"]
+			        			[:a.link-flex {:href "/user/projects/by-tag"} "Kat-Sort"]
+			        			[:a.link-flex {:href "/user/projects/by-prio"} "Pri-Sort"])
+			        		[:a.link-flex {:href "/user/clear-projects"} "Rensa"]
 			        		(hf/submit-button {:class "button button1"} "Updatera!")]]
 			        [:tr
 			        	[:td
@@ -280,19 +210,19 @@
 		(dbprojects/add-project {:entryname f-name
 					   	 :tags      f-tags
 					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
-	(ring/redirect "/projects"))
+	(ring/redirect "/user/projects"))
 
 (defn unfinish-project
-	[id]
+	[request id]
 	(dbprojects/unfinish-project id)
-	(ring/redirect "/projects"))
+	(ring/redirect "/user/projects"))
 
 (defn finish-project
-	[id]
+	[request id]
 	(dbprojects/finish-project id)
-	(ring/redirect "/projects"))
+	(ring/redirect "/user/projects"))
 
 (defn clear-projects
-	[]
+	[request]
 	(dbprojects/clear-projects)
-	(ring/redirect "/projects"))
+	(ring/redirect "/user/projects"))

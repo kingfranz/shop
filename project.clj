@@ -1,4 +1,4 @@
-(defproject shop2 "0.6.1"
+(defproject shop2 "0.6.3"
   :description "Shopping list"
   :url "http://soahojen.se"
   :license {:name "Eclipse Public License"
@@ -11,15 +11,17 @@
                  [com.novemberain/monger "3.1.0"]
                  [garden "1.3.2"]
                  [cheshire "5.7.1"]
+                 [ring-logger "0.7.7"]
+                 [com.cemerick/friend "0.2.3"]
                  [com.taoensso/timbre "4.10.0"]
                  [compojure "1.5.2"]]
   :main ^:skip-aot shop2.core
   :target-path "target/%s"
-  :uberjar-name "shopping-0.6.1.jar"
+  :uberjar-name "shopping-0.6.3.jar"
   :plugins [[lein-ring "0.11.0"]
   			[lein-pprint "1.1.2"]]
   :ring {:handler shop2.core/application
   		 :auto-reload? true
-         :auto-refresh? true
+         :auto-refresh? false
          :port 3000}
   :profiles {:dev {:uberjar {:aot :all}}})

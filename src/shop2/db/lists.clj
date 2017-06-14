@@ -161,6 +161,9 @@
 	{:pre [(q-valid? :shop/_id list-id)
 		   (q-valid? :shop/_id item-id)
 		   (q-valid? int? num-of)]}
+	; make sure it's a valid list
+	(when-not (list-id-exists? list-id)
+		(throw (ex-info "unknown list" {:cause :invalid})))
 	; find the item if it's already in the list
 	(if-let [item (find-item list-id item-id)]
 		; yes it was

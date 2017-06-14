@@ -1,0 +1,10 @@
+[Unit]
+Description=shopping web app
+
+[Service]
+WorkingDirectory=/data/shop
+ExecStart=/usr/bin/java -jar /data/shop/shopping.latest.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

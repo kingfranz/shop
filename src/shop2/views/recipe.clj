@@ -1,114 +1,35 @@
 (ns shop2.views.recipe
-  	(:require 	(shop2 			[db         :as db]
-  								[utils      :as utils])
-            	(shop2.views 	[layout     :as layout]
-            					[common     :as common])
+  	(:require 	(shop2 			[db         	:as db]
+  								[utils      	:as utils])
+            	(shop2.views 	[layout     	:as layout]
+            					[common     	:as common]
+            					[css 			:refer :all])
           		(shop2.db 		[tags 			:as dbtags]
   								[items			:as dbitems]
   								[lists 			:as dblists]
   								[menus 			:as dbmenus]
   								[projects 		:as dbprojects]
   								[recipes 		:as dbrecipes])
-            	(garden 		[core       :as g]
-            					[units      :as u]
-            					[selectors  :as sel]
-            					[stylesheet :as ss]
-            					[color      :as color])
-            	(clj-time 		[core       :as t]
-            					[local      :as l]
-            					[format     :as f]
-            					[coerce 	:as c]
-            					[periodic   :as p])
-            	(hiccup 		[core       :as h]
-            					[def        :as hd]
-            					[element    :as he]
-            					[form       :as hf]
-            					[page       :as hp]
-            					[util       :as hu])
-            	(ring.util 		[anti-forgery :as ruaf]
-            					[response     :as ring])
-              	(clojure 		[string     :as str]
-            					[set        :as set])))
-
-;;-----------------------------------------------------------------------------
-
-(def css-recipe
-	(g/css
-		[:.rec-buttons-td {
-			:width (u/px 267)
-			:text-align :center
-		}]
-		[:.btn-spacer {
-			:height (u/px 25)
-		}]
-		[:.rec-title-txt-td {
-			:width layout/full
-			:text-align :center
-			:border [[(u/px 1) :solid :grey]]
-		}]
-		[:.rec-title-txt {
-			:width layout/full
-			:background-color layout/transparent
-			:color :white
-			:border 0
-			:font-size (u/px 24)
-		}]
-		[:.recipe-item {
-			:background-color layout/transparent
-			:font-size (u/px 18)
-			:color :white
-			:border 0
-		}]
-		[:.rec-item-td {
-			:border [[(u/px 1) :solid :grey]]
-			:padding [[0 0 0 (u/px 10)]]
-		}]
-		[:.recipe-item-name {
-			:width (u/px 590)
-			:border-collapse :collapse
-			:padding 0
-		}]
-		[:.recipe-item-unit {
-			:width (u/px 70)
-			:border-collapse :collapse
-			:padding 0
-		}]
-		[:.recipe-item-amount {
-			:width (u/px 110)
-			:border-collapse :collapse
-			:padding 0
-		}]
-		[:.recipe-table {
-			:border-collapse :collapse
-		}]
-		[:.recipe-url-table {
-			:width layout/full
-			:height (u/px 48)
-		}]
-		[:.recipe-url1 {
-			:width (u/px 70)
-			:font-size (u/px 24)
-			:height (u/px 45)
-		}]
-		[:.recipe-url2 {
-			:width (u/px 650)
-			:height (u/px 45)
-			:padding [[0 (u/px 10) (u/px 6) 0]]
-			:border [[(u/px 1) :solid :grey]]
-		}]
-		[:.recipe-url-field {
-			:width layout/full
-			:font-size (u/px 18)
-			:vertical-align :center
-		}]
-		[:.rec-area-div {
-			:width layout/full
-			:height (u/px 300)
-		}]
-		[:.recipe-area {
-			:width layout/full
-			:height layout/full
-			:border [[(u/px 1) :solid :grey]]}]))
+            	(garden 		[core       	:as g]
+            					[units      	:as u]
+            					[selectors  	:as sel]
+            					[stylesheet 	:as ss]
+            					[color      	:as color])
+            	(clj-time 		[core       	:as t]
+            					[local      	:as l]
+            					[format     	:as f]
+            					[coerce 		:as c]
+            					[periodic   	:as p])
+            	(hiccup 		[core       	:as h]
+            					[def        	:as hd]
+            					[element    	:as he]
+            					[form       	:as hf]
+            					[page       	:as hp]
+            					[util       	:as hu])
+            	(ring.util 		[anti-forgery 	:as ruaf]
+            					[response     	:as ring])
+              	(clojure 		[string     	:as str]
+            					[set        	:as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -140,10 +61,10 @@
 		 (range (+ (count (:items recipe)) 5))))
 
 (defn show-recipe-page
-    [recipe]
+    [request recipe]
 	(layout/common "Recept" [css-recipe]
         (hf/form-to {:enctype "multipart/form-data"}
-    		[:post (if (nil? recipe) "/create-recipe" "/update-recipe")]
+    		[:post (if (nil? recipe) "/user/create-recipe" "/user/update-recipe")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
         	(hf/hidden-field :num-items (+ (count (:items recipe)) 5))
@@ -178,12 +99,12 @@
 ;;-----------------------------------------------------------------------------
 
 (defn edit-recipe
-    [recipe-id]
-	(show-recipe-page (dbrecipes/get-recipe recipe-id)))
+    [request recipe-id]
+	(show-recipe-page request (dbrecipes/get-recipe recipe-id)))
 
 (defn new-recipe
-    []
-	(show-recipe-page nil))
+    [request]
+	(show-recipe-page request nil))
 
 ;;-----------------------------------------------------------------------------
 
@@ -223,7 +144,7 @@
 						   (assoc-if :entryname (:recipe-name params))
 						   (assoc-if :text  (:recipe-area params))
 						   (assoc-if :items (get-r-items params))))
-	(ring/redirect (str "/recipe/" (:recipe-id params))))
+	(ring/redirect (str "/user/recipe/" (:recipe-id params))))
 
 (defn create-recipe!
 	[{params :params}]
@@ -231,6 +152,6 @@
 								  (assoc-if :entryname (:recipe-name params))
 								  (assoc-if :text  (:recipe-area params))
 								  (assoc-if :items (get-r-items params))))]
-		(ring/redirect (str "/recipe/" (:_id ret)))))
+		(ring/redirect (str "/user/recipe/" (:_id ret)))))
 
 ;;-----------------------------------------------------------------------------

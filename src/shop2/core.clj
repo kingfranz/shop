@@ -1,66 +1,98 @@
 (ns shop2.core
-  	(:require 	(compojure 					[core       :refer [defroutes]]
-  											[route      :as route]
-            								[handler    :as handler])
-            	[shop2.db                       		:as db]
-            	[shop2.controllers.routes       		:as sr]
-            	[shop2.views.layout             		:as layout]
-            	(taoensso 					[timbre     :as log])
-            	(taoensso.timbre.appenders 	[core 		:as appenders])
-            	(ring.middleware 			[defaults   :as rmd]
-            								[reload     :as rmr]
-            								[stacktrace :as rmst])
-            	(ring.middleware.session 	[store  	:as store]
-            								[cookie 	:as cookie]
-            								[memory		:as mem])
-            	[ring.adapter.jetty       				:as ring])
+  	(:require 	(compojure 					[core       	:refer [defroutes]]
+  											[route      	:as route]
+            								[handler    	:as handler])
+            	(shop2 						[db        		:as db])
+            	(shop2.controllers 			[routes    		:as sr])
+            	(shop2.views 				[layout    		:as layout])
+            	(taoensso 					[timbre     	:as log])
+            	(taoensso.timbre.appenders 	[core 			:as appenders])
+            	(cemerick 					[friend     	:as friend])
+            	(cemerick.friend 			[workflows 		:as workflows]
+                             				[credentials 	:as creds])
+            	(ring 						[logger			:as logger])
+            	(ring.middleware 			[defaults   	:as rmd]
+            								[reload     	:as rmr]
+            								[stacktrace 	:as rmst])
+            	(ring.middleware.session 	[store  		:as store]
+            								[cookie 		:as cookie]
+            								[memory			:as mem])
+            	(ring.util 					[response   	:as response])
+            	(ring.adapter 				[jetty			:as ring]))
   	(:gen-class))
 
 ;;-----------------------------------------------------------------------------
+
+;(derive ::admin ::user)
+
+;(def users {"root" {:username "root"
+;                    :password (creds/hash-bcrypt "admin_password")
+;                    :roles #{::admin}}
+;            "jane" {:username "jane"
+;                    :password (creds/hash-bcrypt "user_password")
+;                    :roles #{::user}}})
+
+(defn get-user
+	[username]
+	(let [u (db/get-user username)]
+		(log/trace "get-user:" u)
+		u))
+
 
 (defroutes routes
 	sr/routes
   	(route/resources "/")
   	(route/not-found (layout/four-oh-four)))
 
-(deftype DBSessionStore []
-	store/SessionStore
-	(store/read-session [_ key]
-		(db/read-session-data key))
-	(store/write-session [_ key data]
-		(let [key (or key (db/mk-id))]
-			(db/save-session-data key data)
-			key))
-	(store/delete-session [_ key]
-		(db/delete-session-data key)
-		nil))
-
-(defn db-store
-  "Creates an DB session storage engine. Accepts an atom as an optional
-  argument; if supplied, the atom is used to hold the session data."
-  []
-  (DBSessionStore.))
-
 (def ring-default
 	(-> rmd/site-defaults
-		(assoc-in [:session :store] (mem/memory-store))
-		(assoc-in [:session :cookie-attrs :max-age] 3600)
+		(assoc-in [:session :store] (cookie/cookie-store {:key (subs (db/mk-id) 0 16)}))
+		(assoc-in [:session :cookie-attrs :max-age] 36000)
 		(assoc-in [:session :cookie-name] "secure-shop-session")
 		))
 
 (defn dirty-fix
 	[x]
 	(log/set-level! :trace)
+    (log/merge-config! {:appenders {:println {:enabled? false}}})
+    (log/merge-config! {:timestamp-opts {:pattern "MM-dd HH:mm:ss"
+    					   				 :locale (java.util.Locale. "sv_SE")
+    					   				 :timezone (java.util.TimeZone/getTimeZone "Europe/Stockholm")}
+    					:output-fn (partial log/default-output-fn {:stacktrace-fonts {}})})
   	(log/merge-config!
   		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
 	x)
 
+(defn wrap-fallback-exception
+	[handler]
+	(fn [request]
+		(try
+			(handler request)
+			(catch Exception e
+				(log/fatal e)
+				{:status 500
+				 :body (str "Something isn't quite right..." (.getMessage e) (ex-data e))}))))
+
+(defn aaaa
+	[xx]
+	(let [a (creds/bcrypt-credential-fn get-user xx)]
+		(println "aaaa:" xx)
+		(println "a:" a)
+		a))
+
 (def application
 	(-> routes
 		dirty-fix
-		(rmr/wrap-reload)
-		(rmst/wrap-stacktrace)
-		(rmd/wrap-defaults rmd/site-defaults)))
+		;logger/wrap-with-logger
+		(friend/authenticate {
+			:unauthorized-handler #(response/status (response/response "NO") 401)
+			:credential-fn (partial creds/bcrypt-credential-fn get-user)
+			;:credential-fn aaaa
+            :workflows [(workflows/interactive-form)]})
+		;(rmr/wrap-reload)
+		;(rmst/wrap-stacktrace)
+		;wrap-fallback-exception
+		(rmd/wrap-defaults ring-default)))
 
 (defn start
 	[port]

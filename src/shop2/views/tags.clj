@@ -1,8 +1,9 @@
 (ns shop2.views.tags
-  	(:require 	[shop2.db                   	:as db]
+  	(:require 	(shop2 			[db            	:as db])
             	(shop2.views 	[layout     	:as layout]
             				 	[common     	:as common]
-            					[home       	:as home])
+            					[home       	:as home]
+            					[css 			:refer :all])
             	(shop2.db 		[tags 			:as dbtags]
   								[items			:as dbitems]
   								[lists 			:as dblists]
@@ -31,35 +32,11 @@
 
 ;;-----------------------------------------------------------------------------
 
-(def css-tags
-	(g/css
-		[:.group {
-			:border-collapse :collapse
-			:border        [[(u/px 1) :white :solid]]
-			:border-radius (u/px 8)
-			:margin        [[(u/px 50) 0 (u/px 20) 0]]
-			:padding       (u/px 8)
-		}]
-		[:.head-td {:text-align :center}]
-		[:.group-head-th {
-			:padding   (u/px 10)
-			:font-size (u/px 36)
-		}]
-		[:.inner {
-			:width (u/percent 95)
-		}]
-		[:.new-item-txt {
-			:font-size (u/px 24)
-			}]
-		))
-
-;;-----------------------------------------------------------------------------
-
 (defn edit-tag-page
-	[tag-id]
+	[request tag-id]
 	(let [tag (dbtags/get-tag tag-id)]
-		(layout/common "Edit tag" [css-tags common/css-tags-tbl]
-			(hf/form-to {:enctype "multipart/form-data"}
+		(layout/common "Edit tag" [css-tags css-tags-tbl]
+			(hf/form-to
 	    		[:post "/update-tag"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :_id (:_id tag))
@@ -68,8 +45,8 @@
 	        			[:td {:colspan 2}
 	        				[:div
 				    			(common/home-button)
-				    			[:a.link-flex {:href (str "/delete-tag/" tag-id)} "Ta bort"]
-				    			[:a.link-flex {:href (str "/delete-tag-all/" tag-id)} "Rensa"]
+				    			[:a.link-flex {:href (str "/admin/delete-tag/" tag-id)} "Ta bort"]
+				    			[:a.link-flex {:href (str "/admin/delete-tag-all/" tag-id)} "Rensa"]
 				    			[:a.link-flex (hf/submit-button {:class "button button1"} "Uppdatera")]]]]
 		        	[:tr
 		        		[:td {:style "padding: 40px 25px; width: 50px"}
@@ -79,19 +56,19 @@
 	    							:entryname (:entryname tag))]]]))))
 
 (defn update-tag!
-	[{params :params}]
+	[request {params :params}]
 	(when (and (seq (:_id params)) (seq (:entryname params)))
 		(dbtags/update-tag (:_id params) (:entryname params)))
-	(ring/redirect (str "/tag/" (:_id params))))
+	(ring/redirect (str "/admin/tag/" (:_id params))))
 
 (defn delete-tag!
-	[tag-id]
+	[request tag-id]
 	(dbtags/delete-tag tag-id)
-	(ring/redirect "/"))
+	(ring/redirect "/user/home"))
 
 (defn delete-tag-all!
-	[tag-id]
+	[request tag-id]
 	(dbtags/delete-tag-all tag-id)
-	(ring/redirect "/"))
+	(ring/redirect "/user/home"))
 
 ;;-----------------------------------------------------------------------------
