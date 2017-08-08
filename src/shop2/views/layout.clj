@@ -10,10 +10,13 @@
             					[selectors  :as sel]
             					[stylesheet :as ss]
             					[color      :as color])
+            	(environ 		[core 		:refer [env]])
           		(clojure 		[string 	:as str])))
 
+;;-----------------------------------------------------------------------------
+
 (defn common*
-	[title css refresh & body]
+	[request title css refresh & body]
 	(hp/html5
 		[:head {:lang "sv"}
 			[:meta {:charset "utf-8"}]
@@ -29,24 +32,33 @@
 				[:tr
 					[:td
 						[:a.link-shop {:href "/user/home"}
-							(str "Shopping " common/shop-version)]]
+							(str "Shopping " (env :app-version))]]
 					[:td
 						[:a {:href "/logout" :style "margin: 0px 10px 10px 20px"}
 							(he/image "/images/logout.png")]]
 					[:td
 						[:a {:href "/admin/" :style "margin: 0px 10px 10px 0px"}
-							(he/image "/images/settingsw.png")]]]]
+							(he/image "/images/settingsw.png")]]]
+				(when (some? (:err-msg request))
+					[:tr
+						[:td {:colspan 3} (:err-msg request)]])]
 			body]))
 
+;;-----------------------------------------------------------------------------
+
 (defn common
-	[title css & body]
-	(common* title css nil body))
+	[request title css & body]
+	(common* request title css nil body))
 
 (defn common-refresh
-	[title css & body]
-	(common* title css [:meta {:http-equiv :refresh :content (* 60 5)}] body))
+	[request title css & body]
+	(common* request title css [:meta {:http-equiv :refresh :content (* 60 5)}] body))
+
+;;-----------------------------------------------------------------------------
 
 (defn four-oh-four
 	[]
   	(common "Page Not Found" "/css/home.css"
             [:div {:id "four-oh-four"} "The page you requested could not be found"]))
+
+;;-----------------------------------------------------------------------------

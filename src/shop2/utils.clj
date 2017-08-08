@@ -1,13 +1,53 @@
 (ns shop2.utils
-  	(:require 	(clj-time 	[core     :as t]
-            				[local    :as l]
-            				[coerce   :as c]
-            				[format   :as f]
-            				[periodic :as p])
-  				(taoensso 	[timbre   :as log])
-            	(clojure 	[string   :as str]
-            				[set      :as set]
-            				[spec 	  :as s])))
+  	(:require 	(clj-time 		[core     	:as t]
+            					[local    	:as l]
+            					[coerce   	:as c]
+            					[format   	:as f]
+            					[periodic 	:as p])
+  				(taoensso 		[timbre   	:as log])
+            	(clojure.spec 	[alpha      :as s])
+             	(clojure 		[string   	:as str]
+            					[set      	:as set]
+                				[pprint		:as pp])))
+
+;;-----------------------------------------------------------------------------
+
+(defmacro q-valid? [sp v]
+  `(q-valid* ~*file*
+  	         ~(:line (meta &form))
+  	         ~sp
+  	         ~v))
+
+(defn q-valid*
+	[f l sp v]
+	;(println "\nq-valid:" (str f ":" l) (pr-str sp) (pr-str v))
+	(if-not (s/valid? sp v)
+		(log/error (str
+			"\n---------- " f l " ------------\n"
+			(pr-str v)
+			"\n---------------------------------------\n"
+			(pr-str (s/explain-str sp v))
+			"\n---------------------------------------"))
+		true))
+
+(defn p-trace
+	[s v]
+	(log/trace "\n" s "return:\n" (pr-str v) "\n")
+	true)
+
+;;-----------------------------------------------------------------------------
+
+(defn spy
+	([v]
+	(spy "" v))
+	([s v]
+	(println "------------- SPY ---------------")
+	(when-not (str/blank? s)
+		(println s))
+	(prn (type v))
+	(pp/pprint v)
+	(println "---------------------------------")
+	v))
 
 ;;-----------------------------------------------------------------------------
 

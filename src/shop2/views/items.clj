@@ -28,9 +28,9 @@
             					[util       	:as hu])
             	(ring.util 		[response   	:as ring]
               					[anti-forgery 	:as ruaf])
-            	(clojure 		[string       	:as str]
-            					[set          	:as set]
-            					[spec         	:as s])))
+            	(clojure.spec 	[alpha          :as s])
+             	(clojure 		[string       	:as str]
+            					[set          	:as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@
 (defn add-items-page
 	[request list-id sort-type]
 	(let [a-list (dblists/get-list list-id)]
-		(layout/common "Välj sak" [css-items css-tags-tbl]
+		(layout/common request "Välj sak" [css-items css-tags-tbl]
 	        [:div
     			(common/homeback-button (str "/user/list/" list-id))
 	    		[:a.link-head {:href (str "/user/mk-new-item/" list-id)} "Ny"]]
@@ -131,22 +131,6 @@
 	[request list-id item-id]
 	(dblists/item->list list-id item-id 1)
 	(ring/redirect (str "/user/add-items/" list-id)))
-
-;;-----------------------------------------------------------------------------
-
-(defn new-item!
-	[{params :params}]
-	(let [tags (common/extract-tags params)
-		  new-item (dbitems/add-item
-		  			(-> {:entryname (s/assert :shop/string (:new-item-name params))
-						 :parent (:list-id params)}
-						(utils/assoc-str-if :tags   tags)
-						(utils/assoc-num-if :amount (:new-item-amount params))
-						(utils/assoc-str-if :unit   (:new-item-unit params))
-						(utils/assoc-str-if :url    (:new-item-url params))
-						(utils/assoc-num-if :price  (:new-item-price params))))]
-		(dblists/item->list (:list-id params) (:_id new-item) 1)
-		(ring/redirect (str "/user/add-items/" (:list-id params)))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -172,7 +156,7 @@
 
 (defn mk-new-item-page
 	[request list-id]
-	(layout/common "Skapa ny sak" [css-items css-tags-tbl]
+	(layout/common request "Skapa ny sak" [css-items css-tags-tbl]
 		(hf/form-to
     		[:post "/user/new-item"]
         	(ruaf/anti-forgery-field)
@@ -189,3 +173,27 @@
 		    	])))
 
 ;;-----------------------------------------------------------------------------
+
+(defn new-item!
+	[{params :params :as request}]
+	(try
+		(let [tags (common/extract-tags params)
+			  new-item (dbitems/add-item
+			  			(-> {:entryname (s/assert :shop/string (:new-item-name params))
+							 :parent (:list-id params)}
+							(utils/assoc-str-if :tags   tags)
+							(utils/assoc-num-if :amount (:new-item-amount params))
+							(utils/assoc-str-if :unit   (:new-item-unit params))
+							(utils/assoc-str-if :url    (:new-item-url params))
+							(utils/assoc-num-if :price  (:new-item-price params))))]
+			(dblists/item->list (:list-id params) (:_id new-item) 1)
+			(ring/redirect (str "/user/add-items/" (:list-id params))))
+		(catch AssertionError ae
+			(mk-new-item-page (assoc request :err-msg (str "ASSERT: " (.getMessage ae)))
+							  (:list-id params)))
+		(catch Exception e
+			(mk-new-item-page (assoc request :err-msg (str "Exception: " (.getMessage e)))
+							  (:list-id params)))))
+
+;;-----------------------------------------------------------------------------
+

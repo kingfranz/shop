@@ -10,6 +10,12 @@
             	(cemerick 					[friend     	:as friend])
             	(cemerick.friend 			[workflows 		:as workflows]
                              				[credentials 	:as creds])
+            	(environ 					[core 			:refer [env]])
+            	(clj-time 	 				[core        	:as t]
+            				 				[local       	:as l]
+            				 				[coerce      	:as c]
+            				 				[format      	:as f]
+            				 				[periodic    	:as p])
             	(ring 						[logger			:as logger])
             	(ring.middleware 			[defaults   	:as rmd]
             								[reload     	:as rmr]
@@ -47,7 +53,7 @@
 (def ring-default
 	(-> rmd/site-defaults
 		(assoc-in [:session :store] (cookie/cookie-store {:key (subs (db/mk-id) 0 16)}))
-		(assoc-in [:session :cookie-attrs :max-age] 36000)
+		(assoc-in [:session :cookie-attrs :expires] (t/plus (l/local-now) (t/years 10)))
 		(assoc-in [:session :cookie-name] "secure-shop-session")
 		))
 
@@ -61,6 +67,7 @@
     					:output-fn (partial log/default-output-fn {:stacktrace-fonts {}})})
   	(log/merge-config!
   		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
+    (log/error "\n\nENV:" (env :database-user) (env :database-db) (env :database-ip) "\n\n")
 	x)
 
 (defn wrap-fallback-exception
@@ -73,36 +80,19 @@
 				{:status 500
 				 :body (str "Something isn't quite right..." (.getMessage e) (ex-data e))}))))
 
-(defn aaaa
-	[xx]
-	(let [a (creds/bcrypt-credential-fn get-user xx)]
-		(println "aaaa:" xx)
-		(println "a:" a)
-		a))
+(defn unauth-handler
+	[request]
+	(Thread/sleep (* 3 1000))
+	(response/status (response/response "NO") 401))
 
 (def application
 	(-> routes
 		dirty-fix
 		;logger/wrap-with-logger
 		(friend/authenticate {
-			:unauthorized-handler #(response/status (response/response "NO") 401)
-			:credential-fn (partial creds/bcrypt-credential-fn get-user)
-			;:credential-fn aaaa
-            :workflows [(workflows/interactive-form)]})
-		;(rmr/wrap-reload)
-		;(rmst/wrap-stacktrace)
-		;wrap-fallback-exception
-		(rmd/wrap-defaults ring-default)))
+			:unauthorized-handler unauth-handler
+			:credential-fn        (partial creds/bcrypt-credential-fn get-user)
+            :workflows            [(workflows/interactive-form)]})
+		(rmd/wrap-defaults ring-default)
+		))
 
-(defn start
-	[port]
-  	(ring/run-jetty application {:port port
-                                 :join? false}))
-
-(defn -main
-	[]
-	;(println "fix recipes")
-	;(println (db/fix-recipes))
-	;(println "fix lists")
-	;(println (db/fix-lists)))
-  	(start 3000))

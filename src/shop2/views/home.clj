@@ -47,18 +47,29 @@
 
 (defn sub-tree
 	[lists slist]
-	(let [sub-lists (filter #(some->> % :parent :_id (= (:_id slist))) lists)]
-		[:li [:a.link-thick {:href (str "/user/list/" (:_id slist))} (mk-list-name slist)]
+	(let [sub-lists (->> lists
+                         (filter #(some->> % :parent :_id (= (:_id slist))))
+                         (sort-by :entryname))]
+		[:li
+   			[:a.link-thick {:href (str "/user/list/" (:_id slist))} (mk-list-name slist)]
 			(when (seq sub-lists)
-				[:ul (map #(sub-tree lists %) sub-lists)])]))
+				[:ul
+     				(map #(sub-tree lists %) sub-lists)])]))
+
+(defn list-cmp
+  	[x1 x2]
+    (if (> (:count x1) (:count x2))
+        -1
+        (if (< (:count x1) (:count x2))
+        	1
+        	(compare (:entryname x1) (:entryname x2)))))
 
 (defn list-tbl
 	[lists]
 	[:table
 		(for [a-list (->> lists
 						  (filter #(nil? (:finished %)))
-						  (sort-by :count)
-						  reverse)]
+						  (sort-by identity list-cmp))]
 			[:tr [:td
 				[:a.link-thick {:href (str "/user/list/" (:_id a-list))}
 					(str (:entryname a-list) " " (:count a-list))]]])])
@@ -67,8 +78,11 @@
 	[request]
 	(let [lists (dblists/get-lists-with-count)]
 		(if (want-tree? request)
-			[:ul.tree (map #(sub-tree lists %)
-				(filter #(nil? (:parent %)) lists))]
+			[:ul.tree
+    			(map #(sub-tree lists %)
+					(->> lists
+          				 (filter #(nil? (:parent %)))
+               			 (sort-by :entryname)))]
 			(list-tbl lists))))
 
 (defn mk-menu-row
@@ -114,7 +128,7 @@
 
 (defn home-page
 	[request]
-	(layout/common-refresh "Shopping" [css-home-tree css-home css-menus]
+	(layout/common-refresh request "Shopping" [css-home-tree css-home css-menus]
 	  	[:div.column
 			(if (want-tree? request)
 				[:a.link-flex {:href "/user/home/prio"} "Num"]

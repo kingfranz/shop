@@ -1,24 +1,26 @@
 (ns shop2.controllers.routes
-  	(:require 	(clojure 		 [string   		:as str]
-  								 [pprint   		:as pp])
-            	(ring.util 		 [response 		:as ring])
-            	(compojure 		 [core     		:as cc]
-              					 [route    		:as route])
-            	(cemerick 		 [friend     	:as friend])
-            	(cemerick.friend [workflows 	:as workflows]
-                             	 [credentials 	:as creds])
-            	(shop2.views 	 [home     		:as home]
-              					 [recipe   		:as recipe]
-              					 [items    		:as items]
-              					 [menus    		:as menus]
-              					 [admin         :as admin]
-              					 [tags     		:as tags]
-              					 [lists    		:as lists]
-              					 [projects 		:as projects])
-            	(shop2.views.admin [items         :as a-items]
-            					   [users         :as a-users]
-            					   [lists         :as a-lists])
-            	(shop2 			 [db       		:as db])))
+  	(:require 	(clojure 		 	[string   		:as str]
+  								 	[pprint   		:as pp])
+            	(ring.util 		 	[response 		:as ring])
+            	(compojure 		 	[core     		:as cc]
+              					 	[route    		:as route])
+            	(cemerick 		 	[friend     	:as friend])
+            	(cemerick.friend 	[workflows 		:as workflows]
+                             	 	[credentials	:as creds])
+            	(shop2.views 	 	[home     		:as home]
+              					 	[recipe   		:as recipe]
+              					 	[items    		:as items]
+              					 	[menus    		:as menus]
+              					 	[admin         	:as admin]
+              					 	[tags     		:as tags]
+              					 	[lists    		:as lists]
+              					 	[projects 		:as projects])
+            	(shop2.views.admin	[items         	:as a-items]
+            					   	[users         	:as a-users]
+            					   	[lists         	:as a-lists])
+            	(shop2 			 	[db       		:as db])))
+
+;;-----------------------------------------------------------------------------
 
 (cc/defroutes user-routes
 	(cc/GET "/home" request
@@ -158,6 +160,9 @@
   	(cc/GET "/edit-item/:itemid" request
   		(a-items/edit-item request (-> request :params :itemid)))
 
+  	(cc/POST "/edit-item" request
+  		(a-items/update-item request))
+
 	(cc/GET "/new-list" request
 	    (a-lists/new-list-page request))
 
@@ -173,6 +178,8 @@
 	(cc/POST "/edit-list" request
 	    (a-lists/edit-list! request))
 	)
+
+;;-----------------------------------------------------------------------------
 
 (cc/defroutes routes
 	;; requires user role
@@ -194,3 +201,6 @@
 	
 	;(route/not-found "Page not found")
   	)
+
+;;-----------------------------------------------------------------------------
+

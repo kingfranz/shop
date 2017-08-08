@@ -29,7 +29,8 @@
             					[util           :as hu])
             	(ring.util 		[anti-forgery 	:as ruaf]
             					[response     	:as ring])
-            	(clojure 		[string         :as str]
+            	(environ 		[core   		:refer [env]])
+          		(clojure 		[string         :as str]
             					[set           	:as set])))
 
 ;;-----------------------------------------------------------------------------
@@ -72,7 +73,7 @@
 
 (defn admin-page
 	[request]
-	(layout/common "Admin" [css-admin]
+	(layout/common request "Admin" [css-admin]
 	  	[:div.column
 			[:p.header [:a.link-home {:href "/admin/new-list"} "Ny lista"]]
 			[:div.home-box (list-list)]]
@@ -104,9 +105,9 @@
 		(hf/form-to
 	    	[:post "login"]
 	        (ruaf/anti-forgery-field)
-	        [:table
+        	[:table
 	        	[:tr
-	        		[:td {:colspan 2} (hf/label :x (str "Shopping " common/shop-version))]
+	        		[:td {:colspan 2} (hf/label :x (str "Shopping " (env :project/version)))]
 	        	[:tr
 	        		[:td "Username:"]
 	        		[:td (hf/text-field {:class "login-txt"} :username)]]

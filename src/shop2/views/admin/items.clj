@@ -1,36 +1,36 @@
 (ns shop2.views.admin.items
-  	(:require 	(shop2 		 [db           :as db]
-  							 [utils        :as utils])
-            	(shop2.views [layout       :as layout]
-            				 [common       :as common]
-            				 [css          :refer :all])
-            	(shop2.db 	[tags 			:as dbtags]
-  							[items			:as dbitems]
-  							[lists 			:as dblists]
-  							[menus 			:as dbmenus]
-  							[projects 		:as dbprojects]
-  							[recipes 		:as dbrecipes])
-            	(clj-time 	[core            :as t]
-            				[local           :as l]
-            				[coerce          :as c]
-            				[format          :as f]
-            				[periodic        :as p])
-            	(garden 	[core       :as g]
-            				[units      :as u]
-            				[selectors  :as sel]
-            				[stylesheet :as ss]
-            				[color      :as color]
-            				[arithmetic        :as ga])
-            	(hiccup 	[core              :as h]
-            				[def               :as hd]
-            				[element           :as he]
-            				[form              :as hf]
-            				[page              :as hp]
-            				[util              :as hu])
-            	(ring.util 	[anti-forgery :as ruaf]
-            				[response     :as ring])
-            	(clojure 	[string           :as str]
-            				[set              :as set])))
+  	(:require 	(shop2 		 	[db           	:as db]
+  							 	[utils        	:as utils])
+            	(shop2.views	[layout       	:as layout]
+            				 	[common       	:as common]
+            				 	[css          	:refer :all])
+            	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(clj-time 		[core         	:as t]
+            					[local        	:as l]
+            					[coerce       	:as c]
+            					[format       	:as f]
+            					[periodic     	:as p])
+            	(garden 		[core         	:as g]
+            					[units        	:as u]
+            					[selectors    	:as sel]
+            					[stylesheet   	:as ss]
+            					[color        	:as color]
+            					[arithmetic   	:as ga])
+            	(hiccup 		[core         	:as h]
+            					[def          	:as hd]
+            					[element      	:as he]
+            					[form         	:as hf]
+            					[page         	:as hp]
+            					[util         	:as hu])
+            	(ring.util 		[anti-forgery 	:as ruaf]
+            					[response     	:as ring])
+            	(clojure 		[string       	:as str]
+            					[set          	:as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -111,15 +111,16 @@
 
 (defn update-item
 	[{params :params}]
-	(dbitems/update-item {:_id       (extract-id params)
-					 :entryname (extract-name params)
-					 :parent    (extract-parent params)
-					 :unit      (extract-str :unit params)
-					 :amount    (extract-num :amount params)
-					 :price     (extract-num :price params)
-					 :url       (extract-str :url params)
-					 :tags      (common/extract-tags params)})
-	(ring/redirect (str "/admin/item/" (extract-id params))))
+	(dbitems/update-item {
+        :_id       (extract-id 			params)
+		:entryname (extract-name 		params)
+		:parent    (extract-parent 		params)
+		:unit      (extract-str 		:unit params)
+		:amount    (extract-num 		:amount params)
+		:price     (extract-num 		:price params)
+		:url       (extract-str 		:url params)
+		:tags      (common/extract-tags params)})
+	(ring/redirect (str "/admin/edit-item/" (extract-id params))))
 
 (defn delete-item
 	[request item-id]
@@ -131,7 +132,7 @@
 (defn edit-item
 	[request item-id]
 	(let [item (dbitems/get-item item-id)]
-		(layout/common "Edit item" [css-tags-tbl]
+		(layout/common request "Edit item" [css-tags-tbl]
 			(hf/form-to
 	    		[:post "/admin/edit-item"]
 	        	(ruaf/anti-forgery-field)
@@ -150,7 +151,7 @@
 
 (defn new-item
 	[request]
-	(layout/common "Skapa ny sak" [css-tags-tbl]
+	(layout/common request "Skapa ny sak" [css-tags-tbl]
 		(hf/form-to
     		[:post "/admin/new-item"]
         	(ruaf/anti-forgery-field)

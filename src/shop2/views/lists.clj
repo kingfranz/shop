@@ -91,10 +91,10 @@
 		                    (fn [i] (nil? (:finished i)))
 		                    (fn [i] (some? (:finished i))))
 		  item-list     (filter filter-func (:items a-list))]
-		(for [[tags items] (group-by :tags item-list)
+		(for [[tags items] (group-by #(common/frmt-tags (:tags %)) item-list)
 	    	:when (seq items)]
     		(list
-    			(->> tags common/frmt-tags mk-tags-row)
+    			(mk-tags-row tags)
 	    		(for [item items]
 	    			(mk-item-row a-list item (= row-type :active)))))))
 	
@@ -129,7 +129,7 @@
 
 (defn show-list-page
     [request list-id]
-	(layout/common-refresh (:entryname (dblists/get-list list-id)) [css-lists]
+	(layout/common-refresh request (:entryname (dblists/get-list list-id)) [css-lists]
     	(loop [listid  list-id
 			   acc     []]
 			(if (some? listid)

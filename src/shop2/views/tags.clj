@@ -1,5 +1,6 @@
 (ns shop2.views.tags
-  	(:require 	(shop2 			[db            	:as db])
+  	(:require 	(shop2 			[db            	:as db]
+                     			[utils 			:refer :all])
             	(shop2.views 	[layout     	:as layout]
             				 	[common     	:as common]
             					[home       	:as home]
@@ -35,7 +36,7 @@
 (defn edit-tag-page
 	[request tag-id]
 	(let [tag (dbtags/get-tag tag-id)]
-		(layout/common "Edit tag" [css-tags css-tags-tbl]
+		(layout/common request "Edit tag" [css-tags css-tags-tbl]
 			(hf/form-to
 	    		[:post "/update-tag"]
 	        	(ruaf/anti-forgery-field)

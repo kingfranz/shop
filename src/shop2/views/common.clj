@@ -23,13 +23,11 @@
             					[form         	:as hf]
             					[page         	:as hp]
             					[util         	:as hu])
-            	(clojure 		[string       	:as str]
-            					[spec 			:as s]
+            	(clojure.spec 	[alpha          :as s])
+             	(clojure 		[string       	:as str]
             					[set          	:as set])))
 
 ;;-----------------------------------------------------------------------------
-
-(defonce shop-version "0.7.0")
 
 (defonce top-lvl-name "Ingen")
 (defonce old-tag-head "old-tag-")

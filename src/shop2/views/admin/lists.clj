@@ -35,7 +35,7 @@
 
 (defn new-list-page
     [request]
-    (layout/common "Skapa ny lista" [] ; css-lists-new
+    (layout/common request "Skapa ny lista" [] ; css-lists-new
         (hf/form-to
         	[:post "/admin/new-list"]
         	(ruaf/anti-forgery-field)
@@ -70,7 +70,7 @@
 (defn edit-list-page
     [request list-id]
     (let [a-list (dblists/get-list list-id)]
-    	(layout/common "Ändra lista" [] ; css-lists-new
+    	(layout/common request "Ändra lista" [] ; css-lists-new
 	        (hf/form-to
 	        	[:post "/admin/edit-list"]
 	        	(ruaf/anti-forgery-field)

@@ -1,46 +1,42 @@
 (ns shop2.views.admin.users
-  	(:require 	(shop2 		 [db           :as db]
-  							 [utils        :as utils])
-            	(shop2.views [layout       :as layout]
-            				 [common       :as common]
-            				 [css          :refer :all])
-            	(shop2.db 	[tags 			:as dbtags]
-  							[items			:as dbitems]
-  							[lists 			:as dblists]
-  							[menus 			:as dbmenus]
-  							[projects 		:as dbprojects]
-  							[recipes 		:as dbrecipes])
-            	(clj-time 	[core            :as t]
-            				[local           :as l]
-            				[coerce          :as c]
-            				[format          :as f]
-            				[periodic        :as p])
-            	(garden 	[core       :as g]
-            				[units      :as u]
-            				[selectors  :as sel]
-            				[stylesheet :as ss]
-            				[color      :as color]
-            				[arithmetic        :as ga])
-            	(hiccup 	[core              :as h]
-            				[def               :as hd]
-            				[element           :as he]
-            				[form              :as hf]
-            				[page              :as hp]
-            				[util              :as hu])
-            	(ring.util 	[anti-forgery :as ruaf]
-            				[response     :as ring])
-            	(clojure 	[string           :as str]
-            				[set              :as set])))
-
-;;-----------------------------------------------------------------------------
-
-
+  	(:require 	(shop2 		 	[db           	:as db]
+  							 	[utils        	:as utils])
+            	(shop2.views 	[layout       	:as layout]
+            				 	[common       	:as common]
+            				 	[css          	:refer :all])
+            	(shop2.db 		[tags 			:as dbtags]
+  								[items			:as dbitems]
+  								[lists 			:as dblists]
+  								[menus 			:as dbmenus]
+  								[projects 		:as dbprojects]
+  								[recipes 		:as dbrecipes])
+            	(clj-time 		[core           :as t]
+            					[local          :as l]
+            					[coerce         :as c]
+            					[format         :as f]
+            					[periodic       :as p])
+            	(garden 		[core       	:as g]
+            					[units      	:as u]
+            					[selectors  	:as sel]
+            					[stylesheet 	:as ss]
+            					[color      	:as color]
+            					[arithmetic 	:as ga])
+            	(hiccup 		[core       	:as h]
+            					[def        	:as hd]
+            					[element    	:as he]
+            					[form       	:as hf]
+            					[page       	:as hp]
+            					[util       	:as hu])
+            	(ring.util 		[anti-forgery	:as ruaf]
+            					[response     	:as ring])
+            	(clojure 		[string         :as str]
+            					[set            :as set])))
 
 ;;-----------------------------------------------------------------------------
 
 (defn edit-user-page
 	[request userid err-msg]
-	(layout/common "Edit user" [] ; css-admin
+	(layout/common request "Edit user" [] ; css-admin
 		(hf/form-to
 	    	[:post "/admin/edit-user"]
 	        (ruaf/anti-forgery-field)
@@ -89,7 +85,7 @@
 
 (defn new-user-page
 	[request err-msg]
-	(layout/common "New user" [] ; css-admin
+	(layout/common request "New user" [] ; css-admin
 		(hf/form-to
 	    	[:post "/admin/new-user"]
 	        (ruaf/anti-forgery-field)

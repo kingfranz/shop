@@ -132,8 +132,8 @@
 (defn show-projects-page
     [request grouping]
     (let [projects (dbprojects/get-projects)]
-    	(layout/common "Projekt" [css-projects]
-	        (hf/form-to {:enctype "multipart/form-data"}
+    	(layout/common request "Projekt" [css-projects]
+	        (hf/form-to
 	    		[:post "/user/update-projects"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :proj-keys (->> projects

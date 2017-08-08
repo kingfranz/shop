@@ -75,7 +75,7 @@
 
 (defn show-menu-page
     [request]
-    (layout/common "Veckomeny" [css-menus]
+    (layout/common request "Veckomeny" [css-menus]
         (hf/form-to
     		[:post "/user/update-menu"]
         	(ruaf/anti-forgery-field)
@@ -120,7 +120,7 @@
 
 (defn choose-recipe
 	[request menu-date]
-	(layout/common "Välj recept" [css-menus]
+	(layout/common request "Välj recept" [css-menus]
 		[:table.menu-table
     		[:tr
     			[:td.menu-head-td (common/home-button)]

@@ -1,6 +1,6 @@
 (ns shop2.views.recipe
   	(:require 	(shop2 			[db         	:as db]
-  								[utils      	:as utils])
+  								[utils      	:refer :all])
             	(shop2.views 	[layout     	:as layout]
             					[common     	:as common]
             					[css 			:refer :all])
@@ -28,6 +28,7 @@
             					[util       	:as hu])
             	(ring.util 		[anti-forgery 	:as ruaf]
             					[response     	:as ring])
+              	(clojure.spec 	[alpha          :as s])
               	(clojure 		[string     	:as str]
             					[set        	:as set])))
 
@@ -62,8 +63,8 @@
 
 (defn show-recipe-page
     [request recipe]
-	(layout/common "Recept" [css-recipe]
-        (hf/form-to {:enctype "multipart/form-data"}
+	(layout/common request "Recept" [css-recipe]
+		(hf/form-to {:enctype "multipart/form-data"}
     		[:post (if (nil? recipe) "/user/create-recipe" "/user/update-recipe")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
@@ -100,6 +101,7 @@
 
 (defn edit-recipe
     [request recipe-id]
+    {:pre [(q-valid? :shop/_id recipe-id) (q-valid? map? request)]}
 	(show-recipe-page request (dbrecipes/get-recipe recipe-id)))
 
 (defn new-recipe
@@ -110,10 +112,14 @@
 
 (defn assoc-if
 	([k v]
+    {:pre [(q-valid? keyword? k) (q-valid? (s/nilable string?) v)]
+     :post [(q-valid? map? %)]}
 	(if (or (nil? v) (and (string? v) (str/blank? v)))
 		{}
-		(hash-map k v)))
+		{k v}))
 	([k v m]
+    {:pre [(q-valid? keyword? k) (q-valid? (s/nilable string?) v) (q-valid? map? m)]
+     :post [(q-valid? map? %)]}
 	(if (or (nil? v) (and (string? v) (str/blank? v)))
 		m
 		(assoc m k v))))

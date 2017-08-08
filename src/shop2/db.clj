@@ -1,14 +1,15 @@
 (ns shop2.db
-	(:require 	(clj-time			[core     		:as t]
+	(:require 	(shop2				[utils			:refer :all])
+   				(clj-time			[core     		:as t]
             						[local    		:as l]
             						[coerce   		:as c]
             						[format   		:as f]
             						[periodic 		:as p])
             	(clojure 			[set      		:as set]
             						[pprint   		:as pp]
-            						[spec     		:as s]
             						[string   		:as str])
-            	(cheshire 			[core     		:refer :all])
+            	(clojure.spec 		[alpha          :as s])
+             	(cheshire 			[core     		:refer :all])
 				(cemerick 			[friend      	:as friend])
             	(cemerick.friend 	[workflows 	 	:as workflows]
                              		[credentials 	:as creds])
@@ -18,6 +19,7 @@
             						[collection 	:as mc]
             						[joda-time  	:as jt]
             						[operators 		:refer :all])
+             	(environ 			[core 			:refer [env]])
             	(shop2 				[utils       	:as utils]
             						[spec       	:as spec])
             )
@@ -26,84 +28,43 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defonce db-conn  (mg/connect))
-(defonce shopdb   (mg/get-db db-conn "shopdb"))
-(defonce sessions "sessions")
+; mongo --port 27017 -u "mongoadmin" -p "Benq.fp731" --authenticationDatabase "admin"
+; db.createUser({user:"shopper",pwd:"kAllE.kUlA399",roles:[{role:"readWrite",db:"shopdb"}]})
+
+(defonce db-conn (mg/connect-with-credentials (env :database-ip)
+							(mcr/create (env :database-user)
+                   						(env :database-db)
+                         				(env :database-pw)
+                             )))
+(defonce shopdb (mg/get-db db-conn (env :database-db)))
+
+(defonce sessions   "sessions")
 (defonce item-usage "item-usage")
 (defonce users      "users")
-(defonce recipes  "recipes")
-
-(defonce menus    "menus")
-
-(defonce items    "items")
-
-(defonce projects "projects")
-
-(defonce lists    "lists")
-
+(defonce recipes    "recipes")
+(defonce menus      "menus")
+(defonce items      "items")
+(defonce projects   "projects")
+(defonce lists      "lists")
 
 ;;-----------------------------------------------------------------------------
-
-(defmacro q-valid? [sp v]
-  `(q-valid* ~*file*
-  	         ~(:line (meta &form))
-  	         ~sp
-  	         ~v))
-
-(defn q-valid*
-	[f l sp v]
-	;(println "\nq-valid:" (str f ":" l) (pr-str sp) (pr-str v))
-	(if-not (s/valid? sp v)
-		(do
-			(println "\n---------- " f l " ------------")
-			(prn v)
-			(println "---------------------------------------")
-			(prn (s/explain-str sp v))
-			(println "---------------------------------------"))
-		true))
-
-(defn p-trace
-	[s v]
-	(log/trace "\n" s "return:\n" (pr-str v) "\n")
-	true)
-
-;;-----------------------------------------------------------------------------
-
-(defn spy
-	([v]
-	(spy "" v))
-	([s v]
-	(println "------------- SPY ---------------")
-	(when-not (str/blank? s)
-		(println s))
-	(prn (type v))
-	(pp/pprint v)
-	(println "---------------------------------")
-	v))
-
-;;-----------------------------------------------------------------------------
-
-(s/fdef mk-id :ret :shop/_id)
 
 (defn mk-id
 	[]
+ 	{:post [(q-valid? :shop/_id %)]}
 	(str (java.util.UUID/randomUUID)))
-
-(s/fdef mk-std-field :ret :shop/std-keys)
 
 (defn mk-std-field
 	[]
+ 	{:post [(q-valid? :shop/std-keys %)]}
 	{:_id (mk-id) :created (utils/now)})
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef fname
-	:args (s/cat :s :shop/string)
-	:ret :shop/string)
-
 ;monger.collection$find_one_as_map@5f2b4e24users
 (defn fname
 	[s]
+ 	{:post [(q-valid? :shop/string %)]}
 	(second (re-matches #"^[^$]+\$(.+)@.+$" (str s))))
 
 (defn- do-mc
@@ -151,43 +112,34 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef mk-enlc :args :shop/string :ret :shop/string)
-
 (defn mk-enlc
 	[en]
+ 	{:pre [(q-valid? :shop/string en)]
+     :post [(q-valid? :shop/string %)]}
 	(-> en str/trim str/lower-case (str/replace #"[ \t-]+" " ")))
-
-(s/fdef get-by-enlc
-	:args (s/cat :tbl :shop/string :en :shop/string)
-	:ret (s/nilable map?))
 
 (defn get-by-enlc
 	[tbl en]
+ 	{:pre [(q-valid? :shop/string tbl) (q-valid? :shop/string en)]
+     :post [(q-valid? (s/nilable map?) %)]}
 	(mc-find-one-as-map "get-by-enlc" tbl {:entrynamelc en}))
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef add-item-usage
-	:args (s/cat :list-id :shop/_id
-				 :item-id :shop/_id
-				 :action  keyword?
-				 :numof   number?)
-	:ret map?)
-
 (defn add-item-usage
 	[list-id item-id action numof]
+ 	{:pre [(q-valid? :shop/_id list-id) (q-valid? :shop/_id item-id) (q-valid? keyword? action) (q-valid? number? numof)]
+     :post [(q-valid? map? %)]}
 	(mc-insert "add-item-usage" item-usage
 		(merge {:listid list-id :itemid item-id :action action :numof numof}
 			   (mk-std-field))))
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef get-user
-	:args :shop/username
-	:ret  (s/nilable :shop/user-db))
-
 (defn get-user
 	[uname]
+ 	{:pre [(q-valid? :shop/username uname)]
+     :post [(q-valid? (s/nilable :shop/user-db) %)]}
 	(let [udata (mc-find-one-as-map "get-user" users
 					{:username {$regex (str "^" (str/trim uname) "$") $options "i"}})]
 		(when (seq udata)
@@ -197,12 +149,10 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef get-user-by-id
-	:args :shop/_id
-	:ret  (s/nilable :shop/user-db))
-
 (defn get-user-by-id
 	[uid]
+ 	{:pre [(q-valid? :shop/_id uid)]
+     :post [(q-valid? (s/nilable :shop/user-db) %)]}
 	(let [udata (mc-find-map-by-id "get-user-by-id" users uid)]
 		(when (seq udata)
 			(-> udata
@@ -211,11 +161,9 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef get-users
-	:ret  :shop/user-db)
-
 (defn get-users
 	[]
+ 	{:post [(q-valid? (s/* :shop/user-db) %)]}
 	(for [user (mc-find-maps "get-user" users {})]
 		(-> user
 			(update :roles #(->> % (map keyword) set))
@@ -242,14 +190,10 @@
 				(count-chars #"[.*!@#$%^&()=+-]")
 				))))
 
-(s/fdef create-user
-	:args (s/cat :username :shop/username
-				 :passwd   :shop/password
-				 :roles    :shop/roles)
-	:ret :shop/user-db)
-
 (defn create-user
 	[username passwd roles]
+ 	{:pre [(q-valid? :shop/username username) (q-valid? :shop/password passwd) (q-valid? :shop/roles roles)]
+     :post [(q-valid? :shop/user-db %)]}
 	(when (some? (get-user username))
 		(throw (ex-info "duplicate username" {:cause :username})))
 	(let [user (merge {:username (str/trim username)
@@ -260,34 +204,24 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef set-user-password
-	:args (s/cat :uid    :shop/_id
-				 :passwd :shop/password))
-
 (defn set-user-password
 	[uid passwd]
+ 	{:pre [(q-valid? :shop/_id uid) (q-valid? :shop/password passwd)]}
 	(mc-update-by-id "set-user-password" users uid
 		{$set {:password (creds/hash-bcrypt (verify-passwd passwd))}}))
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef set-user-roles
-	:args (s/cat :uid   :shop/_id
-				 :roles :shop/roles))
-
 (defn set-user-roles
 	[uid roles]
+ 	{:pre [(q-valid? :shop/_id uid) (q-valid? :shop/roles roles)]}
 	(mc-update-by-id "set-user-roles" users uid {$set {:roles roles}}))
 
 ;;-----------------------------------------------------------------------------
 
-(s/fdef set-user-property
-	:args (s/cat :uid      :shop/_id
-				 :prop-key keyword?
-				 :prop-val map?))
-
 (defn set-user-property
 	[uid prop-key prop-val]
+ 	{:pre [(q-valid? :shop/_id uid) (q-valid? keyword? prop-key) (q-valid? map? prop-val)]}
 	(mc-update-by-id "set-user-property" users uid
 		{$set {:properties {prop-key prop-val}}}))
 

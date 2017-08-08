@@ -1,45 +1,45 @@
 (ns shop2.spec
-  	(:require 	(clj-time 	[core     :as t]
-            				[local    :as l]
-            				[coerce   :as c]
-            				[format   :as f]
-            				[periodic :as p])
-            	(clojure 	[string   :as str]
-            				[spec     :as s]
-            				[set      :as set])))
+  	(:require 	(clj-time 		[core     :as t]
+            					[local    :as l]
+            					[coerce   :as c]
+            					[format   :as f]
+            					[periodic :as p])
+            	(clojure.spec 	[alpha    :as s])
+             	(clojure 		[string   :as str]
+            					[set      :as set])))
 
 ;;-----------------------------------------------------------------------------
 
-"242be596-a391-4405-a1c0-fa7c3a1aa5c9"
+; "242be596-a391-4405-a1c0-fa7c3a1aa5c9"
 (defonce uuid-regex
 	#"\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}")
 
-(s/def :shop/string    (and string? seq))
-(s/def :shop/strings   (s/* :shop/string))
-(s/def :shop/date      #(instance? org.joda.time.DateTime %))
-(s/def :shop/_id       #(and (string? %) (re-matches uuid-regex %)))
-(s/def :shop/created   :shop/date)
-(s/def :shop/entryname (and string? seq))
-(s/def :shop/entrynamelc (and string? seq))
-(s/def :shop/numof     (and int? pos?))
-(s/def :shop/parent    (s/nilable :shop/_id))
-(s/def :list/parent    (s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
-(s/def :shop/amount    (s/nilable number?))
-(s/def :shop/unit      (s/nilable string?))
-(s/def :shop/price     (s/nilable number?))
-(s/def :shop/text      (s/nilable string?))
-(s/def :menu/recipe    (s/keys :req-un [:shop/_id :shop/entryname]))
-(s/def :recipe/item    (s/keys :req-un [:shop/text] :opt-un [:shop/unit :shop/amount]))
-(s/def :recipe/items   (s/* :recipe/item))
-(s/def :shop/priority  (s/int-in 1 6))
-(s/def :shop/finished  (s/nilable :shop/date))
-(s/def :shop/url       (s/nilable string?))
-(s/def :shop/cleared   (s/nilable :shop/date))
-(s/def :shop/std-keys  (s/keys :req-un [:shop/_id :shop/created]))
-(s/def :shop/username  :shop/string)
-(s/def :shop/roles     (s/every keyword? :kind set?))
-(s/def :shop/password  :shop/string)
-(s/def :shopuser/created :shop/string)
+(s/def :shop/string    		(and string? seq))
+(s/def :shop/strings   		(s/* :shop/string))
+(s/def :shop/date      		#(instance? org.joda.time.DateTime %))
+(s/def :shop/_id       		#(and (string? %) (re-matches uuid-regex %)))
+(s/def :shop/created   		:shop/date)
+(s/def :shop/entryname 		(and string? seq))
+(s/def :shop/entrynamelc 	(and string? seq))
+(s/def :shop/numof     		(and int? pos?))
+(s/def :shop/parent    		(s/nilable :shop/_id))
+(s/def :list/parent    		(s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
+(s/def :shop/amount    		(s/nilable number?))
+(s/def :shop/unit      		(s/nilable string?))
+(s/def :shop/price     		(s/nilable number?))
+(s/def :shop/text      		(s/nilable string?))
+(s/def :menu/recipe    		(s/keys :req-un [:shop/_id :shop/entryname]))
+(s/def :recipe/item    		(s/keys :req-un [:shop/text] :opt-un [:shop/unit :shop/amount]))
+(s/def :recipe/items   		(s/* :recipe/item))
+(s/def :shop/priority  		(s/int-in 1 6))
+(s/def :shop/finished  		(s/nilable :shop/date))
+(s/def :shop/url       		(s/nilable string?))
+(s/def :shop/cleared   		(s/nilable :shop/date))
+(s/def :shop/std-keys  		(s/keys :req-un [:shop/_id :shop/created]))
+(s/def :shop/username  		:shop/string)
+(s/def :shop/roles     		(s/every keyword? :kind set?))
+(s/def :shop/password  		:shop/string)
+(s/def :shopuser/created 	:shop/string)
 (s/def :shopuser/properties (s/map-of keyword? map?))
 
 ;;-----------------------------------------------------------------------------
