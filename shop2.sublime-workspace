@@ -4,6 +4,50 @@
 		"selected_items":
 		[
 			[
+				":",
+				":entrynamelc"
+			],
+			[
+				":en",
+				":entryname"
+			],
+			[
+				":e",
+				":entryname"
+			],
+			[
+				"ide",
+				"identity"
+			],
+			[
+				"recipe",
+				"recipe-id"
+			],
+			[
+				"str",
+				"string?"
+			],
+			[
+				":sh",
+				":shop/string"
+			],
+			[
+				"nu",
+				"number?"
+			],
+			[
+				":s",
+				":shop/username"
+			],
+			[
+				"prop",
+				"prop-val"
+			],
+			[
+				"key",
+				"keyword?"
+			],
+			[
 				"sort",
 				"sort-by"
 			],
@@ -15,33 +59,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "src/shop2/views/home.clj",
-			"settings":
-			{
-				"buffer_size": 4686,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/shop2/views/admin/items.clj",
-			"settings":
-			{
-				"buffer_size": 5385,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/shop2/controllers/routes.clj",
-			"settings":
-			{
-				"buffer_size": 6038,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -83,11 +100,39 @@
 		"/home/soren/Linux/clojure/shop2/src",
 		"/home/soren/Linux/clojure/shop2/src/shop2",
 		"/home/soren/Linux/clojure/shop2/src/shop2/controllers",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db",
 		"/home/soren/Linux/clojure/shop2/src/shop2/views",
 		"/home/soren/Linux/clojure/shop2/src/shop2/views/admin"
 	],
 	"file_history":
 	[
+		"/home/soren/Linux/clojure/shop2/src/shop2/spec.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/recipes.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/items.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/tags.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/admin.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/recipe.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/home.clj",
+		"/home/soren/Linux/clojure/shop2/profiles.clj",
+		"/home/soren/Linux/clojure/shop2/project.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/core.clj",
+		"/home/soren/Linux/clojure/shop2/.gitignore",
+		"/home/soren/Linux/clojure/shop2/shop.log",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/items.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/lists.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/common.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/lists.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/controllers/routes.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/layout.clj",
+		"/home/soren/Linux/clojure/shop2/mongo-setup.txt",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/admin/users.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/admin/items.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/menus.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/db/projects.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/views/tags.clj",
+		"/home/soren/Linux/clojure/shop2/src/shop2/utils.clj",
+		"/home/soren/Linux/clojure/shop2/project-map.edn",
 		"/home/soren/.config/sublime-text-3/Packages/User/defn.sublime-snippet",
 		"/home/soren/.config/sublime-text-3/Installed Packages/Enhanced Clojure.sublime-package",
 		"/home/soren/.config/sublime-text-3/Packages/User/lispindent.sublime-settings",
@@ -111,6 +156,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"add-item-usage",
+			":shop/entrynamelc",
+			"entrynamelc",
+			"%2",
+			"%1",
+			"q-value",
+			"utils/",
 			"edit-item",
 			"update-map",
 			"current-year",
@@ -140,361 +192,8 @@
 	"groups":
 	[
 		{
-			"selected": 1,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "src/shop2/views/home.clj",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4686,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2527,
-								2527
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-									"1":
-									[
-										2526,
-										2527
-									]
-								},
-								"icon":
-								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/round_bracket.png",
-										"brackethighlighter.default"
-									]
-								},
-								"open":
-								{
-									"1":
-									[
-										2218,
-										2219
-									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content"
-							],
-							"syntax": "Packages/Clojure/Clojure.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 920.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/shop2/views/admin/items.clj",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5385,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3562,
-								3562
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-									"1":
-									[
-										3588,
-										3589
-									]
-								},
-								"icon":
-								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/round_bracket.png",
-										"brackethighlighter.default"
-									]
-								},
-								"open":
-								{
-									"1":
-									[
-										3500,
-										3501
-									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content"
-							],
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Clojure/Clojure.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1800.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/shop2/controllers/routes.clj",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6038,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5079,
-								5079
-							]
-						],
-						"settings":
-						{
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-									"1":
-									[
-										5134,
-										5135
-									]
-								},
-								"icon":
-								{
-									"1":
-									[
-										"Packages/BracketHighlighter/icons/round_bracket.png",
-										"brackethighlighter.default"
-									]
-								},
-								"open":
-								{
-									"1":
-									[
-										5071,
-										5072
-									]
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content"
-							],
-							"syntax": "Packages/Clojure/Clojure.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 2496.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -504,7 +203,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 36.0
 	},
 	"layout":
 	{
