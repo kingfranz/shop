@@ -124,7 +124,9 @@
 				[:td.home-margin
 					[:a.link-thin {:href (str "/user/recipe/" (:_id r))}
 					              (:entryname r)]]])
-			(take 10 (dbrecipes/get-recipe-names)))])
+			(sort-by :entryname
+            		 #(compare (str/lower-case %1) (str/lower-case %2))
+               		 (dbrecipes/get-recipe-names)))])
 
 (defn home-page
 	[request]

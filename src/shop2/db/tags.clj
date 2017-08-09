@@ -25,8 +25,6 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defonce tags     "tags")
-
 (defn get-tags
 	[]
 	{:post [(q-valid? :shop/tags %)]}
@@ -96,4 +94,3 @@
 	(mc-update "delete-tag-all" projects {} {$pull {:tags {:_id id}}} {:multi true})
 	(mc-update "delete-tag-all" items {} {$pull {:tags {:_id id}}} {:multi true})
 	)
-

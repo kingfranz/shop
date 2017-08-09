@@ -50,7 +50,9 @@
 	{:pre [(q-valid? :shop/item* entry)]
 	 :post [(q-valid? :shop/item %)]}
 	(dbtags/add-tags (:tags entry))
-	(let [entry* (merge entry (mk-std-field))]
+	(let [entry* (as-> entry $
+                       (merge $ (mk-std-field))
+                       (assoc $ :entrynamelc (mk-enlc (:entryname $))))]
 		(add-item-usage nil (:_id entry*) :create 0)
 		(mc-insert "add-item" items entry*)
 		entry*))
@@ -59,8 +61,10 @@
 	[entry]
 	{:pre [(q-valid? :shop/item* entry)]}
 	(add-item-usage nil (:_id entry) :update 0)
-	(mc-update-by-id "update-item" items (:_id entry)
-		{$set (select-keys entry [:entryname :unit :url :amount :price :tags :parent])}))
+	(let [entry* (assoc entry :entrynamelc (mk-enlc (:entryname entry)))]
+   		(mc-update-by-id "update-item" items (:_id entry*)
+			{$set (select-keys entry* [:entryname :entrynamelc :unit :url
+                             		   :amount :price :tags :parent])})))
 
 (defn delete-item
 	[item-id]

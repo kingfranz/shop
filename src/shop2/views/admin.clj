@@ -71,9 +71,26 @@
 					[:a.link-thick {:href (str "/admin/edit-tag/" (:_id tag))}
 						(:entryname tag)]]])])
 
+(defn fix-names
+  	[]
+    (doseq [tag (dbtags/get-tags)
+            :when (not (contains? tag :entrynamelc))]
+      	(dbtags/update-tag (:_id tag) (:entryname tag)))
+    (doseq [recipe (dbrecipes/get-recipes)
+            :when (not (contains? recipe :entrynamelc))]
+      	(dbrecipes/update-recipe recipe))
+    (doseq [item (dbitems/get-items)
+            :when (or (not (contains? item :entrynamelc))
+                      (some #(not (contains? % :entrynamelc)) (:tags item)))]
+      	(dbitems/update-item
+         	(update item :tags #(map (fn [t] (assoc t :entrynamelc (db/mk-enlc (:entryname t)))) %))))
+    )
+
 (defn admin-page
 	[request]
+ 	;(fix-names)
 	(layout/common request "Admin" [css-admin]
+        [:p (env :database-ip)]
 	  	[:div.column
 			[:p.header [:a.link-home {:href "/admin/new-list"} "Ny lista"]]
 			[:div.home-box (list-list)]]

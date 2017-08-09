@@ -1,7 +1,7 @@
 {
 :dev {
     :env {
-        :database-ip "127.0.0.1"
+        :database-ip "server.soahojen"
 		:database-user "shopper"
 		:database-db "shopdb"
 		:database-pw "kAllE.kUlA399"

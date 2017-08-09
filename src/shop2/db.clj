@@ -46,6 +46,7 @@
 (defonce items      "items")
 (defonce projects   "projects")
 (defonce lists      "lists")
+(defonce tags       "tags")
 
 ;;-----------------------------------------------------------------------------
 
@@ -128,8 +129,10 @@
 
 (defn add-item-usage
 	[list-id item-id action numof]
- 	{:pre [(q-valid? :shop/_id list-id) (q-valid? :shop/_id item-id) (q-valid? keyword? action) (q-valid? number? numof)]
-     :post [(q-valid? map? %)]}
+ 	{:pre [(q-valid? (s/nilable :shop/_id) list-id)
+           (q-valid? :shop/_id item-id)
+           (q-valid? keyword? action)
+           (q-valid? number? numof)]}
 	(mc-insert "add-item-usage" item-usage
 		(merge {:listid list-id :itemid item-id :action action :numof numof}
 			   (mk-std-field))))
