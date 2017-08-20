@@ -101,7 +101,7 @@
 (defn mk-list-tbl
 	[a-list]
 	[:table.list-tbl
-    	; row with list name
+    	; first row with list name
     	[:tr
     		[:td
     			[:table {:style "width:100%"}
@@ -117,6 +117,7 @@
     		[:td
     			[:table {:style "width:100%"}
 					(mk-items a-list :active)]]]
+     	; row with clean button
     	[:tr
     		[:td
     			[:table {:style "width:100%"}
@@ -129,7 +130,7 @@
 
 (defn show-list-page
     [request list-id]
-	(layout/common-refresh request (:entryname (dblists/get-list list-id)) [css-lists]
+	(layout/common-refresh request "Shopping" [css-lists]
     	(loop [listid  list-id
 			   acc     []]
 			(if (some? listid)
