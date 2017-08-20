@@ -2,7 +2,8 @@
   	(:require 	(compojure 					[core       	:refer [defroutes]]
   											[route      	:as route]
             								[handler    	:as handler])
-            	(shop2 						[db        		:as db])
+            	(shop2 						[db        		:as db]
+                    						[logfile        :refer :all])
             	(shop2.controllers 			[routes    		:as sr])
             	(shop2.views 				[layout    		:as layout])
             	(taoensso 					[timbre     	:as log])
@@ -59,15 +60,7 @@
 
 (defn dirty-fix
 	[x]
-	(log/set-level! :trace)
-    (log/merge-config! {:appenders {:println {:enabled? false}}})
-    (log/merge-config! {:timestamp-opts {:pattern "MM-dd HH:mm:ss"
-    					   				 :locale (java.util.Locale. "sv_SE")
-    					   				 :timezone (java.util.TimeZone/getTimeZone "Europe/Stockholm")}
-    					:output-fn (partial log/default-output-fn {:stacktrace-fonts {}})})
-  	(log/merge-config!
-  		{:appenders {:spit (appenders/spit-appender {:fname "shop.log"})}})
-    (log/error "\n\nENV:" (env :database-user) (env :database-db) (env :database-ip) "\n\n")
+	(setup-log)
 	x)
 
 (defn wrap-fallback-exception

@@ -170,7 +170,10 @@
 		(do
 			(if (or (zero? num-of) (<= (+ (:numof item) num-of) 0))
 				(finish-list-item list-id item-id)
-				(mod-item list-id item-id num-of)))
+				(do
+      				(when (some? (:finished item))
+            			(unfinish-list-item list-id item-id))
+      				(mod-item list-id item-id num-of))))
 		; no, we need to add it
 		(when (pos? num-of)
 			(add-item-usage list-id item-id :add-to num-of)
