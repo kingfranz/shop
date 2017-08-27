@@ -78,7 +78,7 @@
 	[entry]
 	{:pre [(q-valid? :shop/list* entry)]}
 	(mc-update-by-id "update-list" lists (:_id entry)
-		{$set (select-keys entry [:entryname :parent])}))
+		{$set (select-keys entry [:entryname :parent :last])}))
 
 (defn delete-list
 	[list-id]
@@ -95,6 +95,7 @@
 		[{$project {:_id true
 		 		    :entryname true
 		 		    :parent true
+         			:last true
 		 		    :count {
 		 		    	$cond [{$gt ["$items" nil]}
 					           {$size {

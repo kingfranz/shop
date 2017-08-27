@@ -24,6 +24,7 @@
 (s/def :shop/numof     		(and int? pos?))
 (s/def :shop/parent    		(s/nilable :shop/_id))
 (s/def :list/parent    		(s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
+(s/def :list/kast    		boolean?)
 (s/def :shop/amount    		(s/nilable number?))
 (s/def :shop/unit      		(s/nilable string?))
 (s/def :shop/price     		(s/nilable number?))
@@ -45,7 +46,7 @@
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/list*   (s/keys :req-un [:shop/entryname]
-							 :opt-un [:shop/items :list/parent]))
+							 :opt-un [:shop/items :list/parent :list/last]))
 
 (s/def :shop/list    (s/merge :shop/list* :shop/std-keys))
 (s/def :shop/lists*  (s/* :shop/list*))

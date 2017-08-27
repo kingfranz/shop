@@ -104,45 +104,42 @@
 			:padding   (u/px 10)
 			:font-size (u/px 36)
 		}]
-		[:.item-tr:first-child {
-		}]
-		[:.item-tr {
-			:border-color        :grey
-			:border-top-style :solid
-		}]
-		[:.item-td {
-			:padding (u/px 6)
-			:width   half
-		}]
-		[:.item-an {
-			:display         :block
-			:color           :white
-			:text-decoration :none
-		}]
-		[:.item-at {
-			:display         :block
-			:color           :lightgrey
-			:text-decoration :none
-		}]
+  
 		[:.item-div {
 			:float :left
+   			:table-layout :fixed
+		}]
+		[:.item-table {
+			:table-layout :fixed
 		}]
 		[:.item-txt-td {
-			:width (u/px 250)
+			:width         (u/px 250)
+   			:display       :inline-block
+			:text-overflow :clip
+		}]
+		[:.item-txt-a {
+			;:display         :block
+			:color           :white
+			:text-decoration :none
+   			:overflow        :hidden
+   			:text-overflow   :ellipsis
 		}]
 		[:.item-txt {
-			:text-align :right
-			:white-space :nowrap
+			:white-space   :nowrap
+   			:overflow      :hidden
+      		:cursor        :crosshair
+   			:text-overflow :clip
 		}]
 		[:.item-tags-td {
 			:width (u/px 200)
 		}]
 		[:.item-tags {
-			:text-align :left
-			:margin   [[(u/px 5) (u/px 5) (u/px 0) (u/px 5)]]
-			:font-size (u/px 16)
+			:text-align  :left
+			:margin      [[(u/px 5) (u/px 5) (u/px 0) (u/px 5)]]
+			:font-size   (u/px 16)
 			:white-space :nowrap
 		}]
+  
 		[:.sort-div {
 			:margin [[(u/px 10) 0 (u/px 10) 0]]
 		}]
@@ -398,6 +395,14 @@
 			:overflow-x :hidden
 			:overflow-y :auto
 			}]
+		[:.proj-tags {
+			;:width full
+			:font-size (u/px 14)
+   			:text-align :right
+			:border 0
+			:color :lightgrey
+			:background-color transparent
+		}]
 		[:.proj-pri {:width (u/px 20)}]
 		[:.clip {:overflow :hidden
 			     :white-space :nowrap}]

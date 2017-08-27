@@ -1,35 +1,35 @@
 (ns shop2.views.admin.lists
-  	(:require 	(shop2 			[db                 :as db]
-  								[utils    :as utils])
+  	(:require 	(shop2 			[db           :as db]
+  								[utils        :as utils])
             	(shop2.views 	[layout       :as layout]
             					[common       :as common]
             					[home         :as home]
             				 	[css          :refer :all])
-            	(shop2.db 		[tags 			:as dbtags]
-  								[items			:as dbitems]
-  								[lists 			:as dblists]
-  								[menus 			:as dbmenus]
-  								[projects 		:as dbprojects]
-  								[recipes 		:as dbrecipes])
-            	[clj-time.core            :as t]
-            	[clj-time.local           :as l]
-            	[clj-time.format          :as f]
-            	[clj-time.periodic        :as p]
-            	[hiccup.core              :as h]
-            	[hiccup.def               :as hd]
-            	[hiccup.element           :as he]
-            	[hiccup.form              :as hf]
-            	[hiccup.page              :as hp]
-            	[hiccup.util              :as hu]
-            	[garden.core              :as g]
-            	[garden.units             :as u]
-            	[garden.selectors         :as sel]
-            	[garden.stylesheet        :as ss]
-            	[garden.color             :as color]
+            	(shop2.db 		[tags 		  :as dbtags]
+  								[items		  :as dbitems]
+  								[lists 		  :as dblists]
+  								[menus 		  :as dbmenus]
+  								[projects 	  :as dbprojects]
+  								[recipes 	  :as dbrecipes])
+            	(clj-time		[core         :as t]
+            					[local        :as l]
+            					[format       :as f]
+            					[periodic     :as p])
+            	(hiccup			[core         :as h]
+            					[def          :as hd]
+            					[element      :as he]
+            					[form         :as hf]
+            					[page         :as hp]
+            					[util         :as hu])
+            	(garden			[core         :as g]
+            					[units        :as u]
+            					[selectors    :as sel]
+            					[stylesheet   :as ss]
+            					[color        :as color])
             	(ring.util 		[anti-forgery :as ruaf]
             					[response     :as ring])
-              	[clojure.string           :as str]
-            	[clojure.set              :as set]))
+              	(clojure		[string       :as str]
+            					[set          :as set])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -47,8 +47,11 @@
         	(common/named-div "Överornad lista:"
         		(hf/drop-down {:class "new-parent"}
         					:list-parent
-        					(conj (map :entryname (dblists/get-list-names)) common/top-lvl-name)))
-            )))
+        					(conj (map :entryname (dblists/get-list-names))
+                   				  common/top-lvl-name)))
+            (common/named-div "Lågprioriterad lista?"
+            	(hf/check-box {:class "new-cb"} :low-prio))
+        	)))
 
 (defn mk-parent-map
 	[params]
@@ -61,7 +64,8 @@
 	[{params :params}]
 	(if (seq (:entryname params))
 		(dblists/add-list {:entryname (:entryname params)
-					  :parent (mk-parent-map params)})
+					       :parent (mk-parent-map params)
+            			   :last (some? (:low-prio params))})
 		(throw (Exception. "list name is blank")))
 	(ring/redirect "/admin"))
 
@@ -86,14 +90,17 @@
 	        					:list-parent
 	        					(conj (map :entryname (dblists/get-list-names)) common/top-lvl-name)
 	        					(some->> a-list :parent :entryname)))
+	            (common/named-div "Lågprioriterad lista?"
+	            	(hf/check-box {:class "new-cb"} :low-prio (true? (:last a-list))))
             ))))
 
 (defn edit-list!
 	[{params :params}]
 	(if (seq (:entryname params))
-		(dblists/update-list {:_id (:list-id params)
-						 :entryname (:entryname params)
-						 :parent (mk-parent-map params)})
+		(dblists/update-list {:_id       (:list-id params)
+						 	  :entryname (:entryname params)
+						 	  :parent    (mk-parent-map params)
+          					  :last      (some? (:low-prio params))})
 		(throw (Exception. "list name is blank")))
 	(ring/redirect "/admin"))
 

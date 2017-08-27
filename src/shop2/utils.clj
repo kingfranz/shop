@@ -6,7 +6,8 @@
             					[periodic 	:as p])
   				(taoensso 		[timbre   	:as log])
             	(clojure.spec 	[alpha      :as s])
-             	(clojure 		[string   	:as str]
+             	(clojure.java 	[io         :as io])
+              	(clojure 		[string   	:as str]
             					[set      	:as set]
                 				[pprint		:as pp])))
 
@@ -132,3 +133,7 @@
 		(assoc m k n)
 		m))
 
+(defn get-dir-list
+  	"read a directory"
+    [dir re]
+    (filter #(re-find re %) (map str (file-seq (io/file dir)))))

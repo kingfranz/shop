@@ -1,4 +1,4 @@
-(defproject shop2 "0.7.5"
+(defproject shop2 "0.7.6"
   	:description "Shopping list"
   	:url "http://soahojen.se"
   	:license {:name "Eclipse Public License"

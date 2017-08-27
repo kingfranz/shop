@@ -44,19 +44,26 @@
 
 (defn get-items
 	[a-list]
-	(let [items      (dbitems/get-items)
-		  id-parents (get-parents a-list)]
-		(filter #(contains? id-parents (:parent %)) items)))
+	(let [items        (dbitems/get-items)
+		  id-parents   (get-parents a-list)
+    	  active-items (->> a-list
+                            :items
+                            (remove #(some? (:finished %)))
+                            (map :_id)
+                            set)]
+		(->> items
+       		 (filter #(contains? id-parents (:parent %)))
+          	 (remove #(contains? active-items (:_id %))))))
 
 (defn mk-add-item
 	[a-list item]
 	[:div.item-div
-		[:table
+		[:table.item-table
 			[:tr
 				[:td.item-txt-td
-					[:a.item-an
+					[:a.item-txt-a
 						{:href (str "/user/add-to-list/" (:_id a-list) "/" (:_id item))}
-						(hf/label {:class "item-txt"} :x (:entryname item))]]
+						[:div.item-txt (:entryname item)]]]
 				[:td.item-tags-td
 					(hf/label {:class "item-tags"}
 						:x (some->> item
@@ -75,7 +82,7 @@
 		  :let [tag (key kv)
 		  		items (sort-by #(str/lower-case (:entryname %)) (val kv))]]
 		(list
-			[:table {:style "width: 100%"}
+			[:table {:style "width:100%;table-layout:fixed"}
 				[:tr
 					[:td.tags-head {:style "width: 100%"} (hf/label {:class "tags-head"} :x tag)]]
 				[:tr
@@ -93,21 +100,25 @@
 	[a-list sort-type]
 	(cond
 		(= sort-type :tags-a-z)
-			(old-items-tags a-list (->> (get-items a-list)
+			(old-items-tags a-list
+                   			(->> (get-items a-list)
 								 (map #(update-in % [:tags] stringify))
 								 (group-by :tags)
 								 (into (sorted-map))))
 		(= sort-type :tags-z-a)
-			(old-items-tags a-list (->> (get-items a-list)
+			(old-items-tags a-list
+                   			(->> (get-items a-list)
 								 (map #(update-in % [:tags] stringify))
 								 (group-by :tags)
 								 (into (sorted-map-by (fn [k1 k2] (compare k2 k1))))))
 		(= sort-type :z-a)
-			(old-items-name a-list (->> (get-items a-list)
+			(old-items-name a-list
+                   			(->> (get-items a-list)
 								 (sort-by #(str/lower-case (:entryname %)))
 								 reverse))
 		:else
-			(old-items-name a-list (->> (get-items a-list)
+			(old-items-name a-list
+                   			(->> (get-items a-list)
 								 (sort-by #(str/lower-case (:entryname %)))))))
 
 (defn add-items-page

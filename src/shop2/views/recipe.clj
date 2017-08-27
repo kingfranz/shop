@@ -112,13 +112,9 @@
 
 (defn assoc-if
 	([k v]
-    {:pre [(q-valid? keyword? k) (q-valid? (s/nilable string?) v)]
-     :post [(q-valid? map? %)]}
-	(if (or (nil? v) (and (string? v) (str/blank? v)))
-		{}
-		{k v}))
+    (assoc-if k v {}))
 	([k v m]
-    {:pre [(q-valid? keyword? k) (q-valid? (s/nilable string?) v) (q-valid? map? m)]
+    {:pre [(q-valid? keyword? k) (q-valid? map? m)]
      :post [(q-valid? map? %)]}
 	(if (or (nil? v) (and (string? v) (str/blank? v)))
 		m
@@ -145,19 +141,21 @@
 
 (defn update-recipe!
 	[{params :params}]
-	(dbrecipes/update-recipe (->> (assoc-if :_id (:recipe-id params))
-						   (assoc-if :url (:recipe-url params))
-						   (assoc-if :entryname (:recipe-name params))
-						   (assoc-if :text  (:recipe-area params))
-						   (assoc-if :items (get-r-items params))))
+	(dbrecipes/update-recipe
+   		(->> (assoc-if :_id       (:recipe-id params))
+			 (assoc-if :url       (:recipe-url params))
+			 (assoc-if :entryname (:recipe-name params))
+			 (assoc-if :text      (:recipe-area params))
+			 (assoc-if :items     (get-r-items params))))
 	(ring/redirect (str "/user/recipe/" (:recipe-id params))))
 
 (defn create-recipe!
 	[{params :params}]
-	(let [ret (dbrecipes/add-recipe (->> (assoc-if :url (:recipe-url params))
-								  (assoc-if :entryname (:recipe-name params))
-								  (assoc-if :text  (:recipe-area params))
-								  (assoc-if :items (get-r-items params))))]
+	(let [ret (dbrecipes/add-recipe
+             	(->> (assoc-if :url       (:recipe-url params))
+					 (assoc-if :entryname (:recipe-name params))
+					 (assoc-if :text      (:recipe-area params))
+					 (assoc-if :items     (get-r-items params))))]
 		(ring/redirect (str "/user/recipe/" (:_id ret)))))
 
 ;;-----------------------------------------------------------------------------

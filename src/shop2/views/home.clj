@@ -56,13 +56,21 @@
 				[:ul
      				(map #(sub-tree lists %) sub-lists)])]))
 
-(defn list-cmp
+(defn list-cmp*
   	[x1 x2]
     (if (> (:count x1) (:count x2))
         -1
         (if (< (:count x1) (:count x2))
         	1
         	(compare (:entryname x1) (:entryname x2)))))
+
+(defn list-cmp
+  	[x1 x2]
+    (cond
+      	(and (:last x1) (:last x2)) (list-cmp* x1 x2)
+        (and (:last x1) (not (:last x2))) 1
+        (and (not (:last x1)) (:last x2)) -1
+        :else (list-cmp* x1 x2)))
 
 (defn list-tbl
 	[lists]
@@ -100,7 +108,7 @@
 
 (defn mk-proj-row
 	[r]
-	[:tr
+ 	[:tr
 		[:td.proj-pri
 			(hf/label
 				{:class "home-margin"} :dummy
@@ -108,11 +116,16 @@
 		[:td
 			(hf/label
 				{:class "home-margin clip"} :dummy
-				(:entryname r))]])
+				(:entryname r))]
+		[:td.r-align
+			(hf/label
+				{:class "proj-tags"} :dummy
+				(common/frmt-tags (:tags r)))]
+  	])
 
 (defn projekt-list
 	[]
-	[:table
+	[:table {:style "width:100%"}
 		(->> (dbprojects/get-active-projects)
 			 (map mk-proj-row))])
 
@@ -133,8 +146,8 @@
 	(layout/common-refresh request "Shopping" [css-home-tree css-home css-menus]
 	  	[:div.column
 			(if (want-tree? request)
-				[:a.link-flex {:href "/user/home/prio"} "Num"]
-				[:a.link-flex {:href "/user/home/tree"} "Tree"])
+				[:a.link-home {:href "/user/home/prio"} "Num"]
+				[:a.link-home {:href "/user/home/tree"} "Tree"])
 			[:div.home-box (list-tree request)]]
 		[:div.column
 			[:p.header [:a.link-home {:href "/user/menu"} "Veckomeny"]]

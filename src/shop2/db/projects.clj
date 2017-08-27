@@ -36,7 +36,7 @@
 	[]
 	(->> (mc-find-maps "get-active-projects" projects
 			{:finished nil}
-			{:_id true :entryname true :priority true})
+			{:_id true :entryname true :priority true :tags true})
 		 (sort-by :priority)))
 
 (defn get-project
