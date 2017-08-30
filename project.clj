@@ -12,6 +12,7 @@
         [clj-time "0.14.0"]
         [environ "1.1.0"]
         [com.novemberain/monger "3.1.0"]
+        [prone "1.1.4"]
         [garden "1.3.2"]
         [cheshire "5.8.0"]
         [ring-logger "0.7.7"]
@@ -31,4 +32,6 @@
         :auto-refresh? false
         :port 3000}
   	:profiles {
-        :dev {:uberjar {:aot :all}}})
+        :dev {
+            :uberjar {:aot :all}
+            :ring {:stacktrace-middleware prone.middleware/wrap-exceptions}}})
