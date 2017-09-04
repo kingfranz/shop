@@ -77,12 +77,10 @@
 	    (projects/clear-projects request))
 	
 	(cc/GET "/add-items/:id" request
-	    (items/add-items-page request (-> request :params :id) :a-z))
+	    (items/add-items-page request (-> request :params :id)))
 
 	(cc/GET "/add-items/:id/:stype" request
-	    (items/add-items-page request
-							  (-> request :params :id)
-							  (-> request :params :stype keyword)))
+	    (items/add-items-page request (-> request :params :id)))
 
 	(cc/GET "/add-to-list/:lid/:iid" request
 	    (items/add-item-page request
