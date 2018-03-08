@@ -85,13 +85,19 @@
 		[:tr.item-text-tr      (mk-item-row* a-list item active?)]
 		[:tr.item-text-tr.done (mk-item-row* a-list item active?)]))
 
+(defn- sort-items
+  	[item-list]
+   	(let [items-by-tag (group-by #(common/frmt-tags (:tags %)) item-list)
+          tags (sort (keys items-by-tag))]
+      	(map #(hash-map :tag % :items (sort-by :entrynamelc (get items-by-tag %))) tags)))
+
 (defn mk-items
 	[a-list row-type]
-	(let [filter-func   (if (= row-type :active)
-		                    (fn [i] (nil? (:finished i)))
-		                    (fn [i] (some? (:finished i))))
-		  item-list     (filter filter-func (:items a-list))]
-		(for [[tags items] (group-by #(common/frmt-tags (:tags %)) item-list)
+	(let [filter-func (if (= row-type :active)
+		                  (fn [i] (nil? (:finished i)))
+		                  (fn [i] (some? (:finished i))))
+		  item-list   (filter filter-func (:items a-list))]
+		(for [{tags :tag items :items} (sort-items item-list)
 	    	:when (seq items)]
     		(list
     			(mk-tags-row tags)

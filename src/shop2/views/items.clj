@@ -174,8 +174,6 @@
         	(hf/hidden-field :list-id list-id)
 	        [:div
     			(common/homeback-button (str "/user/add-items/" list-id))
-    			[:a.link-head {:href (str "/user/list/" list-id)}
-    					(:entryname (dblists/get-list list-id))]
     			[:a.link-head (hf/submit-button {:class "button button1"} "Skapa")]]
 	        [:div
 	        	(info-part)
