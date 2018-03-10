@@ -75,19 +75,22 @@
 
 	(cc/GET "/clear-projects" request
 	    (projects/clear-projects request))
-	
-	(cc/GET "/add-items/:id" request
-	    (items/add-items-page request (-> request :params :id) :a-z))
 
-	(cc/GET "/add-items/:id/:stype" request
+    (cc/GET "/add-items/:id" request
+            (items/add-items-page request (-> request :params :id) :a-z))
+
+    (cc/POST "/add-items" request
+             (items/add-items! request))
+
+    (cc/GET "/add-items/:id/:stype" request
 	    (items/add-items-page request
 							  (-> request :params :id)
 							  (-> request :params :stype keyword)))
 
-	(cc/GET "/add-to-list/:lid/:iid" request
-	    (items/add-item-page request
-							  (-> request :params :lid)
-							  (-> request :params :iid)))
+	;(cc/GET "/add-to-list/:lid/:iid" request
+	;    (items/add-item-page request
+	;						  (-> request :params :lid)
+	;						  (-> request :params :iid)))
 
 	(cc/GET "/mk-new-item/:listid" request
 	    (items/mk-new-item-page request (-> request :params :listid)))

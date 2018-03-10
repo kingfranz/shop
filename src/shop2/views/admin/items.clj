@@ -143,8 +143,8 @@
 	    			(hf/submit-button {:class "button button1"} "Uppdatera")]
 		        [:div
 		        	(info-part item)
-		        	(common/new-tags-tbl)
-			    	(common/old-tags-tbl)]
+                 (common/named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
+			    	(common/old-tags-tbl (:tags item))]
 			    ))))
 
 ;;-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@
     			[:a.link-head (hf/submit-button {:class "button button1"} "Skapa")]]
 	        [:div
 	        	(info-part nil)
-	        	(common/new-tags-tbl)
+             (common/named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
 		    	(common/old-tags-tbl)
 		    	])))
 

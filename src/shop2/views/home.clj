@@ -141,6 +141,12 @@
             		 #(compare (str/lower-case %1) (str/lower-case %2))
                		 (dbrecipes/get-recipe-names)))])
 
+(defn- lo-admin
+    [req]
+    (if (-> req common/udata :roles (contains? :admin))
+        [:a.link-flex.admin-btn {:href "/admin/"} (he/image "/images/settingsw.png")]
+        [:a.link-flex.admin-btn {:href "/logout"} (he/image "/images/logout.png")]))
+
 (defn home-page
 	[request]
 	(layout/common-refresh request "Shopping" [css-home-tree css-home css-menus]
@@ -148,6 +154,7 @@
 			(if (want-tree? request)
 				[:a.link-home {:href "/user/home/prio"} "Num"]
 				[:a.link-home {:href "/user/home/tree"} "Tree"])
+            (lo-admin request)
 			[:div.home-box (list-tree request)]]
 		[:div.column
 			[:p.header [:a.link-home {:href "/user/menu"} "Veckomeny"]]

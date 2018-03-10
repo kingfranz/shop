@@ -1,12 +1,12 @@
 (ns shop2.spec
-  	(:require 	(clj-time 		[core     :as t]
-            					[local    :as l]
-            					[coerce   :as c]
-            					[format   :as f]
-            					[periodic :as p])
-            	(clojure.spec 	[alpha    :as s])
-             	(clojure 		[string   :as str]
-            					[set      :as set])))
+  	(:require [clj-time.core      :as t]
+              [clj-time.local     :as l]
+              [clj-time.coerce    :as c]
+              [clj-time.format    :as f]
+              [clj-time.periodic  :as p]
+              [clojure.spec.alpha :as s]
+              [clojure.string     :as str]
+              [clojure.set        :as set]))
 
 ;;-----------------------------------------------------------------------------
 

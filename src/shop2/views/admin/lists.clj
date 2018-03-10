@@ -41,16 +41,16 @@
         	(ruaf/anti-forgery-field)
     		[:div
     			(common/home-button)
-    			(hf/submit-button {:class "button button1"} "Skapa")]
+    			(hf/submit-button {:class "button"} "Skapa")]
             (common/named-div "Listans namn:"
-            	(hf/text-field {:class "new-name"} :entryname))
+            	(hf/text-field {:class "tags-head"} :entryname))
         	(common/named-div "Överornad lista:"
-        		(hf/drop-down {:class "new-parent"}
+        		(hf/drop-down {:class "tags-head"}
         					:list-parent
         					(conj (map :entryname (dblists/get-list-names))
                    				  common/top-lvl-name)))
             (common/named-div "Lågprioriterad lista?"
-            	(hf/check-box {:class "new-cb"} :low-prio))
+            	(hf/check-box {:class "tags-head"} :low-prio))
         	)))
 
 (defn mk-parent-map

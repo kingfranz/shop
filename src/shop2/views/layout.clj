@@ -29,16 +29,6 @@
 			(map (fn [x] [:style x]) css)]
 		[:body
 			[:table
-				[:tr
-					[:td
-						[:a.link-shop {:href "/user/home"}
-							(str "Shopping " (env :app-version))]]
-					[:td
-						[:a {:href "/logout" :style "margin: 0px 10px 10px 20px"}
-							(he/image "/images/logout.png")]]
-					[:td
-						[:a {:href "/admin/" :style "margin: 0px 10px 10px 0px"}
-							(he/image "/images/settingsw.png")]]]
 				(when (some? (:err-msg request))
 					[:tr
 						[:td {:colspan 3} (:err-msg request)]])]

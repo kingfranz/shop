@@ -70,6 +70,14 @@
 		input
 		[:div {:style "clear:both;float:none;"}]]))
 
+(defn named-block
+    [header block]
+    [:p
+     [:div.items-block
+      [:p.tags-head
+       (hf/label {:class "tags-head"} :x header)]
+      block]])
+
 (defn frmt-tags
 	[tags]
 	(->> tags
@@ -77,14 +85,16 @@
 		 sort
 		 (str/join " ")))
 
+(defn labeled-radio
+    [label value checked?]
+    [:label.new-cb-n label (hf/radio-button "tags" checked? value)])
+
 (defn mk-tag-entry
-	[tag-strings tname]
+	[tag-strings tag]
 	[:div.cb-div
-		(hf/label {:class "new-cb-n"} :xxx tname)
-		(hf/check-box
-			{:id tname :class "new-cb"}
-			(keyword (str old-tag-head tname))
-			(contains? tag-strings tname))])
+     (labeled-radio (:entryname tag)
+                    (:_id tag)
+                    (contains? tag-strings (:entryname tag)))])
 
 (defn old-tags-tbl
 	([]
@@ -93,12 +103,12 @@
     (let [tag-strings (set (map :entryname tags))]
     	(named-div "Existerande kategorier:"
 	    	(map #(mk-tag-entry tag-strings %)
-	    		(sort (map :entryname (dbtags/get-tag-names))))))))
+	    		(sort-by :entryname (dbtags/get-tag-names)))))))
 
-(defn new-tags-tbl
+(defn new-tag-tbl
 	[]
-	(named-div "Nya kategorier:"
-	    (hf/text-field {:class "new-tags"} :new-tags)))
+	(named-div "Ny kategori:"
+	    (hf/text-field {:class "new-tag"} :new-tag)))
 
 (defn home-button
 	[]

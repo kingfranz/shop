@@ -19,9 +19,14 @@
 
 (def css-admin
 	(g/css
-		[:.date-col {
-			:width (u/px 90)}]
-		[:.spacer {
+     [:.date-col {
+                     :width (u/px 90)}]
+     [:.ddown-col {
+                     :width (u/px 300)
+                     :font-size line-size
+                     :margin (u/px 5)
+                     :vertical-align :middle}]
+     [:.spacer {
 			:width (u/px 30)}]
 		[:.vspace {
 			:height (u/px 30)}]
@@ -91,85 +96,89 @@
 ;;-----------------------------------------------------------------------------
 
 (def css-items
-	(g/css
-		[:.group {
-			:border-collapse :collapse
-			:border        [[(u/px 1) :white :solid]]
-			:border-radius (u/px 8)
-			:margin        [[(u/px 50) 0 (u/px 20) 0]]
-			:padding       (u/px 8)
-		}]
-		[:.head-td {:text-align :center}]
-		[:.group-head-th {
-			:padding   (u/px 10)
-			:font-size (u/px 36)
-		}]
-  
-		[:.item-div {
-			:float :left
-   			:table-layout :fixed
-		}]
-		[:.item-table {
-			:table-layout :fixed
-		}]
-		[:.item-txt-td {
-			:width         (u/px 250)
-   			:display       :inline-block
-			:text-overflow :clip
-		}]
-		[:.item-txt-a {
-			;:display         :block
-			:color           :white
-			:text-decoration :none
-   			:overflow        :hidden
-   			:text-overflow   :ellipsis
-		}]
-		[:.item-txt {
-			:white-space   :nowrap
-   			:overflow      :hidden
-      		:cursor        :crosshair
-   			:text-overflow :clip
-		}]
-		[:.item-tags-td {
-			:width (u/px 200)
-		}]
-		[:.item-tags {
-			:text-align  :left
-			:margin      [[(u/px 5) (u/px 5) (u/px 0) (u/px 5)]]
-			:font-size   (u/px 16)
-			:white-space :nowrap
-		}]
-  
-		[:.sort-div {
-			:margin [[(u/px 10) 0 (u/px 10) 0]]
-		}]
-		[:a.r-space {
-			:margin [[0 (u/px 5) 0 0]]
-		}]
-		[:a.lr-space {
-			:margin [[0 (u/px 5) 0 (u/px 5)]]
-		}]
-		[:a.l-space {
-			:margin [[0 0 0 (u/px 5)]]
-		}]
-		[:.url-td {
-			:width (u/px 500)
-		}]
-		[:.new-item-txt {
-			:font-size (u/px 24)
-			:width full
-		}]
-		[:.tags-head {
-			:font-size (u/px 24)
-			:background-color     (grey% 30)
- 			:color                :white
-			:width full
-		}]
-		[:.info-head {
-			:font-size (u/px 24)
-			:padding (u/px 10)
-		}]
-	))
+    (g/css
+     [:.item-div {
+                     :table-layout :fixed
+                     :display       :inline-block
+                     :vertical-align :middle}]
+     [:.item-table {
+                       :table-layout :fixed
+                       }]
+     [:.items-block {
+                        :margin        (u/px 4)
+                        :display       :inline-block
+                        :border        [[(u/px 2) :white :solid]]
+                        :border-radius (u/px 8)
+                        :padding       (u/px 8)
+                        }]
+     ;------------------------------------------------------
+     ; name field
+     [:.item-txt-td {
+                        :width         (u/px 225)
+                        :display       :inline-block
+                        ;:text-overflow :clip
+                        }]
+     [:.item-txt {
+                     :text-align  :left
+                     :white-space   :nowrap
+                     :overflow      :hidden
+                     :text-overflow :clip
+                     }]
+     ;------------------------------------------------------
+     ; checkbox field
+     [:.item-cb-td {
+                       :display       :inline-block
+                       :text-overflow :clip
+                       }]
+     [:.item-cb {
+                    :display       :inline-block
+                    }]
+     ;------------------------------------------------------
+     ; tags field
+     [:.item-tags-td {
+                         :width (u/px 100)
+                         :display       :inline-block
+                         }]
+     [:.item-tags {
+                      :text-align  :left
+                      :margin      [[(u/px 5) (u/px 5) (u/px 0) (u/px 5)]]
+                      :font-size   (u/px 16)
+                      :white-space :nowrap
+                      :overflow      :hidden
+                      :text-overflow :clip
+                      }]
+
+     ;------------------------------------------------------
+     [:.sort-div {
+                     :margin [[(u/px 10) 0 (u/px 10) 0]]
+                     }]
+     [:a.r-space {
+                     :margin [[0 (u/px 5) 0 0]]
+                     }]
+     [:a.lr-space {
+                      :margin [[0 (u/px 5) 0 (u/px 5)]]
+                      }]
+     [:a.l-space {
+                     :margin [[0 0 0 (u/px 5)]]
+                     }]
+     [:.url-td {
+                   :width (u/px 500)
+                   }]
+     [:.new-item-txt {
+                         :font-size (u/px 24)
+                         :width full
+                         }]
+     [:.tags-head {
+                      :font-size (u/px 24)
+                      :background-color     (grey% 30)
+                      :color                :white
+                      :width full
+                      }]
+     [:.info-head {
+                      :font-size (u/px 24)
+                      :padding (u/px 10)
+                      }]
+     ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -381,7 +390,13 @@
 			:height (u/px 30)
 			:overflow :hidden
 		}]
-		[:.column {
+     [:.admin-btn {
+                      :position :absolute ; Reposition logo from the natural layout
+                      :left (u/px 9)
+                      :top (u/px 10)
+                      :z-index 2
+                     }]
+     [:.column {
 	    	:float  :left
 	    	:height (u/px 500)
 	    	:width half}
@@ -464,8 +479,13 @@
 		 :a.link-home:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/percent 90))]
 		[:a.link-home:hover
 		 :a.link-home:active {:background-color :green}]
-		[:.button (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 250))]
-		[:.button:hover {:background-color :green}]
+     [:.button (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 250))]
+     [:.button:hover {:background-color :green}]
+     [:.button-120 (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 120))]
+     [:.button-120:hover {:background-color :green}]
+     [:.button-s (mk-lnk 8 16 4 2 32 2)]
+     [:.button-s:hover {:background-color :green}]
+     [:.width-100p {:width (u/percent 100)}]
     		))
 
 (def css-html
