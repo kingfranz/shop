@@ -1,45 +1,48 @@
 (ns shop2.views.home
-  	(:require 	(shop2 		 		[db          	:as db]
-  							 		[utils       	:as utils])
-            	(shop2.views 		[layout      	:as layout]
-            				 		[common      	:as common]
-            				 		[css 			:refer :all])
-            	(shop2.db 			[tags 		 	:as dbtags]
-  									[items		 	:as dbitems]
-  									[lists 		 	:as dblists]
-  									[menus 		 	:as dbmenus]
-  									[projects 	 	:as dbprojects]
-  									[recipes 	 	:as dbrecipes])
-				(cemerick 			[friend      	:as friend])
-            	(cemerick.friend 	[workflows 	 	:as workflows]
-                             		[credentials 	:as creds])
-            	(clj-time 	 		[core        	:as t]
-            				 		[local       	:as l]
-            				 		[coerce      	:as c]
-            				 		[format      	:as f]
-            				 		[periodic    	:as p])
-            	(garden 	 		[core        	:as g]
-            				 		[units       	:as u]
-            				 		[selectors   	:as sel]
-            				 		[stylesheet  	:as ss]
-            				 		[color      	:as color]
-            				 		[arithmetic     :as ga])
-            	(hiccup 	 		[core           :as h]
-            				 		[def            :as hd]
-            				 		[element        :as he]
-            				 		[form           :as hf]
-            				 		[page           :as hp]
-            				 		[util           :as hu])
-            	(ring.util 			[anti-forgery 	:as ruaf]
-            						[response     	:as ring])
-            	(clojure 	 		[string         :as str]
-            				 		[set            :as set])))
+  	(:require 	[shop2.extra :refer :all]
+                 [shop2.db :refer :all]
+                 [shop2.views.layout :refer :all]
+                 [shop2.views.common       	:refer :all]
+                 [shop2.views.css          	:refer :all]
+                 [shop2.db.tags :refer :all]
+                 [shop2.db.items			:refer :all]
+                 [shop2.db.lists 			:refer :all]
+                 [shop2.db.menus 			:refer :all]
+                 [shop2.db.projects 		:refer :all]
+                 [shop2.db.recipes 		:refer :all]
+                 [cemerick.friend :as friend]
+                 [cemerick.friend.workflows :as workflows]
+                 [cemerick.friend.credentials 	:as creds]
+                 [clj-time.core :as t]
+                 [clj-time.local :as l]
+                 [clj-time.coerce :as c]
+                 [clj-time.format :as f]
+                 [clj-time.periodic :as p]
+                 [garden.core :as g]
+                 [garden.units        	:as u]
+                 [garden.selectors    	:as sel]
+                 [garden.stylesheet   	:as ss]
+                 [garden.color        	:as color]
+                 [garden.arithmetic   	:as ga]
+                 [hiccup.core :as h]
+                 [hiccup.def          	:as hd]
+                 [hiccup.element      	:as he]
+                 [hiccup.form         	:as hf]
+                 [hiccup.page         	:as hp]
+                 [hiccup.util         	:as hu]
+                 [ring.util.anti-forgery :as ruaf]
+                 [ring.util.response     	:as ring]
+                 [clojure.spec.alpha :as s]
+                 [clojure.string :as str]
+                 [clojure.set :as set]
+                 [clojure.pprint :as pp]
+                 ))
 
 ;;-----------------------------------------------------------------------------
 
 (defn want-tree?
 	[req]
-	(= (->> req common/udata :properties :home :list-type) "tree"))
+	(= (->> req udata :properties :home :list-type) "tree"))
 
 (defn mk-list-name
 	[slist]
@@ -84,7 +87,7 @@
 
 (defn list-tree
 	[request]
-	(let [lists (dblists/get-lists-with-count)]
+	(let [lists (get-lists-with-count)]
 		(if (want-tree? request)
 			[:ul.tree
     			(map #(sub-tree lists %)
@@ -98,13 +101,13 @@
 	; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
 	[:tr
 		[:td.menu-date-td (hf/label {:class "menu-date"} :x
-						  (utils/menu-date-short menu))]
+						  (menu-date-short menu))]
 		[:td [:div.menu-txt (hf/label {:class "home-margin"} :x (:entryname menu))]]])
 
 (defn menu-list
 	[]
 	[:table
-		(map mk-menu-row (dbmenus/get-menus (utils/today) (utils/new-menu-end)))])
+		(map mk-menu-row (get-menus (today) (new-menu-end)))])
 
 (defn mk-proj-row
 	[r]
@@ -120,13 +123,13 @@
 		[:td.r-align
 			(hf/label
 				{:class "proj-tags"} :dummy
-				(common/frmt-tags (:tags r)))]
+				(frmt-tags (:tags r)))]
   	])
 
 (defn projekt-list
 	[]
 	[:table {:style "width:100%"}
-		(->> (dbprojects/get-active-projects)
+		(->> (get-active-projects)
 			 (map mk-proj-row))])
 
 (defn recipe-list
@@ -139,17 +142,17 @@
 					              (:entryname r)]]])
 			(sort-by :entryname
             		 #(compare (str/lower-case %1) (str/lower-case %2))
-               		 (dbrecipes/get-recipe-names)))])
+               		 (get-recipe-names)))])
 
 (defn- lo-admin
     [req]
-    (if (-> req common/udata :roles (contains? :admin))
+    (if (-> req udata :roles (contains? :admin))
         [:a.link-flex.admin-btn {:href "/admin/"} (he/image "/images/settingsw.png")]
         [:a.link-flex.admin-btn {:href "/logout"} (he/image "/images/logout.png")]))
 
 (defn home-page
 	[request]
-	(layout/common-refresh request "Shopping" [css-home-tree css-home css-menus]
+	(common-refresh request "Shopping" [css-home-tree css-home css-menus]
 	  	[:div.column
 			(if (want-tree? request)
 				[:a.link-home {:href "/user/home/prio"} "Num"]
@@ -157,7 +160,7 @@
             (lo-admin request)
 			[:div.home-box (list-tree request)]]
 		[:div.column
-			[:p.header [:a.link-home {:href "/user/menu"} "Veckomeny"]]
+			[:p.header [:a.link-home {:href "/user/edit-menu"} "Veckomeny"]]
 			[:div.home-box (menu-list)]]
 		[:div.column
 			[:p.header [:a.link-home {:href "/user/projects"} "Projekt"]]
@@ -169,7 +172,7 @@
 
 (defn set-home-type
 	[request list-type]
-	(db/set-user-property (common/uid request) :home {:list-type list-type})
+	(set-user-property (uid request) :home {:list-type list-type})
 	(ring/redirect "/user/home"))
 
 ;;-----------------------------------------------------------------------------

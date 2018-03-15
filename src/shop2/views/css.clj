@@ -1,10 +1,11 @@
 (ns shop2.views.css
-  	(:require 	(garden [core       :as g]
-            			[units      :as u]
-            			[selectors  :as sel]
-            			[stylesheet :as ss]
-            			[color      :as color]
-            			[arithmetic :as ga])))
+  	(:require 	[garden.core :as g]
+                 [garden.units        	:as u]
+                 [garden.selectors    	:as sel]
+                 [garden.stylesheet   	:as ss]
+                 [garden.color        	:as color]
+                 [garden.arithmetic   	:as ga]
+                 ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -26,6 +27,15 @@
                      :font-size line-size
                      :margin (u/px 5)
                      :vertical-align :middle}]
+     [:.error-msg-s {
+                      :font-size (u/px 12)
+                      }]
+     [:.error-msg {
+                      ;:width    (u/percent 100)
+                      :height     (u/px 200)
+                      :overflow-x :scroll
+                      :font-size (u/px 12)
+                      }]
      [:.spacer {
 			:width (u/px 30)}]
 		[:.vspace {
@@ -174,9 +184,13 @@
                       :color                :white
                       :width full
                       }]
-     [:.info-head {
+     [:.item-info-th {
                       :font-size (u/px 24)
                       :padding (u/px 10)
+                      }]
+     [:.item-info {
+                      :font-size (u/px 24)
+                      :width (u/px 500)
                       }]
      ))
 

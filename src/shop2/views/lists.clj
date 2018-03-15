@@ -1,35 +1,38 @@
 (ns shop2.views.lists
-  	(:require 	(shop2 			[db           :as db]
-  								[utils        :as utils])
-            	(shop2.views 	[layout       :as layout]
-            					[common       :as common]
-            					[home         :as home]
-            				 	[css          :refer :all])
-            	(shop2.db 		[tags 		  :as dbtags]
-  								[items		  :as dbitems]
-  								[lists 		  :as dblists]
-  								[menus 		  :as dbmenus]
-  								[projects 	  :as dbprojects]
-  								[recipes 	  :as dbrecipes])
-            	(clj-time 		[core         :as t]
-            					[local        :as l]
-            					[format       :as f]
-            					[periodic     :as p])
-            	(hiccup 		[core         :as h]
-            					[def          :as hd]
-            					[element      :as he]
-            					[form         :as hf]
-            					[page         :as hp]
-            					[util         :as hu])
-            	(garden 		[core         :as g]
-            					[units        :as u]
-            					[selectors    :as sel]
-            					[stylesheet   :as ss]
-            					[color        :as color])
-            	(ring.util 		[anti-forgery :as ruaf]
-            					[response     :as ring])
-              	(clojure 		[string       :as str]
-            					[set          :as set])))
+  	(:require 	[shop2.extra :refer :all]
+                 [shop2.db :refer :all]
+                 [shop2.views.layout :refer :all]
+                 [shop2.views.common       	:refer :all]
+                 [shop2.views.css          	:refer :all]
+                 [shop2.db.tags :refer :all]
+                 [shop2.db.items			:refer :all]
+                 [shop2.db.lists 			:refer :all]
+                 [shop2.db.menus 			:refer :all]
+                 [shop2.db.projects 		:refer :all]
+                 [shop2.db.recipes 		:refer :all]
+                 [clj-time.core :as t]
+                 [clj-time.local :as l]
+                 [clj-time.coerce :as c]
+                 [clj-time.format :as f]
+                 [clj-time.periodic :as p]
+                 [clojure.spec.alpha :as s]
+                 [clojure.string :as str]
+                 [clojure.set :as set]
+                 [clojure.pprint :as pp]
+                 [garden.core :as g]
+                 [garden.units        	:as u]
+                 [garden.selectors    	:as sel]
+                 [garden.stylesheet   	:as ss]
+                 [garden.color        	:as color]
+                 [garden.arithmetic   	:as ga]
+                 [hiccup.core :as h]
+                 [hiccup.def          	:as hd]
+                 [hiccup.element      	:as he]
+                 [hiccup.form         	:as hf]
+                 [hiccup.page         	:as hp]
+                 [hiccup.util         	:as hu]
+                 [ring.util.anti-forgery :as ruaf]
+                 [ring.util.response     	:as ring]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -87,7 +90,7 @@
 
 (defn- sort-items
   	[item-list]
-   	(let [items-by-tag (group-by #(common/frmt-tags (:tags %)) item-list)
+   	(let [items-by-tag (group-by #(frmt-tags (:tags %)) item-list)
           tags (sort (keys items-by-tag))]
       	(map #(hash-map :tag % :items (sort-by :entrynamelc (get items-by-tag %))) tags)))
 
@@ -112,7 +115,7 @@
     		[:td
     			[:table {:style "width:100%"}
     				[:tr
-    					[:th.align-l (common/home-button)]
+    					[:th.align-l (home-button)]
     					[:th.list-name-th
     						(hf/label {:class "list-name"} :xxx
     							(:entryname a-list))]
@@ -135,11 +138,11 @@
 
 (defn show-list-page
     [request list-id]
-	(layout/common-refresh request (:entryname (dblists/get-list list-id)) [css-lists]
+	(common-refresh request (:entryname (get-list list-id)) [css-lists]
     	(loop [listid  list-id
 			   acc     []]
 			(if (some? listid)
-				(let [slist (dblists/get-list listid)]
+				(let [slist (get-list listid)]
 					(recur (-> slist :parent :_id) (conj acc (mk-list-tbl slist))))
 				(seq acc)))))
 
@@ -147,25 +150,25 @@
 
 (defn item-done
 	[request list-id item-id]
-	(dblists/finish-list-item list-id item-id)
+	(finish-list-item list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn item-undo
 	[request list-id item-id]
-	(dblists/unfinish-list-item list-id item-id)
+	(unfinish-list-item list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn list-up
 	[request list-id item-id]
-	(dblists/item->list list-id item-id 1)
+	(item->list list-id item-id 1)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn list-down
 	[request list-id item-id]
-	(dblists/item->list list-id item-id -1)
+	(item->list list-id item-id -1)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn clean-list
 	[request list-id]
-	(dblists/del-finished-list-items list-id)
+	(del-finished-list-items list-id)
 	(ring/redirect (str "/user/list/" list-id)))

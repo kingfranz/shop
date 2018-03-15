@@ -1,28 +1,25 @@
 (ns shop2.db.recipes
-	(:require 	(clj-time		[core     		:as t]
-            					[local    		:as l]
-            					[coerce   		:as c]
-            					[format   		:as f]
-            					[periodic 		:as p])
-            	(clojure 		[set      		:as set]
-            					[pprint   		:as pp]
-            					[string   		:as str])
-            	(clojure.spec 	[alpha          :as s])
-             	(cheshire 		[core     		:refer :all])
-            	(taoensso 		[timbre   		:as log])
-            	(monger 		[core     		:as mg]
-            					[credentials 	:as mcr]
-            					[collection 	:as mc]
-            					[joda-time  	:as jt]
-            					[operators 		:refer :all])
-            	(shop2 			[utils       	:refer :all]
-            					[spec       	:as spec]
-            					[db 			:refer :all])
-            	(shop2.db 		[tags 			:as dbtags]
-  								[items			:as dbitems]
-  								[lists 			:as dblists]
-  								;[menus 		:as dbmenus]
-  								[projects 		:as dbprojects])
+	(:require 	[clj-time.core :as t]
+                 [clj-time.local :as l]
+                 [clj-time.coerce :as c]
+                 [clj-time.format :as f]
+                 [clj-time.periodic :as p]
+                 [clojure.spec.alpha :as s]
+                 [clojure.string :as str]
+                 [clojure.set :as set]
+                 [clojure.pprint :as pp]
+                 [clojure.spec.alpha :as s]
+                 [cheshire.core :refer :all]
+                 [taoensso.timbre :as log]
+                 [monger.core :as mg]
+                 [monger.credentials :as mcr]
+                 [monger.collection :as mc]
+                 [monger.joda-time :as jt]
+                 [monger.operators :refer :all]
+                 [shop2.extra :refer :all]
+                 [shop2.db :refer :all]
+                 [shop2.db.tags :refer :all]
+                 [utils.core :as utils]
             )
 	(:import 	[java.util UUID])
 	(:import 	[com.mongodb MongoOptions ServerAddress]))
@@ -35,20 +32,20 @@
 
 (defn get-recipes
 	[]
-	{:post [(q-valid? :shop/recipes %)]}
+	{:post [(utils/valid? :shop/recipes %)]}
 	(mc-find-maps "get-recipes" recipes))
 
 (defn get-recipe
 	[id]
-	{:pre [(q-valid? :shop/_id id)]
-	 :post [(q-valid? :shop/recipe %)]}
+	{:pre [(utils/valid? :shop/_id id)]
+	 :post [(utils/valid? :shop/recipe %)]}
 	(mc-find-one-as-map "get-recipe" recipes {:_id id}))
 
 (defn add-recipe
 	[entry]
-	{:pre [(q-valid? :shop/recipe* entry)]
-	 :post [(q-valid? :shop/recipe %)]}
-	(dbtags/add-tags (:tags entry))
+	{:pre [(utils/valid? :shop/recipe* entry)]
+	 :post [(utils/valid? :shop/recipe %)]}
+	(add-tags (:tags entry))
 	(let [entrynamelc (mk-enlc (:entryname entry))
 		  db-entry (get-by-enlc recipes entrynamelc)
 		  entry* (-> entry
@@ -62,7 +59,7 @@
 
 (defn update-recipe
 	[recipe*]
-	{:pre [(q-valid? :shop/recipe* recipe*)]}
+	{:pre [(utils/valid? :shop/recipe* recipe*)]}
 	(let [entrynamelc (mk-enlc (:entryname recipe*))
 		  recipe (-> recipe*
 		  			 (assoc :entrynamelc entrynamelc)

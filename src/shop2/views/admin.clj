@@ -1,15 +1,15 @@
 (ns shop2.views.admin
-    (:require [shop2.db :as db]
-              [shop2.utils :as utils]
-              [shop2.views.layout :as layout]
-              [shop2.views.common :as common]
-              [shop2.views.css :refer :all]
-              [shop2.db.tags :as dbtags]
-              [shop2.db.items :as dbitems]
-              [shop2.db.lists :as dblists]
-              [shop2.db.menus :as dbmenus]
-              [shop2.db.projects :as dbprojects]
-              [shop2.db.recipes :as dbrecipes]
+    (:require [shop2.extra :refer :all]
+              [shop2.db :refer :all]
+              [shop2.views.layout :refer :all]
+              [shop2.views.common       	:refer :all]
+              [shop2.views.css          	:refer :all]
+              [shop2.db.tags :refer :all]
+              [shop2.db.items			:refer :all]
+              [shop2.db.lists 			:refer :all]
+              [shop2.db.menus 			:refer :all]
+              [shop2.db.projects 		:refer :all]
+              [shop2.db.recipes 		:refer :all]
               [clj-time.core :as t]
               [clj-time.local :as l]
               [clj-time.coerce :as c]
@@ -37,7 +37,7 @@
 
 (defn- admin-block
     [header new-url edit-url data]
-    (common/named-block header
+    (named-block header
                         (list
                          [:div.item-div
                           [:a.button-s {:href new-url} "Ny"]]
@@ -48,35 +48,39 @@
                            [:div.item-div
                             (hf/submit-button {:class "button-s"} "Ändra")]
                            [:div.item-div
-                            (hf/drop-down {:class "ddown-col"} :list-list data)])])))
+                            (hf/drop-down {:class "ddown-col"} :target data)])])))
 
 (defn admin-page
     [request]
-    (layout/common
-     request "Admin" [css-admin css-items css-tags-tbl css-misc]
-     (common/home-button)
-     (admin-block "Listor"
-                  "/admin/new-list"
-                  "/admin/edit-list"
-                  (sort (map :entryname (dblists/get-list-names))))
-     (admin-block "Användare"
-                  "/admin/new-user"
-                  "/admin/edit-user"
-                  (sort (map :username (db/get-users))))
-     (admin-block "Items"
-                  "/admin/new-item"
-                  "/admin/edit-item"
-                  (map :entryname (sort-by :entrynamelc (dbitems/get-items))))
-     (admin-block "Tags"
-                  "/admin/new-tag"
-                  "/admin/edit-tag"
-                  (map :entryname (sort-by :entrynamelc (dbtags/get-tags))))))
+    (common
+        request "Admin" [css-admin css-items css-tags-tbl css-misc]
+        (home-button)
+        (admin-block "Listor"
+                     "/admin/new-list"
+                     "/admin/edit-list"
+                     (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entryname (get-list-names))))
+        (admin-block "Användare"
+                     "/admin/new-user"
+                     "/admin/edit-user"
+                     (map (fn [{uname :username id :_id}] [uname id]) (sort-by :entryname (get-users))))
+        (admin-block "Items"
+                     "/admin/new-item"
+                     "/admin/edit-item"
+                     (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-items))))
+        (admin-block "Tags"
+                     "/admin/new-tag"
+                     "/admin/edit-tag"
+                     (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-tags))))))
 
 ;;-----------------------------------------------------------------------------
 
+;window.onload = function() {
+;                            yourFunction(param1, param2);
+;                            };
+
 (defn auth-page
 	[]
-	;(db/create-user "soren" "password" #{:user :admin})
+	;(create-user "soren" "password" #{:user :admin})
 	(hp/html5
 	  	[:head {:lang "sv"}
 			[:meta {:charset "utf-8"}]
@@ -85,7 +89,8 @@
 			[:meta {:name "viewport"
 					:content "width=device-width, initial-scale=1, maximum-scale=1"}]
 			[:title "Shopping"]
-			[:style css-auth]]
+            (hp/include-js "login.js")
+            [:style css-auth]]
 		(hf/form-to
 	    	[:post "login"]
 	        (ruaf/anti-forgery-field)

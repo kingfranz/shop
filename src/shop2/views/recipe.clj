@@ -1,36 +1,39 @@
 (ns shop2.views.recipe
-  	(:require 	(shop2 			[db         	:as db]
-  								[utils      	:refer :all])
-            	(shop2.views 	[layout     	:as layout]
-            					[common     	:as common]
-            					[css 			:refer :all])
-          		(shop2.db 		[tags 			:as dbtags]
-  								[items			:as dbitems]
-  								[lists 			:as dblists]
-  								[menus 			:as dbmenus]
-  								[projects 		:as dbprojects]
-  								[recipes 		:as dbrecipes])
-            	(garden 		[core       	:as g]
-            					[units      	:as u]
-            					[selectors  	:as sel]
-            					[stylesheet 	:as ss]
-            					[color      	:as color])
-            	(clj-time 		[core       	:as t]
-            					[local      	:as l]
-            					[format     	:as f]
-            					[coerce 		:as c]
-            					[periodic   	:as p])
-            	(hiccup 		[core       	:as h]
-            					[def        	:as hd]
-            					[element    	:as he]
-            					[form       	:as hf]
-            					[page       	:as hp]
-            					[util       	:as hu])
-            	(ring.util 		[anti-forgery 	:as ruaf]
-            					[response     	:as ring])
-              	(clojure.spec 	[alpha          :as s])
-              	(clojure 		[string     	:as str]
-            					[set        	:as set])))
+  	(:require 	[shop2.extra :refer :all]
+                 [shop2.db :refer :all]
+                 [shop2.views.layout :refer :all]
+                 [shop2.views.common       	:refer :all]
+                 [shop2.views.css          	:refer :all]
+                 [shop2.db.tags :refer :all]
+                 [shop2.db.items			:refer :all]
+                 [shop2.db.lists 			:refer :all]
+                 [shop2.db.menus 			:refer :all]
+                 [shop2.db.projects 		:refer :all]
+                 [shop2.db.recipes 		:refer :all]
+                 [utils.core :as utils]
+                 [clj-time.core :as t]
+                 [clj-time.local :as l]
+                 [clj-time.coerce :as c]
+                 [clj-time.format :as f]
+                 [clj-time.periodic :as p]
+                 [clojure.spec.alpha :as s]
+                 [clojure.string :as str]
+                 [clojure.set :as set]
+                 [clojure.pprint :as pp]
+                 [garden.core :as g]
+                 [garden.units        	:as u]
+                 [garden.selectors    	:as sel]
+                 [garden.stylesheet   	:as ss]
+                 [garden.color        	:as color]
+                 [garden.arithmetic   	:as ga]
+                 [hiccup.core :as h]
+                 [hiccup.def          	:as hd]
+                 [hiccup.element      	:as he]
+                 [hiccup.form         	:as hf]
+                 [hiccup.page         	:as hp]
+                 [hiccup.util         	:as hu]
+                 [ring.util.anti-forgery :as ruaf]
+                 [ring.util.response     	:as ring]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -63,15 +66,15 @@
 
 (defn show-recipe-page
     [request recipe]
-	(layout/common request "Recept" [css-recipe]
+	(common request "Recept" [css-recipe]
 		(hf/form-to {:enctype "multipart/form-data"}
     		[:post (if (nil? recipe) "/user/create-recipe" "/user/update-recipe")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
         	(hf/hidden-field :num-items (+ (count (:items recipe)) 5))
         	[:div
-        		(common/home-button)
-        		(hf/submit-button {:class "button button1"}
+        		(home-button)
+        		(hf/submit-button {:class "button"}
         			(if (nil? recipe) "Skapa" "Updatera!"))]
 	        [:table
 	        	[:tr [:th "Namn"]]
@@ -101,8 +104,8 @@
 
 (defn edit-recipe
     [request recipe-id]
-    {:pre [(q-valid? :shop/_id recipe-id) (q-valid? map? request)]}
-	(show-recipe-page request (dbrecipes/get-recipe recipe-id)))
+    {:pre [(utils/valid? :shop/_id recipe-id) (utils/valid? map? request)]}
+	(show-recipe-page request (get-recipe recipe-id)))
 
 (defn new-recipe
     [request]
@@ -114,8 +117,8 @@
 	([k v]
     (assoc-if k v {}))
 	([k v m]
-    {:pre [(q-valid? keyword? k) (q-valid? map? m)]
-     :post [(q-valid? map? %)]}
+    {:pre [(utils/valid? keyword? k) (utils/valid? map? m)]
+     :post [(utils/valid? map? %)]}
 	(if (or (nil? v) (and (string? v) (str/blank? v)))
 		m
 		(assoc m k v))))
@@ -141,7 +144,7 @@
 
 (defn update-recipe!
 	[{params :params}]
-	(dbrecipes/update-recipe
+	(update-recipe
    		(->> (assoc-if :_id       (:recipe-id params))
 			 (assoc-if :url       (:recipe-url params))
 			 (assoc-if :entryname (:recipe-name params))
@@ -151,7 +154,7 @@
 
 (defn create-recipe!
 	[{params :params}]
-	(let [ret (dbrecipes/add-recipe
+	(let [ret (add-recipe
              	(->> (assoc-if :url       (:recipe-url params))
 					 (assoc-if :entryname (:recipe-name params))
 					 (assoc-if :text      (:recipe-area params))

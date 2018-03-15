@@ -1,33 +1,38 @@
 (ns shop2.views.projects
-  	(:require 	(shop2 			[db             :as db])
-            	(shop2.views 	[layout       	:as layout]
-            					[common       	:as common]
-            					[css 			:refer :all])
- 	          	(shop2.db 		[tags 			:as dbtags]
-  								[items			:as dbitems]
-  								[lists 			:as dblists]
-  								[menus 			:as dbmenus]
-  								[projects 		:as dbprojects]
-  								[recipes 		:as dbrecipes])
-            	(garden 		[core           :as g]
-            					[units          :as u]
-            					[selectors      :as sel]
-            					[stylesheet     :as ss]
-            					[color          :as color])
-             	(clj-time 		[core           :as t]
-            					[local          :as l]
-            					[format         :as f]
-            					[periodic       :as p])
-            	(hiccup 		[core           :as h]
-            					[def            :as hd]
-            					[element        :as he]
-            					[form           :as hf]
-            					[page           :as hp]
-            					[util           :as hu])
-            	(ring.util 		[anti-forgery 	:as ruaf]
-            					[response     	:as ring])
-              	(clojure 		[string         :as str]
-            					[set            :as set])))
+  	(:require 	[shop2.extra :refer :all]
+                 [shop2.db :refer :all]
+                 [shop2.views.layout :refer :all]
+                 [shop2.views.common       	:refer :all]
+                 [shop2.views.css          	:refer :all]
+                 [shop2.db.tags :refer :all]
+                 [shop2.db.items			:refer :all]
+                 [shop2.db.lists 			:refer :all]
+                 [shop2.db.menus 			:refer :all]
+                 [shop2.db.projects 		:refer :all]
+                 [shop2.db.recipes 		:refer :all]
+                 [clj-time.core :as t]
+                 [clj-time.local :as l]
+                 [clj-time.coerce :as c]
+                 [clj-time.format :as f]
+                 [clj-time.periodic :as p]
+                 [clojure.spec.alpha :as s]
+                 [clojure.string :as str]
+                 [clojure.set :as set]
+                 [clojure.pprint :as pp]
+                 [garden.core :as g]
+                 [garden.units        	:as u]
+                 [garden.selectors    	:as sel]
+                 [garden.stylesheet   	:as ss]
+                 [garden.color        	:as color]
+                 [garden.arithmetic   	:as ga]
+                 [hiccup.core :as h]
+                 [hiccup.def          	:as hd]
+                 [hiccup.element      	:as he]
+                 [hiccup.form         	:as hf]
+                 [hiccup.page         	:as hp]
+                 [hiccup.util         	:as hu]
+                 [ring.util.anti-forgery :as ruaf]
+                 [ring.util.response     	:as ring]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -36,11 +41,11 @@
 (def txt-name "proj-txt-")
 (def tags-name "proj-tags-")
 
-(defn mk-tag
-	[s i]
+(defn- mk-tag
+	[s  i]
 	(keyword (str s i)))
 
-(defn mk-proj-row
+(defn- mk-proj-row
 	[proj]
 	(let [id (if (map? proj) (:_id proj) (str proj))]
 		[:tr
@@ -58,7 +63,7 @@
 				(mk-tag tags-name id)
 				(str/join ", " (map :entryname (:tags proj))))]]))
 
-(defn mk-finished-row
+(defn- mk-finished-row
 	[proj]
 	[:tr
 		[:td
@@ -68,11 +73,11 @@
 					 (:entryname proj) " " 
 					 "[" (str/join ", " (map :entryname (:tags proj))) "]" )]]])
 
-(defn finished?
+(defn- finished?
 	[p]
 	(some? (:finished p)))
 
-(defn proj-comp
+(defn- proj-comp
 	([p] 0)
 	([p1 p2]
 	(if (and (finished? p1) (not (finished? p2)))
@@ -85,11 +90,11 @@
 					1
 					(compare (:entryname p1) (:entryname p2))))))))
 
-(defn tags-head
+(defn- tags-head
 	[stags]
 	(hf/label {:class "proj-head-val"} :xxx stags))
 
-(defn t->s
+(defn- t->s
 	[tags]
 	(if-let [s (some->> tags
 						(map :entryname)
@@ -98,7 +103,7 @@
 		s
 		"Allmänt"))
 
-(defn by-tags
+(defn- by-tags
 	[projects]
 	(let [by-tag (->> projects
 		  			  (remove finished?)
@@ -113,11 +118,11 @@
 										  (get by-tag)
 										  (sort-by proj-comp)))))]))
 
-(defn prio-head
+(defn- prio-head
 	[pri]
 	(hf/label {:class "proj-head-val"} :xxx (str "Prioritet " pri)))
 
-(defn by-prio
+(defn- by-prio
 	[projects]
 	(let [by-pri (group-by :priority (remove finished? projects))]
 		[:table
@@ -129,10 +134,10 @@
 										  (get by-pri)
 										  (sort-by proj-comp)))))]))
 
-(defn show-projects-page
+(defn edit-projects
     [request grouping]
-    (let [projects (dbprojects/get-projects)]
-    	(layout/common request "Projekt" [css-projects]
+    (let [projects (get-projects)]
+    	(common request "Projekt" [css-projects]
 	        (hf/form-to
 	    		[:post "/user/update-projects"]
 	        	(ruaf/anti-forgery-field)
@@ -143,12 +148,12 @@
 	        	[:table.proj-tbl
 		        	[:tr
 		        		[:td
-			        		(common/home-button)
+			        		(home-button)
 			        		(if (= grouping :by-prio)
 			        			[:a.link-flex {:href "/user/projects/by-tag"} "Kat-Sort"]
 			        			[:a.link-flex {:href "/user/projects/by-prio"} "Pri-Sort"])
 			        		[:a.link-flex {:href "/user/clear-projects"} "Rensa"]
-			        		(hf/submit-button {:class "button button1"} "Updatera!")]]
+			        		(hf/submit-button {:class "button"} "Updatera!")]]
 			        [:tr
 			        	[:td
 			        		(if (= grouping :by-prio)
@@ -178,28 +183,22 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn lspy
-	[l]
-	(prn "lspy:" (type l))
-	(doseq [e l] (prn "lspy:" e))
-	l)
-
-(defn mk-proj-tags
+(defn- mk-proj-tags
 	[params pkey]
-	(map #(dbtags/add-tag %)
+	(map #(add-tag %)
 		(some-> params
 		    (get (mk-tag tags-name pkey))
 		    (str/replace "\"" "")
 		    (str/split #"(,| )+")
 			set)))
 
-(defn update-projects!
+(defn edit-projects!
 	[{params :params}]
 	(doseq [pkey (str/split (:proj-keys params) #"@")
 		    :let [f-name (get params (mk-tag txt-name pkey))
 		          f-tags (mk-proj-tags params pkey)]
 			:when (and (seq f-name) (seq f-tags))]
-		(dbprojects/update-project {:_id        pkey
+		(update-project {:_id        pkey
 					   	    :entryname f-name
 					   		:tags      f-tags
 					   		:priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
@@ -207,22 +206,22 @@
 		    :let [f-name (get params (mk-tag txt-name pkey))
 		          f-tags (mk-proj-tags params pkey)]
 			:when (and (seq f-name) (seq f-tags))]
-		(dbprojects/add-project {:entryname f-name
+		(add-project {:entryname f-name
 					   	 :tags      f-tags
 					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
 	(ring/redirect "/user/projects"))
 
-(defn unfinish-project
+(defn unfinish-proj
 	[request id]
-	(dbprojects/unfinish-project id)
+	(unfinish-project id)
 	(ring/redirect "/user/projects"))
 
-(defn finish-project
+(defn finish-proj
 	[request id]
-	(dbprojects/finish-project id)
+	(finish-project id)
 	(ring/redirect "/user/projects"))
 
-(defn clear-projects
+(defn clear-projs
 	[request]
-	(dbprojects/clear-projects)
+	(clear-projects)
 	(ring/redirect "/user/projects"))
