@@ -51,8 +51,8 @@
     [menu r-link?]
     (when r-link?
         (if (:recipe menu)
-            [:a.link-thin {:href (str "/user/recipe-from-menu/" (menu-date-key (:date menu)))} "-"]
-            [:a.link-thin {:href (str "/user/choose-recipe/" (menu-date-key (:date menu)))} "+"]
+            [:a.link-thin {:href (str "/user/menu/recipe-/" (menu-date-key (:date menu)))} "-"]
+            [:a.link-thin {:href (str "/user/menu/choose-recipe/" (menu-date-key (:date menu)))} "+"]
             )))
 
 (defn- mk-menu-row
@@ -80,7 +80,7 @@
     [request]
     (common request "Veckomeny" [css-menus]
             (hf/form-to
-                [:post "/user/edit-menu"]
+                [:post "/user/menu/edit"]
                 (ruaf/anti-forgery-field)
                 [:table.menu-table
                  [:tr
@@ -113,12 +113,12 @@
 (defn recipe->menu
     [_ recipe-id menu-date]
     (add-recipe-to-menu (f/parse menu-date) recipe-id)
-    (ring/redirect "/user/edit-menu"))
+    (ring/redirect "/user/menu/edit"))
 
 (defn recipe<-menu
     [_ menu-date]
     (remove-recipe-from-menu (f/parse menu-date))
-    (ring/redirect "/user/edit-menu"))
+    (ring/redirect "/user/menu/edit"))
 
 ;;-----------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@
              (map (fn [r]
                       [:tr
                        [:td
-                        [:a.link-thin {:href (str "/user/recipe-to-menu/" (:_id r) "/" menu-date)}
+                        [:a.link-thin {:href (str "/user/menu/recipe+/" (:_id r) "/" menu-date)}
                          (:entryname r)]]])
                   (get-recipes))]))
 

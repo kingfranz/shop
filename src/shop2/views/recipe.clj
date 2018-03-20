@@ -38,38 +38,34 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn mk-tag
-	[s i]
-	(keyword (str s i)))
-
-(defn mk-recipe-item
+(defn- mk-recipe-item
 	[idx item-map]
 	[:tr
 		[:td.rec-item-td
 			(hf/text-field
 				{:class "recipe-item recipe-item-name"}
-				(mk-tag "recipe-item-name-" idx) (:text item-map))]
+				(utils/mk-tag "recipe-item-name-" idx) (:text item-map))]
 		[:td.rec-item-td
 			(hf/text-field
 				{:class "recipe-item recipe-item-unit"}
-				(mk-tag "recipe-item-unit-" idx) (:unit item-map))]
+				(utils/mk-tag "recipe-item-unit-" idx) (:unit item-map))]
 		[:td.rec-item-td
 			(hf/text-field
 				{:class "recipe-item recipe-item-amount"}
-				(mk-tag "recipe-item-amount-" idx) (:amount item-map))]])
+				(utils/mk-tag "recipe-item-amount-" idx) (:amount item-map))]])
 
-(defn mk-recipe-item-list
+(defn- mk-recipe-item-list
 	[recipe]
 	(map #(mk-recipe-item %
 						  (when (< % (count (:items recipe)))
 						  	(nth (:items recipe) %)))
 		 (range (+ (count (:items recipe)) 5))))
 
-(defn show-recipe-page
+(defn- show-recipe-page
     [request recipe]
 	(common request "Recept" [css-recipe]
 		(hf/form-to {:enctype "multipart/form-data"}
-    		[:post (if (nil? recipe) "/user/create-recipe" "/user/update-recipe")]
+    		[:post (if (nil? recipe) "/user/recipe/new" "/user/recipe/edit")]
         	(ruaf/anti-forgery-field)
         	(hf/hidden-field :recipe-id (:_id recipe))
         	(hf/hidden-field :num-items (+ (count (:items recipe)) 5))
@@ -114,7 +110,7 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn assoc-if
+(defn- assoc-if
 	([k v]
     (assoc-if k v {}))
 	([k v m]
@@ -124,26 +120,26 @@
 		m
 		(assoc m k v))))
 
-(defn float-if
+(defn- float-if
 	[s]
 	(when-not (str/blank? s)
 		(Double/valueOf s)))
 
-(defn get-r-item
+(defn- get-r-item
 	[params i]
-	(let [item (->> (assoc-if :text   (get params (mk-tag "recipe-item-name-" i)))
-		            (assoc-if :unit   (get params (mk-tag "recipe-item-unit-" i)))
-		            (assoc-if :amount (some->> (mk-tag "recipe-item-amount-" i)
+	(let [item (->> (assoc-if :text   (get params (utils/mk-tag "recipe-item-name-" i)))
+		            (assoc-if :unit   (get params (utils/mk-tag "recipe-item-unit-" i)))
+		            (assoc-if :amount (some->> (utils/mk-tag "recipe-item-amount-" i)
 		            				  		   (get params)
 		            				  		   (float-if))))]
 		(when-not (empty? item)
 			item)))
 
-(defn get-r-items
+(defn- get-r-items
 	[params]
 	(vec (remove nil? (map #(get-r-item params %) (range (Integer/valueOf (:num-items params)))))))
 
-(defn update-recipe!
+(defn edit-recipe!
 	[{params :params}]
 	(update-recipe
    		(->> (assoc-if :_id       (:recipe-id params))
@@ -153,7 +149,7 @@
 			 (assoc-if :items     (get-r-items params))))
 	(ring/redirect (str "/user/recipe/" (:recipe-id params))))
 
-(defn create-recipe!
+(defn new-recipe!
 	[{params :params}]
 	(let [ret (add-recipe
              	(->> (assoc-if :url       (:recipe-url params))

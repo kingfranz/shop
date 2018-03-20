@@ -13,7 +13,7 @@
               [cemerick.friend.credentials :as creds]
               [slingshot.slingshot :refer [throw+ try+]]
               [environ.core :refer [env]]
-              [ring.logger.timbre :refer [wrap-with-logger]]
+              [ring.logger.timbre :refer [wrap-with-logger wrap-with-body-logger]]
               [ring.middleware.session :refer [wrap-session]]
               [ring.middleware.keyword-params :refer [wrap-keyword-params]]
               [ring.middleware.nested-params :refer [wrap-nested-params]]
@@ -65,7 +65,9 @@
 
 (defn cred
     [load-credentials-fn {:keys [username password]}]
+    ;(println "cred:" username password)
     (when-let [creds (load-credentials-fn username)]
+        ;(println "cred2:" creds)
         (let [password-key (or (-> creds meta ::password-key) :password)]
             (when (= password (get creds password-key))
                 (dissoc creds password-key)))))
@@ -101,6 +103,7 @@
         (wrap-params)
         (wrap-cookies)
         (wrap-with-logger)
+        ;(wrap-with-body-logger)
         (run-server {:port 3000})
         ))
 

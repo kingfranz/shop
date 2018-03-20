@@ -41,15 +41,15 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn want-tree?
+(defn- want-tree?
 	[req]
 	(= (->> req udata :properties :home :list-type) "tree"))
 
-(defn mk-list-name
+(defn- mk-list-name
 	[slist]
 	(str (:entryname slist) " - " (:count slist)))
 
-(defn sub-tree
+(defn- sub-tree
 	[lists slist]
 	(let [sub-lists (->> lists
                          (filter #(some->> % :parent :_id (= (:_id slist))))
@@ -60,7 +60,7 @@
 				[:ul
      				(map #(sub-tree lists %) sub-lists)])]))
 
-(defn list-cmp*
+(defn- list-cmp*
   	[x1 x2]
     (if (> (:count x1) (:count x2))
         -1
@@ -68,7 +68,7 @@
         	1
         	(compare (:entryname x1) (:entryname x2)))))
 
-(defn list-cmp
+(defn- list-cmp
   	[x1 x2]
     (cond
       	(and (:last x1) (:last x2)) (list-cmp* x1 x2)
@@ -76,17 +76,17 @@
         (and (not (:last x1)) (:last x2)) -1
         :else (list-cmp* x1 x2)))
 
-(defn list-tbl
+(defn- list-tbl
 	[lists]
 	[:table
 		(for [a-list (->> lists
 						  (filter #(nil? (:finished %)))
 						  (sort-by identity list-cmp))]
 			[:tr [:td
-				[:a.link-thick {:href (str "/user/list/" (:_id a-list))}
+				[:a.link-thick {:href (str "/user/list/get/" (:_id a-list))}
 					(str (:entryname a-list) " " (:count a-list))]]])])
 
-(defn list-tree
+(defn- list-tree
 	[request]
 	(let [lists (get-lists-with-count)]
 		(if (want-tree? request)
@@ -97,7 +97,7 @@
                			 (sort-by :entryname)))]
 			(list-tbl lists))))
 
-(defn mk-menu-row
+(defn- mk-menu-row
 	[menu]
 	; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
 	[:tr
@@ -105,12 +105,12 @@
 						  (menu-date-short menu))]
 		[:td [:div.menu-txt (hf/label {:class "home-margin"} :x (:entryname menu))]]])
 
-(defn menu-list
+(defn- menu-list
 	[]
 	[:table
 		(map mk-menu-row (get-menus (today) (new-menu-end)))])
 
-(defn mk-proj-row
+(defn- mk-proj-row
 	[r]
  	[:tr
 		[:td.proj-pri
@@ -127,19 +127,19 @@
 				(frmt-tags (:tags r)))]
   	])
 
-(defn projekt-list
+(defn- projekt-list
 	[]
 	[:table {:style "width:100%"}
 		(->> (get-active-projects)
 			 (map mk-proj-row))])
 
-(defn recipe-list
+(defn- recipe-list
 	[]
 	[:table
 		(map (fn [r]
 			[:tr
 				[:td.home-margin
-					[:a.link-thin {:href (str "/user/recipe/" (:_id r))}
+					[:a.link-thin {:href (str "/user/recipe/edit/" (:_id r))}
 					              (:entryname r)]]])
 			(sort-by :entryname
             		 #(compare (str/lower-case %1) (str/lower-case %2))
@@ -161,13 +161,13 @@
             (lo-admin request)
 			[:div.home-box (list-tree request)]]
 		[:div.column
-			[:p.header [:a.link-home {:href "/user/edit-menu"} "Veckomeny"]]
+			[:p.header [:a.link-home {:href "/user/menu/edit"} "Veckomeny"]]
 			[:div.home-box (menu-list)]]
 		[:div.column
-			[:p.header [:a.link-home {:href "/user/projects"} "Projekt"]]
+			[:p.header [:a.link-home {:href "/user/project/edit"} "Projekt"]]
 			[:div.home-box (projekt-list)]]
 		[:div.column
-			[:p.header [:a.link-home {:href "/user/new-recipe"} "Recept"]]
+			[:p.header [:a.link-home {:href "/user/recipe/new"} "Recept"]]
 			[:div.home-box (recipe-list)]]
 	  	))
 

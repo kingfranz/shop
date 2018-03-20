@@ -104,12 +104,12 @@
     (let [item (get-item item-id)]
         (common request "Edit item" [css-tags-tbl css-items]
                 (hf/form-to
-                    [:post "/admin/edited-item"]
+                    [:post "/admin/item/edited"]
                     (ruaf/anti-forgery-field)
                     (hf/hidden-field :_id (:_id item))
                     [:div
                      (homeback-button "/admin")
-                     [:a.link-head {:href (str "/admin/delete-item/" item-id)} "Ta bort"]
+                     [:a.link-head {:href (str "/admin/item/delete/" item-id)} "Ta bort"]
                      (hf/submit-button {:class "button"} "Uppdatera")]
                     [:div
                      (info-part item)
@@ -119,7 +119,7 @@
 
 (defn edit-item!
     [{params :params}]
-    (println "edit-item!")
+    ;(println "edit-item!")
     (update-item {
                   :_id       (extract-id params)
                   :entryname (extract-name params)
@@ -129,8 +129,8 @@
                   :price     (extract-num :price params)
                   :url       (extract-str :url params)
                   :tags      (extract-tags params)})
-    ;(println "->" (str "/admin/edit-item/" (extract-id params)))
-    (ring/redirect (str "/admin/edit-item/" (extract-id params))))
+    ;(println "->" (str "/admin/item/edit/" (extract-id params)))
+    (ring/redirect (str "/admin/item/edit/" (extract-id params))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@
     [request]
     (common request "Skapa ny sak" [css-tags-tbl]
             (hf/form-to
-                [:post "/admin/new-item"]
+                [:post "/admin/item/new"]
                 (ruaf/anti-forgery-field)
                 [:div
                  (homeback-button "/admin")
@@ -182,7 +182,7 @@
     [request]
     (common request "Edit items" [css-tags-tbl css-items]
             (hf/form-to
-                [:post "/admin/bulk-edit-items"]
+                [:post "/admin/item/bulk-edit"]
                 (ruaf/anti-forgery-field)
                 [:div
                  (homeback-button "/admin")

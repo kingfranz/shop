@@ -244,7 +244,8 @@
  	{:pre [(utils/valid? :shop/_id uid)
            (utils/valid? keyword? prop-key)
            (utils/valid? map? prop-val)]}
-	(mc-update-by-id "set-user-property" users uid
-		{$set {:properties {prop-key prop-val}}}))
+    (let [props (:properties (get-user-by-id uid))]
+        (mc-update-by-id "set-user-property" users uid
+		{$set {:properties (assoc props prop-key prop-val)}})))
 
 ;;-----------------------------------------------------------------------------

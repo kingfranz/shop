@@ -41,7 +41,7 @@
     [request]
     (common request "Skapa ny lista" []                 ; css-lists-new
             (hf/form-to
-                [:post "/admin/new-list"]
+                [:post "/admin/list/new"]
                 (ruaf/anti-forgery-field)
                 [:div
                  (home-button)
@@ -76,12 +76,12 @@
     (let [a-list (get-list list-id)]
         (common request "Ändra lista" [css-tags-tbl css-items]
                 (hf/form-to
-                    [:post "/admin/edited-list"]
+                    [:post "/admin/list/edited"]
                     (ruaf/anti-forgery-field)
                     (hf/hidden-field :list-id list-id)
                     [:div
                      (homeback-button "/admin")
-                     [:a.link-head {:href (str "/admin/delete-list/" list-id)} "Ta bort"]
+                     [:a.link-head {:href (str "/admin/list/delete/" list-id)} "Ta bort"]
                      (hf/submit-button {:class "button"} "Uppdatera")]
                     [:table
                      [:tr

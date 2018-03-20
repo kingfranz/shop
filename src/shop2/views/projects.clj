@@ -56,7 +56,7 @@
 			[:td.proj-check-td
 				(when (map? proj)
 					[:a {:class "proj-check-val"
-						 :href (str "/user/finish-project/" (:_id proj))} "&#10004"])]
+						 :href (str "/user/project/finish/" (:_id proj))} "&#10004"])]
 			[:td.proj-txt-td (hf/text-field {:class "proj-txt-val"}
 				(mk-tag txt-name id)
 				(:entryname proj))]
@@ -69,7 +69,7 @@
 	[:tr
 		[:td
 			[:a.finished-proj
-				{:href (str "/user/unfinish-project/" (:_id proj))}
+				{:href (str "/user/project/unfinish/" (:_id proj))}
 				(str (:priority proj) " " 
 					 (:entryname proj) " " 
 					 "[" (str/join ", " (map :entryname (:tags proj))) "]" )]]])
@@ -135,12 +135,16 @@
 										  (get by-pri)
 										  (sort-by proj-comp)))))]))
 
+(defn want-by-tag?
+    [req]
+    (some->> req udata :properties :projects :group-type keyword (= :by-tag)))
+
 (defn edit-projects
-    [request grouping]
+    [request]
     (let [projects (get-projects)]
     	(common request "Projekt" [css-projects]
 	        (hf/form-to
-	    		[:post "/user/update-projects"]
+	    		[:post "/user/project/edit"]
 	        	(ruaf/anti-forgery-field)
 	        	(hf/hidden-field :proj-keys (->> projects
 	        									 (remove finished?)
@@ -150,24 +154,22 @@
 		        	[:tr
 		        		[:td
 			        		(home-button)
-			        		(if (= grouping :by-prio)
-			        			[:a.link-flex {:href "/user/projects/by-tag"} "Kat-Sort"]
-			        			[:a.link-flex {:href "/user/projects/by-prio"} "Pri-Sort"])
-			        		[:a.link-flex {:href "/user/clear-projects"} "Rensa"]
+			        		(if (want-by-tag? request)
+			        			[:a.link-flex {:href "/user/project/prio"} "Pri-Sort"]
+                                [:a.link-flex {:href "/user/project/tag"} "Kat-Sort"])
+			        		[:a.link-flex {:href "/user/project/clear"} "Rensa"]
 			        		(hf/submit-button {:class "button"} "Updatera!")]]
 			        [:tr
 			        	[:td
-			        		(if (= grouping :by-prio)
-			        			(by-prio projects)
-			        			(by-tags projects))]]
+			        		(if (want-by-tag? request)
+			        			(by-tags projects)
+                                (by-prio projects))]]
 					[:tr
 						[:td
 							[:table
 								[:tr
 									[:th.proj-head-th {:colspan 4}
-										(hf/label
-											{:class "proj-head-val"}
-											:xxx "Nya projekt ")]]
+										[:label.proj-head-val "Nya projekt "]]]
 								(for [x (range num-new-proj)]
 									(mk-proj-row x))]]]
 					[:tr
@@ -175,12 +177,15 @@
 							[:table
 								[:tr
 			        				[:th.proj-head-th
-			        					(hf/label
-			        						{:class "proj-head-val"}
-			        						:xxx "Avklarade")]]
+                                     [:label.proj-head-val "Avklarade"]]]
 			        			(let [projs (sort-by proj-comp (filter finished? projects))]
 			        				(map mk-finished-row projs))]]]]
     	))))
+
+(defn set-group-type
+    [request group-type]
+    (set-user-property (uid request) :projects {:group-type group-type})
+    (ring/redirect "/user/project/edit"))
 
 ;;-----------------------------------------------------------------------------
 
@@ -210,19 +215,19 @@
 		(add-project {:entryname f-name
 					   	 :tags      f-tags
 					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
-	(ring/redirect "/user/projects"))
+	(ring/redirect "/user/project"))
 
 (defn unfinish-proj
-	[request id]
+	[_ id]
 	(unfinish-project id)
-	(ring/redirect "/user/projects"))
+	(ring/redirect "/user/project"))
 
 (defn finish-proj
-	[request id]
+	[_ id]
 	(finish-project id)
-	(ring/redirect "/user/projects"))
+	(ring/redirect "/user/project"))
 
 (defn clear-projs
-	[request]
+	[_]
 	(clear-projects)
-	(ring/redirect "/user/projects"))
+	(ring/redirect "/user/project"))

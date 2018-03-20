@@ -24,9 +24,7 @@
 			[:title title]
 			[:style css-html]
 			[:style css-misc]
-            (map (fn [x] [:style x]) css)
-         (hp/include-js "save.js")
-         ]
+            (map (fn [x] [:style x]) css)]
 		[:body
 			[:table
 				(when (some? (:err-msg request))

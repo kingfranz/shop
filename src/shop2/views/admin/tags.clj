@@ -43,7 +43,7 @@
     [request]
     (common request "Skapa ny tag" []                 ; css-lists-new
             (hf/form-to
-                [:post "/admin/new-tag"]
+                [:post "/admin/tag/new"]
                 (ruaf/anti-forgery-field)
                 [:div
                  (admin-home-button)
@@ -65,7 +65,7 @@
         (println "edit-tag:" tag)
         (common request "Edit tag" [css-tags css-tags-tbl]
                 (hf/form-to
-                    [:post "/admin/edited-tag"]
+                    [:post "/admin/tag/edited"]
                     (ruaf/anti-forgery-field)
                     (hf/hidden-field :_id (:_id tag))
                     [:table
@@ -73,8 +73,8 @@
                       [:td {:colspan 2}
                        [:div
                         (admin-home-button)
-                        [:a.link-flex {:href (str "/admin/delete-tag/" tag-id)} "Ta bort"]
-                        [:a.link-flex {:href (str "/admin/delete-tag-all/" tag-id)} "Bort överallt"]
+                        [:a.link-flex {:href (str "/admin/tag/delete/" tag-id)} "Ta bort"]
+                        [:a.link-flex {:href (str "/admin/tag/delete-all/" tag-id)} "Bort överallt"]
                         [:a.link-flex (hf/submit-button {:class "button"} "Uppdatera")]]]]
                      [:tr
                       [:td {:style "padding: 40px 25px; width: 50px"}
@@ -91,10 +91,8 @@
 
 (defn edit-tag!
     [{params :params}]
-    (println "edit-tag!" (:_id params) (:entryname params) (:parent params))
     (update-tag (:_id params) (:entryname params) (:parent params))
-    (println "edit-tag!:" (str "/admin/edit-tag/" (:_id params)))
-    (ring/redirect (str "/admin/edit-tag/" (:_id params))))
+    (ring/redirect (str "/admin/tag/edit/" (:_id params))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -114,7 +112,7 @@
     [request]
     (common request "Edit tags" [css-tags-tbl css-items]
             (hf/form-to
-                [:post "/admin/bulk-edit-tags"]
+                [:post "/admin/tag/bulk-edit"]
                 (ruaf/anti-forgery-field)
                 [:div
                  (homeback-button "/admin")

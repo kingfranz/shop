@@ -32,7 +32,8 @@
               [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.string :as str]
-              [clojure.set :as set]))
+              [clojure.set :as set]
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -61,19 +62,41 @@
           user-cmd (format "localStorage.setItem(\"shopuser\", \"%s\");" username)
           pass-cmd (format "localStorage.setItem(\"shoppass\", \"%s\");" uuid)]
         (set-user-password (:_id (udata request)) uuid)
-        (spit "user.txt" (str "username: " username "\npassword: " uuid "\n"))
+        (spit "user.txt" (str (utils/now-str) "\nusername: " username "\npassword: " uuid "\n\n") :append true)
         (str user-cmd pass-cmd)))
+
+(defn renew-password
+    [request]
+    (let [uuid (mk-id)
+          username (:username (udata request))
+          user-cmd (format "localStorage.setItem(\"shopuser\", \"%s\");" username)
+          pass-cmd (format "localStorage.setItem(\"shoppass\", \"%s\");" uuid)]
+        (set-user-password (:_id (udata request)) uuid)
+        (spit "user.txt" (str (utils/now-str) "\nusername: " username "\npassword: " uuid "\n\n") :append true)
+        (hp/html5
+            [:head
+             [:title "Renew password"]]
+            [:body
+             [:script (str user-cmd pass-cmd)]
+             [:h1 "Password for"]
+             [:h2 {:id :shopu}]
+             [:h2 {:id :shopp}]
+             [:script "document.getElementById(\"shopu\").innerHTML = \"User: \" + localStorage.getItem(\"shopuser\");document.getElementById(\"shopp\").innerHTML = \"Is set to: \" + localStorage.getItem(\"shoppass\");"]
+             [:p]
+             [:a {:href "/admin/"} "Back"]
+             ])))
 
 (defn admin-page
     [request]
     (common
         request "Admin" [css-admin css-items css-tags-tbl css-misc]
         (home-button)
-        (hf/check-box {:onclick (mk-pw request)} :xxx)
+        [:div.item-div
+         [:a.button-s {:href "/admin/renew"} "Renew PW"]]
         (admin-block "Listor"
-                     "/admin/new-list"
+                     "/admin/list/new"
                      nil
-                     "/admin/edit-list"
+                     "/admin/list/edit"
                      (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entryname (get-list-names))))
         (admin-block "Användare"
                      "/admin/user/new"
@@ -81,16 +104,16 @@
                      "/admin/user/edit"
                      (map (fn [{uname :username id :_id}] [uname id]) (sort-by :entryname (get-users))))
         (admin-block "Items"
-                     "/admin/new-item"
-                     "/admin/bulk-edit-items"
-                     "/admin/edit-item"
+                     "/admin/item/new"
+                     "/admin/item/bulk-edit"
+                     "/admin/item/edit"
                      (->> (get-items)
                           (sort-by :entrynamelc)
                           (map (fn [item] [(str (:entryname item) " - " (frmt-tags (:tags item))) (:_id item)]))))
         (admin-block "Tags"
-                     "/admin/new-tag"
-                     "/admin/bulk-edit-tags"
-                     "/admin/edit-tag"
+                     "/admin/tag/new"
+                     "/admin/tag/bulk-edit"
+                     "/admin/tag/edit"
                      (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-tags))))))
 
 ;;-----------------------------------------------------------------------------
@@ -108,20 +131,20 @@
          [:title "Shopping"]
          (hp/include-js "login.js")
          [:style css-auth]]
-        [:body {:onload (str "loadKey(\"" *anti-forgery-token* \"");")}
-        (hf/form-to
-            [:post "login"]
-            (ruaf/anti-forgery-field)
-            [:table
-             [:tr
-              [:td {:colspan 2} [:label (str "Shopping " (env :app-version))]]
+        [:body {:onload (str "loadKey(\"" *anti-forgery-token* \" ");")}
+         (hf/form-to
+             [:post "login"]
+             (ruaf/anti-forgery-field)
+             [:table
               [:tr
-               [:td "Username:"]
-               [:td (hf/text-field {:class "login-txt"} :username)]]
-              [:tr
-               [:td "Password:"]
-               [:td (hf/password-field {:class "login-txt"} :password)]]
-              [:tr
-               [:td {:colspan 2} (hf/submit-button {:class "login-txt"} "Logga in")]]]])]))
+               [:td {:colspan 2} [:label (str "Shopping " (env :app-version))]]
+               [:tr
+                [:td "Username:"]
+                [:td (hf/text-field {:class "login-txt"} :username)]]
+               [:tr
+                [:td "Password:"]
+                [:td (hf/password-field {:class "login-txt"} :password)]]
+               [:tr
+                [:td {:colspan 2} (hf/submit-button {:class "login-txt"} "Logga in")]]]])]))
 
 ;;-----------------------------------------------------------------------------

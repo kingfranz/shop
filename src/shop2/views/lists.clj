@@ -50,7 +50,7 @@
 (defn mk-item-a
 	[a-list item active? text]
 	[:a.item-text
-		{:href (str (if active? "/user/item-done/" "/user/item-undo/") (:_id a-list) "/" (:_id item))}
+		{:href (str (if active? "/user/list/done/" "/user/list/undo/") (:_id a-list) "/" (:_id item))}
 		text])
 
 (defn imenu
@@ -67,9 +67,9 @@
 		[:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
 		(when active? (list
 			[:td
-				[:a.arrow {:href (str "/user/list-up/" (:_id a-list) "/" (:_id item))} "▲"]]
+				[:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
 			[:td
-				[:a.arrow {:href (str "/user/list-down/" (:_id a-list) "/" (:_id item))} "▼"]]
+				[:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
 			(cond
 				(and (imenu item) (ilink item)) (list
 					[:td.item-menu-td
@@ -109,7 +109,7 @@
 	    			(mk-item-row a-list item (= row-type :active)))))))
 	
 (defn mk-list-tbl
-	[base-list a-list]
+	[base-id a-list]
 	[:table.list-tbl
     	; row with list name
     	[:tr
@@ -121,7 +121,7 @@
     						(hf/label {:class "list-name"} :xxx
     							(:entryname a-list))]
     					[:th.align-r
-    						[:a.link-flex {:href (str "/user/add-items/" (:_id a-list))} "+"]]]]]]
+    						[:a.link-flex {:href (str "/user/item/add/" (:_id a-list))} "+"]]]]]]
     	; rows with not-done items
     	[:tr
     		[:td
@@ -133,7 +133,7 @@
     				[:tr
     					[:td.done-td {:colspan "1"} "Avklarade"]
     					[:td.done-td.align-r {:colspan "1"}
-    					[:a.link-thin {:href (str "/user/clean-list/" (:_id base-list) "/" (:_id a-list))} "Rensa"]]]]]]
+    					[:a.link-thin {:href (str "/user/list/clean/" base-id "/" (:_id a-list))} "Rensa"]]]]]]
         ; rows with done items
         (mk-items a-list :inactive)])
 
@@ -141,10 +141,11 @@
     [request list-id]
 	(common-refresh request (:entryname (get-list list-id)) [css-lists]
     	(loop [listid  list-id
+               base-id list-id
 			   acc     []]
 			(if (some? listid)
 				(let [slist (get-list listid)]
-					(recur (-> slist :parent :_id) (conj acc (mk-list-tbl list-id slist))))
+					(recur (-> slist :parent :_id) base-id (conj acc (mk-list-tbl base-id slist))))
 				(seq acc)))))
 
 ;;-----------------------------------------------------------------------
@@ -152,24 +153,24 @@
 (defn item-done
 	[_ list-id item-id]
 	(finish-list-item list-id item-id)
-	(ring/redirect (str "/user/list/" list-id)))
+	(ring/redirect (str "/user/list/get/" list-id)))
 
 (defn item-undo
 	[_ list-id item-id]
 	(unfinish-list-item list-id item-id)
-	(ring/redirect (str "/user/list/" list-id)))
+	(ring/redirect (str "/user/list/get/" list-id)))
 
 (defn list-up
 	[_ list-id item-id]
 	(list-item+ list-id item-id)
-	(ring/redirect (str "/user/list/" list-id)))
+	(ring/redirect (str "/user/list/get/" list-id)))
 
 (defn list-down
 	[_ list-id item-id]
 	(list-item- list-id item-id)
-	(ring/redirect (str "/user/list/" list-id)))
+	(ring/redirect (str "/user/list/get/" list-id)))
 
 (defn clean-list
 	[_ base-list list-id]
 	(del-finished-list-items list-id)
-	(ring/redirect (str "/user/list/" base-list)))
+	(ring/redirect (str "/user/list/get/" base-list)))
