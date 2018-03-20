@@ -2,6 +2,7 @@
     (:require [shop2.extra :refer :all]
               [shop2.spec :refer :all]
               [utils.core :as utils]
+              [slingshot.slingshot :refer [throw+ try+]]
               [taoensso.timbre :as log]
               [clj-time.core :as t]
               [clj-time.local :as l]
@@ -46,6 +47,8 @@
 (defonce projects   "projects")
 (defonce lists      "lists")
 (defonce tags       "tags")
+
+(defonce no-id "00000000-0000-0000-0000-000000000000")
 
 ;;-----------------------------------------------------------------------------
 
@@ -104,7 +107,7 @@
 
 (defn mc-update-by-id
 	[func tbl & args]
-	(do-mc mc/update-by-id func tbl args))
+    (do-mc mc/update-by-id func tbl args))
 
 (defn mc-remove-by-id
 	[func tbl & args]
@@ -116,7 +119,7 @@
 	[en]
  	{:pre [(utils/valid? :shop/string en)]
      :post [(utils/valid? :shop/string %)]}
-	(-> en str/trim str/lower-case (str/replace #"[ \t-]+" " ")))
+	(-> en str/trim str/lower-case (str/replace #"[ \t-]+" "")))
 
 (defn get-by-enlc
 	[tbl en]
@@ -173,18 +176,18 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn count-chars
+(defn- count-chars
 	[pw c-class]
 	(if (nil? (re-find c-class pw))
-		(throw (ex-info (str "PW must contain at least one of " c-class) {:cause :password}))
+		(throw+ (ex-info (str "PW must contain at least one of " c-class) {:cause :password :type :db}))
 		pw))
 
-(defn verify-passwd
+(defn- verify-passwd
 	[pw]
 	(if (not= (str/trim pw) pw)
-		(throw (ex-info "PW can't begin or end with space" {:cause :password}))
+		(throw+ (ex-info "PW can't begin or end with space" {:cause :password :type :db}))
 		(if (< (count pw) 8)
-			(throw (ex-info "PW must be 8 chars or more" {:cause :password}))
+			(throw+ (ex-info "PW must be 8 chars or more" {:cause :password :type :db}))
 			(-> pw
 				(count-chars #"[a-zåäö]")
 				(count-chars #"[A-ZÅÄÖ]")
@@ -194,10 +197,12 @@
 
 (defn create-user
     [username passwd roles]
-    {:pre [(utils/valid? :shop/username username) (utils/valid? :shop/password passwd) (utils/valid? :shop/roles roles)]
+    {:pre [(utils/valid? :shop/username username)
+           (utils/valid? :shop/password passwd)
+           (utils/valid? :shop/roles roles)]
      :post [(utils/valid? :shop/user-db %)]}
     (when (some? (get-user username))
-        (throw (ex-info "duplicate username" {:cause :username})))
+        (throw+ (ex-info "duplicate username" {:cause :username :type :db})))
     (let [user (merge {:username (str/trim username)
                        :password (creds/hash-bcrypt (verify-passwd passwd))
                        :roles    roles} (mk-std-field))]
@@ -210,27 +215,36 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn set-user-name
+    [uid name]
+    {:pre [(utils/valid? :shop/_id uid)
+           (utils/valid? :shop/string name)]}
+    (mc-update-by-id "set-user-name" users uid {$set {:username name}}))
+
 (defn set-user-password
-	[uid passwd]
- 	{:pre [(utils/valid? :shop/_id uid) (utils/valid? :shop/password passwd)]}
-	(mc-update-by-id "set-user-password" users uid
-		{$set {:password (creds/hash-bcrypt (verify-passwd passwd))}}))
+    [uid passwd]
+    {:pre [(utils/valid? :shop/_id uid)
+           (utils/valid? :shop/password passwd)]}
+    (mc-update-by-id "set-user-password" users uid
+                     {$set {:password passwd}}))
+                     ; {$set {:password (creds/hash-bcrypt (verify-passwd passwd))}}))
 
 ;;-----------------------------------------------------------------------------
 
 (defn set-user-roles
 	[uid roles]
- 	{:pre [(utils/valid? :shop/_id uid) (utils/valid? :shop/roles roles)]}
+ 	{:pre [(utils/valid? :shop/_id uid)
+           (utils/valid? :shop/roles roles)]}
 	(mc-update-by-id "set-user-roles" users uid {$set {:roles roles}}))
 
 ;;-----------------------------------------------------------------------------
 
 (defn set-user-property
 	[uid prop-key prop-val]
- 	{:pre [(utils/valid? :shop/_id uid) (utils/valid? keyword? prop-key) (utils/valid? map? prop-val)]}
+ 	{:pre [(utils/valid? :shop/_id uid)
+           (utils/valid? keyword? prop-key)
+           (utils/valid? map? prop-val)]}
 	(mc-update-by-id "set-user-property" users uid
 		{$set {:properties {prop-key prop-val}}}))
 
 ;;-----------------------------------------------------------------------------
-
-;{:us u :pw p :properties {:home {:list-type :tree} :lists {}}}

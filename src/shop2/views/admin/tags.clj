@@ -11,6 +11,7 @@
               [shop2.db.menus :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
+              [slingshot.slingshot :refer [throw+ try+]]
               [clj-time.core :as t]
               [clj-time.local :as l]
               [clj-time.coerce :as c]
@@ -33,7 +34,8 @@
               [environ.core :refer [env]]
               [clojure.spec.alpha :as s]
               [clojure.string :as str]
-              [clojure.set :as set]))
+              [clojure.set :as set]
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -44,50 +46,109 @@
                 [:post "/admin/new-tag"]
                 (ruaf/anti-forgery-field)
                 [:div
-                 (home-button)
+                 (admin-home-button)
                  (hf/submit-button {:class "button"} "Skapa")]
                 (named-div "Namn:"
-                           (hf/text-field {:class "tags-head"} :entryname)))))
+                           (hf/text-field {:class "fz24 width-200px"} :entryname))
+                (named-div "Parent:"
+                           (mk-list-dd nil :parent "fz24 width-200px")))))
 
 (defn new-tag!
-    [{params :params :as request}]
-    )
+    [{params :params}]
+    (add-tag (:entryname params) (:parent params)))
+
+;;-----------------------------------------------------------------------------
 
 (defn edit-tag
     [request tag-id]
     (let [tag (get-tag tag-id)]
+        (println "edit-tag:" tag)
         (common request "Edit tag" [css-tags css-tags-tbl]
                 (hf/form-to
-                    [:post "/update-tag"]
+                    [:post "/admin/edited-tag"]
                     (ruaf/anti-forgery-field)
                     (hf/hidden-field :_id (:_id tag))
                     [:table
                      [:tr
                       [:td {:colspan 2}
                        [:div
-                        (homeback-button "/admin")
+                        (admin-home-button)
                         [:a.link-flex {:href (str "/admin/delete-tag/" tag-id)} "Ta bort"]
-                        [:a.link-flex {:href (str "/admin/delete-tag-all/" tag-id)} "Bort ;verallt"]
+                        [:a.link-flex {:href (str "/admin/delete-tag-all/" tag-id)} "Bort överallt"]
                         [:a.link-flex (hf/submit-button {:class "button"} "Uppdatera")]]]]
                      [:tr
                       [:td {:style "padding: 40px 25px; width: 50px"}
                        [:label "Namn"]]
                       [:td
                        (hf/text-field {:class "new-item-txt"}
-                                      :entryname (:entryname tag))]]]))))
+                                      :entryname
+                                      (:entryname tag))]]
+                     [:tr
+                      [:td {:style "padding: 40px 25px; width: 50px"}
+                       [:label "Parent"]]
+                      [:td
+                       (mk-list-dd (:parent tag) :parent "fz24 width-200px")]]]))))
 
 (defn edit-tag!
     [{params :params}]
-    (when (and (seq (:_id params)) (seq (:entryname params)))
-        (update-tag (:_id params) (:entryname params)))
-    (ring/redirect (str "/admin/tag/" (:_id params))))
+    (println "edit-tag!" (:_id params) (:entryname params) (:parent params))
+    (update-tag (:_id params) (:entryname params) (:parent params))
+    (println "edit-tag!:" (str "/admin/edit-tag/" (:_id params)))
+    (ring/redirect (str "/admin/edit-tag/" (:_id params))))
+
+;;-----------------------------------------------------------------------------
 
 (defn delete-tag!
-    [request tag-id]
+    [_ tag-id]
     (delete-tag tag-id)
-    (ring/redirect "/user/home"))
+    (ring/redirect "/admin/"))
 
 (defn delete-tag-all!
-    [request tag-id]
+    [_ tag-id]
     (delete-tag-all tag-id)
-    (ring/redirect "/user/home"))
+    (ring/redirect "/admin/"))
+
+;;-----------------------------------------------------------------------------
+
+(defn bulk-edit-tags
+    [request]
+    (common request "Edit tags" [css-tags-tbl css-items]
+            (hf/form-to
+                [:post "/admin/bulk-edit-tags"]
+                (ruaf/anti-forgery-field)
+                [:div
+                 (homeback-button "/admin")
+                 [:a.link-head (hf/submit-button {:class "button"} "Uppdatera")]]
+                [:table
+                 [:tr
+                  [:th [:label "X"]]
+                  [:th.width-200px [:label.fz24.width-100p "Name"]]
+                  [:th.width-200px [:label.fz24.width-100p "Parent"]]
+                  ]
+                 (for [tag (->> (get-tags) (sort-by :entrynamelc))]
+                     [:tr
+                      [:td
+                       (hf/check-box {:class "new-cb"}
+                                     (utils/mk-tag (:_id tag) "delete"))]
+                      [:td.width-200px
+                       (hf/text-field {:class "fz24 width-100p"}
+                                      (utils/mk-tag (:_id tag) "name")
+                                      (:entryname tag))]
+                      [:td.width-200px
+                       (mk-list-dd (:parent tag) (utils/mk-tag (:_id tag) "parent") "fz24 width-100p")]])])))
+
+(defn bulk-edit-tags!
+    [{params :params}]
+    (doseq [tag (get-tags)
+            :let [do-del (get params (utils/mk-tag (:_id tag) "delete"))
+                  iname (get params (utils/mk-tag (:_id tag) "name"))
+                  parent (get params (utils/mk-tag (:_id tag) "parent"))]
+            :when (or do-del
+                      (not= iname (:entryname tag))
+                      (not= parent (:parent tag)))]
+        (if do-del
+            (delete-tag (:_id tag))
+            (update-tag (:_id tag) iname (when-not (= parent no-id) parent))))
+    (ring/redirect "/admin/"))
+
+;;-----------------------------------------------------------------------------

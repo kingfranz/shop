@@ -4,12 +4,14 @@
                  [clj-time.coerce :as c]
                  [clj-time.format :as f]
                  [clj-time.periodic :as p]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [clojure.string :as str]
                  [clojure.set :as set]
                  [clojure.pprint :as pp]
                  [clojure.spec.alpha :as s]
                  [cheshire.core :refer :all]
+                 [hiccup.form :as hf]
                  [taoensso.timbre :as log]
                  [monger.core :as mg]
                  [monger.credentials :as mcr]
@@ -20,17 +22,21 @@
                  [shop2.db :refer :all]
                  [shop2.db.items :refer :all]
                  [utils.core :as utils]
-            )
-	(:import 	[java.util UUID])
-	(:import 	[com.mongodb MongoOptions ServerAddress]))
+            ))
 
 ;;-----------------------------------------------------------------------------
 
 (defn get-list
-	[listid]
-	{:pre [(utils/valid? :shop/_id listid)]
-	 :post [(utils/valid? :shop/list %)]}
-	(mc-find-one-as-map "get-list" lists {:_id listid}))
+    [listid]
+    {:pre [(utils/valid? :shop/_id listid)]
+     :post [(utils/valid? :shop/list %)]}
+    (mc-find-one-as-map "get-list" lists {:_id listid}))
+
+(defn get-list-by-name
+    [list-name]
+    {:pre [(utils/valid? :shop/string list-name)]
+     :post [(utils/valid? :shop/list %)]}
+    (mc-find-one-as-map "get-list" lists {:entryname list-name}))
 
 (defn get-lists
 	[]
@@ -60,6 +66,17 @@
 	{:pre [(utils/valid? :shop/_id listid)]
 	 :post [(utils/valid? :shop/lists %)]}
 	(mc-find-maps "get-sub-lists" lists {:parent._id listid}))
+
+(defn get-lists-dd
+    []
+    (->> (get-lists)
+         (sort-by :entryname)
+         (map (fn [l] [(:entryname l) (:_id l)]))
+         (concat [["" no-id]])))
+
+(defn mk-list-dd
+    [current-id dd-name dd-class]
+    (hf/drop-down {:class dd-class} dd-name (get-lists-dd) current-id))
 
 (defn list-id-exists?
 	[id]
@@ -105,6 +122,19 @@
 					                    :cond {$not [{$gt ["$$item.finished" nil]}]}}}}
 					           0]}}}]))
 
+(defn find-item
+    [list-id item-id]
+    {:pre [(utils/valid? :shop/_id list-id)
+           (utils/valid? :shop/_id item-id)]}
+    (some->> (mc-find-one-as-map "find-item" lists {:_id list-id :items._id item-id} {:items.$ 1})
+             :items
+             first))
+
+(defn- item-finished?
+    [list-id item-id]
+    {:pre [(utils/valid? :shop/_id list-id) (utils/valid? :shop/_id item-id)]}
+    (-> (find-item list-id item-id) :finished some?))
+
 (defn finish-list-item
 	[list-id item-id]
 	{:pre [(utils/valid? :shop/_id list-id) (utils/valid? :shop/_id item-id)]}
@@ -119,7 +149,7 @@
 	(add-item-usage list-id item-id :unfinish 0)
 	(mc-update "unfinish-list-item" lists
 		{:_id list-id :items._id item-id}
-		{$set {:items.$.finished nil}}))
+		{$set {:items.$.finished nil :items.$.numof 1}}))
 
 (defn del-finished-list-items
 	[list-id]
@@ -149,36 +179,52 @@
 	 :post [(utils/valid? :shop/list %)]}
 	(mc-find-one-as-map "find-list-by-name" lists {:entryname e-name}))
 
-(defn find-item
-	[list-id item-id]
-	{:pre [(utils/valid? :shop/_id list-id)
-		   (utils/valid? :shop/_id item-id)]}
-	(some->> (mc-find-one-as-map "find-item" lists {:_id list-id :items._id item-id} {:items.$ 1})
-			 :items
-			 first))
+(defn list-item+
+    [list-id item-id]
+    {:pre [(utils/valid? :shop/_id list-id)
+           (utils/valid? :shop/_id item-id)]}
+    ; make sure it's a valid list
+    (when-not (list-id-exists? list-id)
+        (throw+ (ex-info "unknown list" {:type :db :src "list-item+"})))
+    ; make sure the item is already in the list
+    (if (find-item list-id item-id)
+        ; yes it was
+        (mod-item list-id item-id 1)
+        ; no
+        (throw+ (ex-info "unknown item" {:type :db :src "list-item+"}))))
+
+(defn list-item-
+    [list-id item-id]
+    {:pre [(utils/valid? :shop/_id list-id)
+           (utils/valid? :shop/_id item-id)]}
+    ; make sure it's a valid list
+    (when-not (list-id-exists? list-id)
+        (throw+ (ex-info "unknown list" {:type :db :src "list-item-"})))
+    ; make sure the item is already in the list
+    (if-let [item (find-item list-id item-id)]
+        ; yes it was
+        (if (= (:numof item) 1)
+            (finish-list-item list-id item-id)
+            (mod-item list-id item-id -1))
+        ; no
+        (throw+ (ex-info "unknown item" {:type :db :src "list-item-"}))))
 
 (defn item->list
-    ([list-id item-id] (item->list list-id item-id 1))
-    ([list-id item-id num-of]
+    [list-id item-id]
 	{:pre [(utils/valid? :shop/_id list-id)
-		   (utils/valid? :shop/_id item-id)
-		   (utils/valid? int? num-of)]}
+		   (utils/valid? :shop/_id item-id)]}
 	; make sure it's a valid list
 	(when-not (list-id-exists? list-id)
-		(throw (ex-info "unknown list" {:cause :invalid})))
+		(throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
 	; find the item if it's already in the list
-	(if-let [item (find-item list-id item-id)]
+	(if (find-item list-id item-id)
 		; yes it was
-		(do
-			(if (or (zero? num-of) (<= (+ (:numof item) num-of) 0))
-				(finish-list-item list-id item-id)
-				(do
-      				(when (some? (:finished item))
-            			(unfinish-list-item list-id item-id))
-      				(mod-item list-id item-id num-of))))
+        (if (item-finished? list-id item-id)
+            (unfinish-list-item list-id item-id)
+            (throw+ (ex-info "item already in list" {:type :db :src "item->list"})))
 		; no, we need to add it
-		(when (pos? num-of)
-			(add-item-usage list-id item-id :add-to num-of)
+		(do
+			(add-item-usage list-id item-id :add-to 1)
 			(mc-update-by-id "item->list" lists list-id
-				{$addToSet {:items (assoc (get-item item-id) :numof num-of)}})))))
+				{$addToSet {:items (assoc (get-item item-id) :numof 1)}}))))
 

@@ -10,6 +10,7 @@
                  [shop2.db.menus 			:refer :all]
                  [shop2.db.projects 		:refer :all]
                  [shop2.db.recipes 		:refer :all]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [utils.core :as utils]
                  [clj-time.core :as t]
                  [clj-time.local :as l]

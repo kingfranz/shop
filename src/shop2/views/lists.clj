@@ -10,6 +10,7 @@
                  [shop2.db.menus 			:refer :all]
                  [shop2.db.projects 		:refer :all]
                  [shop2.db.recipes 		:refer :all]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clj-time.core :as t]
                  [clj-time.local :as l]
                  [clj-time.coerce :as c]
@@ -108,12 +109,12 @@
 	    			(mk-item-row a-list item (= row-type :active)))))))
 	
 (defn mk-list-tbl
-	[a-list]
+	[base-list a-list]
 	[:table.list-tbl
     	; row with list name
     	[:tr
     		[:td
-    			[:table {:style "width:100%"}
+    			[:table.width-100p
     				[:tr
     					[:th.align-l (home-button)]
     					[:th.list-name-th
@@ -124,15 +125,15 @@
     	; rows with not-done items
     	[:tr
     		[:td
-    			[:table {:style "width:100%"}
+    			[:table.width-100p
 					(mk-items a-list :active)]]]
     	[:tr
     		[:td
-    			[:table {:style "width:100%"}
+    			[:table.width-100p
     				[:tr
     					[:td.done-td {:colspan "1"} "Avklarade"]
     					[:td.done-td.align-r {:colspan "1"}
-    					[:a.link-thin {:href (str "/user/clean-list/" (:_id a-list))} "Rensa"]]]]]]
+    					[:a.link-thin {:href (str "/user/clean-list/" (:_id base-list) "/" (:_id a-list))} "Rensa"]]]]]]
         ; rows with done items
         (mk-items a-list :inactive)])
 
@@ -143,32 +144,32 @@
 			   acc     []]
 			(if (some? listid)
 				(let [slist (get-list listid)]
-					(recur (-> slist :parent :_id) (conj acc (mk-list-tbl slist))))
+					(recur (-> slist :parent :_id) (conj acc (mk-list-tbl list-id slist))))
 				(seq acc)))))
 
 ;;-----------------------------------------------------------------------
 
 (defn item-done
-	[request list-id item-id]
+	[_ list-id item-id]
 	(finish-list-item list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn item-undo
-	[request list-id item-id]
+	[_ list-id item-id]
 	(unfinish-list-item list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn list-up
-	[request list-id item-id]
-	(item->list list-id item-id 1)
+	[_ list-id item-id]
+	(list-item+ list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn list-down
-	[request list-id item-id]
-	(item->list list-id item-id -1)
+	[_ list-id item-id]
+	(list-item- list-id item-id)
 	(ring/redirect (str "/user/list/" list-id)))
 
 (defn clean-list
-	[request list-id]
+	[_ base-list list-id]
 	(del-finished-list-items list-id)
-	(ring/redirect (str "/user/list/" list-id)))
+	(ring/redirect (str "/user/list/" base-list)))

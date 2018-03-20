@@ -2,14 +2,14 @@
     (:require [shop2.extra :refer :all]
               [shop2.db :refer :all]
               [shop2.views.layout :refer :all]
-              [shop2.views.common       	:refer :all]
-              [shop2.views.css          	:refer :all]
+              [shop2.views.common :refer :all]
+              [shop2.views.css :refer :all]
               [shop2.db.tags :refer :all]
-              [shop2.db.items			:refer :all]
-              [shop2.db.lists 			:refer :all]
-              [shop2.db.menus 			:refer :all]
-              [shop2.db.projects 		:refer :all]
-              [shop2.db.recipes 		:refer :all]
+              [shop2.db.items :refer :all]
+              [shop2.db.lists :refer :all]
+              [shop2.db.menus :refer :all]
+              [shop2.db.projects :refer :all]
+              [shop2.db.recipes :refer :all]
               [clj-time.core :as t]
               [clj-time.local :as l]
               [clj-time.coerce :as c]
@@ -28,6 +28,7 @@
               [hiccup.page :as hp]
               [hiccup.util :as hu]
               [ring.util.anti-forgery :as ruaf]
+              [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]
               [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.string :as str]
@@ -36,74 +37,91 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- admin-block
-    [header new-url edit-url data]
+    [header new-url bulk edit-url data]
     (named-block header
-                        (list
+                 (list
+                     [:div.item-div
+                      [:a.button-s {:href new-url} "Ny"]]
+                     (when bulk
                          [:div.item-div
-                          [:a.button-s {:href new-url} "Ny"]]
-                         [:div.item-div
-                          (hf/form-to
-                           [:post edit-url]
-                           (ruaf/anti-forgery-field)
-                           [:div.item-div
-                            (hf/submit-button {:class "button-s"} "Ändra")]
-                           [:div.item-div
-                            (hf/drop-down {:class "ddown-col"} :target data)])])))
+                          [:a.button-s {:href bulk} "Bulk"]])
+                     [:div.item-div
+                      (hf/form-to
+                          [:post edit-url]
+                          (ruaf/anti-forgery-field)
+                          [:div.item-div
+                           (hf/submit-button {:class "button-s"} "Ändra")]
+                          [:div.item-div
+                           (hf/drop-down {:class "ddown-col"} :target data)])])))
+
+(defn- mk-pw
+    [request]
+    (let [uuid (mk-id)
+          username (:username (udata request))
+          user-cmd (format "localStorage.setItem(\"shopuser\", \"%s\");" username)
+          pass-cmd (format "localStorage.setItem(\"shoppass\", \"%s\");" uuid)]
+        (set-user-password (:_id (udata request)) uuid)
+        (spit "user.txt" (str "username: " username "\npassword: " uuid "\n"))
+        (str user-cmd pass-cmd)))
 
 (defn admin-page
     [request]
     (common
         request "Admin" [css-admin css-items css-tags-tbl css-misc]
         (home-button)
+        (hf/check-box {:onclick (mk-pw request)} :xxx)
         (admin-block "Listor"
                      "/admin/new-list"
+                     nil
                      "/admin/edit-list"
                      (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entryname (get-list-names))))
         (admin-block "Användare"
-                     "/admin/new-user"
-                     "/admin/edit-user"
+                     "/admin/user/new"
+                     nil
+                     "/admin/user/edit"
                      (map (fn [{uname :username id :_id}] [uname id]) (sort-by :entryname (get-users))))
         (admin-block "Items"
                      "/admin/new-item"
+                     "/admin/bulk-edit-items"
                      "/admin/edit-item"
-                     (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-items))))
+                     (->> (get-items)
+                          (sort-by :entrynamelc)
+                          (map (fn [item] [(str (:entryname item) " - " (frmt-tags (:tags item))) (:_id item)]))))
         (admin-block "Tags"
                      "/admin/new-tag"
+                     "/admin/bulk-edit-tags"
                      "/admin/edit-tag"
                      (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-tags))))))
 
 ;;-----------------------------------------------------------------------------
 
-;window.onload = function() {
-;                            yourFunction(param1, param2);
-;                            };
-
 (defn auth-page
-	[]
-	;(create-user "soren" "password" #{:user :admin})
-	(hp/html5
-	  	[:head {:lang "sv"}
-			[:meta {:charset "utf-8"}]
-			[:meta {:http-equiv "X-UA-Compatible"
-					:content "IE=edge,chrome=1"}]
-			[:meta {:name "viewport"
-					:content "width=device-width, initial-scale=1, maximum-scale=1"}]
-			[:title "Shopping"]
-            (hp/include-js "login.js")
-            [:style css-auth]]
-		(hf/form-to
-	    	[:post "login"]
-	        (ruaf/anti-forgery-field)
-        	[:table
-	        	[:tr
-	        		[:td {:colspan 2} (hf/label :x (str "Shopping " (env :project/version)))]
-	        	[:tr
-	        		[:td "Username:"]
-	        		[:td (hf/text-field {:class "login-txt"} :username)]]
-	        	[:tr
-	        		[:td "Password:"]
-	        		[:td (hf/password-field {:class "login-txt"} :password)]]
-	        	[:tr
-	        		[:td {:colspan 2} (hf/submit-button {:class "login-txt"} "Logga in")]]]])))
+    []
+    ;(create-user "soren" "password" #{:user :admin})
+    (hp/html5
+        [:head {:lang "sv"}
+         [:meta {:charset "utf-8"}]
+         [:meta {:http-equiv "X-UA-Compatible"
+                 :content    "IE=edge,chrome=1"}]
+         [:meta {:name    "viewport"
+                 :content "width=device-width, initial-scale=1, maximum-scale=1"}]
+         [:title "Shopping"]
+         (hp/include-js "login.js")
+         [:style css-auth]]
+        [:body {:onload (str "loadKey(\"" *anti-forgery-token* \"");")}
+        (hf/form-to
+            [:post "login"]
+            (ruaf/anti-forgery-field)
+            [:table
+             [:tr
+              [:td {:colspan 2} [:label (str "Shopping " (env :app-version))]]
+              [:tr
+               [:td "Username:"]
+               [:td (hf/text-field {:class "login-txt"} :username)]]
+              [:tr
+               [:td "Password:"]
+               [:td (hf/password-field {:class "login-txt"} :password)]]
+              [:tr
+               [:td {:colspan 2} (hf/submit-button {:class "login-txt"} "Logga in")]]]])]))
 
 ;;-----------------------------------------------------------------------------

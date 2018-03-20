@@ -4,6 +4,7 @@
                  [clj-time.coerce :as c]
                  [clj-time.format :as f]
                  [clj-time.periodic :as p]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [clojure.string :as str]
                  [clojure.set :as set]
@@ -20,9 +21,7 @@
                  [shop2.db :refer :all]
                  [shop2.db.recipes :refer :all]
                  [utils.core :as utils]
-            )
-	(:import 	[java.util UUID])
-	(:import 	[com.mongodb MongoOptions ServerAddress]))
+            ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -42,14 +41,14 @@
 	[entry]
 	{:pre [(utils/valid? :shop/menu entry)]}
 	(mc-update-by-id "update-menu" menus (:_id entry)
-		{$set (select-keys entry [:entryname :date :tags :recipe])}))
+		{$set (select-keys entry [:entryname :date :tags :recipe])} {:upsert true}))
 
 (defn add-recipe-to-menu
 	[menu-dt recipe-id]
 	{:pre [(utils/valid? :shop/date menu-dt) (utils/valid? :shop/_id recipe-id)]}
 	(let [recipe (get-recipe recipe-id)]
 		(mc-update "add-recipe-to-menu" menus {:date menu-dt}
-			{$set {:recipe (select-keys recipe [:_id :entryname])}})))
+			{$set {:recipe (select-keys recipe [:_id :entryname])}} {:upsert true})))
 
 (defn remove-recipe-from-menu
 	[menu-dt]

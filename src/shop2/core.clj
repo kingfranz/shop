@@ -1,81 +1,47 @@
 (ns shop2.core
-    (:require [compojure.core :refer [defroutes]]
-              [compojure.route :as route]
-              [shop2.db :refer :all]
-              [utils.logfile :as logfile]
+    (:require [shop2.db :refer :all]
               [shop2.controllers.routes :refer :all]
               [shop2.views.layout :refer :all]
+              [shop2.session-store :refer :all]
+              [utils.core :as utils]
+              [utils.logfile :as logfile]
+              [compojure.core :refer [defroutes]]
+              [compojure.route :as route]
               [taoensso.timbre :as log]
               [cemerick.friend :as friend]
               [cemerick.friend.workflows :as workflows]
               [cemerick.friend.credentials :as creds]
-              [environ.core :refer [env]]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [ring.middleware.defaults :as rmd]
-              [ring.middleware.reload :as rmr]
-              [ring.middleware.stacktrace :as rmst]
-              [ring.middleware.session.store :as store]
-              [ring.middleware.session.cookie :as cookie]
-              [ring.middleware.session.memory :as mem]
-              [ring.util.response :as response]
-              [ring.adapter.jetty :as ring]
-              [utils.core :as utils]
               [slingshot.slingshot :refer [throw+ try+]]
+              [environ.core :refer [env]]
+              [ring.logger.timbre :refer [wrap-with-logger]]
+              [ring.middleware.session :refer [wrap-session]]
+              [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+              [ring.middleware.nested-params :refer [wrap-nested-params]]
+              [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
+              [ring.middleware.params :refer [wrap-params]]
+              [ring.middleware.cookies :refer [wrap-cookies]]
+              [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+              [ring.middleware.content-type :refer [wrap-content-type]]
+              [ring.util.http-response :as response]
               [clojure.pprint :as pp])
+    (:use [org.httpkit.server :only [run-server]])
     (:gen-class))
 
 ;;-----------------------------------------------------------------------------
-
-;(derive ::admin ::user)
-
-;(def users {"root" {:username "root"
-;                    :password (creds/hash-bcrypt "admin_password")
-;                    :roles #{::admin}}
-;            "jane" {:username "jane"
-;                    :password (creds/hash-bcrypt "user_password")
-;                    :roles #{::user}}})
 
 (defroutes all-routes
 	app-routes
   	(route/resources "/")
   	(route/not-found (four-oh-four)))
 
-(defonce key-store (atom {}))
+;;-----------------------------------------------------------------------------
 
-(defn- read-store-data
-    [key]
-    (println "read-store-data:" key)
-    (get @key-store key))
-
-(defn- save-store-data
-    [key data]
-    (println "save-store-data:" key data)
-    (swap! key-store assoc key data))
-
-(defn- delete-store-data
-    [key]
-    (println "delete-store-data:" key)
-    (swap! key-store dissoc key))
-
-(deftype CustomStore []
-    store/SessionStore
-    (store/read-session [_ key]
-        (read-store-data key))
-    (store/write-session [_ key data]
-        (let [key (or key (mk-id))]
-            (save-store-data key data)
-            key))
-    (store/delete-session [_ key]
-        (delete-store-data key)
-        nil))
-
-(def ring-default
-	(-> rmd/site-defaults
-		(assoc-in [:session :store] (CustomStore.))
-		;(assoc-in [:session :cookie-attrs :expires] (t/plus (l/local-now) (t/years 10)))
-		;(assoc-in [:session :cookie-name] "secure-shop-session")
-		))
+;(def ring-default
+;	(-> rmd/site-defaults
+;		(assoc-in [:session :store] (ShopStore.))
+;		;(assoc-in [:session :cookie-attrs :expires] (t/plus (l/local-now) (t/years 10)))
+;		;(assoc-in [:session :cookie-name] "secure-shop-session")
+;		))
 
 (defonce dirty-fix (logfile/setup-log "shop" 1000000 3))
 
@@ -83,15 +49,26 @@
 	[handler]
 	(fn [request]
 		(try+
+            ;(println "wrap!")
 			(handler request)
             (catch Throwable e
+                (println "## Exception:" (.getMessage e) e)
                 (log/fatal e)
-                (error-page request "" "" e)))))
+                ;(error-page request e)
+                {:status 400 :body "## EXCEPTION ##"}
+                ))))
 
 (defn unauth-handler
-	[request]
+	[_]
 	(Thread/sleep (* 3 1000))
-	(response/status (response/response "NO") 401))
+    (response/bad-request "fail"))
+
+(defn cred
+    [load-credentials-fn {:keys [username password]}]
+    (when-let [creds (load-credentials-fn username)]
+        (let [password-key (or (-> creds meta ::password-key) :password)]
+            (when (= password (get creds password-key))
+                (dissoc creds password-key)))))
 
 (defn ring-spy
     [handler]
@@ -104,14 +81,26 @@
               :append true)
         (handler request)))
 
-(def application
+(defn custom-handler
+    [f type]
+    (fn [^Exception e data request]
+        (f {:message (.getMessage e), :type type})))
+
+(defn -main [& args] ;; entry point, lein run will pick up and start from here
 	(-> all-routes
-		(friend/authenticate {
+        (wrap-fallback-exception)
+        (wrap-anti-forgery)
+        (friend/authenticate {
                               :unauthorized-handler unauth-handler
-                              :credential-fn        (partial creds/bcrypt-credential-fn get-user)
+                              :credential-fn        (partial cred get-user)
                               :workflows            [(workflows/interactive-form)]})
-        wrap-fallback-exception
-        ring-spy
-		(rmd/wrap-defaults ring-default)
-		))
+        ;ring-spy
+        ;(rmd/wrap-defaults ring-default)
+        (wrap-session {:store (->ShopStore )})
+        (wrap-keyword-params)
+        (wrap-params)
+        (wrap-cookies)
+        (wrap-with-logger)
+        (run-server {:port 3000})
+        ))
 

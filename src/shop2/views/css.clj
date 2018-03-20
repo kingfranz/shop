@@ -499,8 +499,15 @@
      [:.button-120:hover {:background-color :green}]
      [:.button-s (mk-lnk 8 16 4 2 32 2)]
      [:.button-s:hover {:background-color :green}]
-     [:.width-100p {:width (u/percent 100)}]
-    		))
+
+        [:.width-100p {:width (u/percent 100)}]
+        [:.width-100px {:width (u/px 100)}]
+        [:.width-200px {:width (u/px 200)}]
+        [:.width-300px {:width (u/px 300)}]
+        [:.width-400px {:width (u/px 400)}]
+        [:.fz24 {:font-size (u/px 24)}]
+
+        ))
 
 (def css-html
 	(g/css

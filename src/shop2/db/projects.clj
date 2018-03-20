@@ -4,6 +4,7 @@
                  [clj-time.coerce :as c]
                  [clj-time.format :as f]
                  [clj-time.periodic :as p]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [clojure.string :as str]
                  [clojure.set :as set]
@@ -16,13 +17,12 @@
                  [monger.collection :as mc]
                  [monger.joda-time :as jt]
                  [monger.operators :refer :all]
+                 [hiccup.form :as hf]
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
                  [utils.core :as utils]
-            )
-	(:import 	[java.util UUID])
-	(:import 	[com.mongodb MongoOptions ServerAddress]))
+            ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -31,18 +31,34 @@
 	{:post [(utils/valid? :shop/projects %)]}
 	(mc-find-maps "get-projects" projects {:cleared nil}))
 
+(defn- proj-comp
+    [p1 p2]
+    (if (= (:priority p1) (:priority p2))
+        (compare (:created p1) (:created p2))
+        (compare (:priority p1) (:priority p2))))
+
 (defn get-active-projects
 	[]
 	(->> (mc-find-maps "get-active-projects" projects
 			{:finished nil}
-			{:_id true :entryname true :priority true :tags true})
-		 (sort-by :priority)))
+			{:_id true :entryname true :priority true :tags true :created true})
+		 (sort-by identity proj-comp)))
 
 (defn get-project
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/project %)]}
 	(mc-find-one-as-map "get-project" projects {:_id id}))
+
+(defn get-project-dd
+    []
+    (->> (get-active-projects)
+         (map (fn [l] [(:entryname l) (:_id l)]))
+         (concat [["" no-id]])))
+
+(defn mk-project-dd
+    [current-id dd-name dd-class]
+    (hf/drop-down {:class dd-class} dd-name (get-project-dd) current-id))
 
 (defn add-project
 	[entry]

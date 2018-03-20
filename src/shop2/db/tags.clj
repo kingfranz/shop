@@ -4,6 +4,7 @@
               [clj-time.coerce :as c]
               [clj-time.format :as f]
               [clj-time.periodic :as p]
+              [slingshot.slingshot :refer [throw+ try+]]
               [clojure.spec.alpha :as s]
               [clojure.string :as str]
               [clojure.set :as set]
@@ -33,38 +34,64 @@
 	 :post [(utils/valid? :shop/tag %)]}
 	(mc-find-map-by-id "get-tag" tags id))
 
+(defn get-tags-dd
+    []
+    (->> (get-tags)
+         (sort-by :entryname)
+         (map (fn [l] [(:entryname l) (:_id l)]))
+         (concat [["" no-id]])))
+
 (defn get-tag-names
 	[]
 	{:post [(utils/valid? :shop/strings %)]}
 	(mc-find-maps "get-tag-names" tags {} {:_id true :entryname true}))
 
+(defn- get-listid-by-name
+    [list-name]
+    {:pre [(utils/valid? :shop/string list-name)]
+     :post [(utils/valid? :shop/_id %)]}
+    (mc-find-one-as-map "get-list" lists {:entryname list-name} {:_id true}))
+
+(defn- fix-list-ref
+    [lst]
+    {:pre [(utils/valid? (s/nilable string?) lst)]}
+    (cond
+        (str/blank? lst)         nil
+        (s/valid? :shop/_id lst) lst
+        :else                    (get-listid-by-name lst)))
+
 (defn update-tag
-	[tag-id tag-name*]
+	[tag-id tag-name* parent*]
 	{:pre [(utils/valid? :shop/_id tag-id)]}
 	(let [tag-name   (->> tag-name* str/trim str/capitalize)
 		  tag-namelc (mk-enlc tag-name)
-		  db-tag     (get-by-enlc tags tag-namelc)]
-		(if (some? db-tag)
-			(if (= (:_id db-tag) tag-id)
-				db-tag
-				(throw (ex-info "duplicate name" {:cause :dup})))
-			(mc-update-by-id "update-tag" tags (:_id tag-id)
-				{$set {:entryname tag-name :entrynamelc tag-namelc}}))))
+		  db-tag     (get-by-enlc tags tag-namelc)
+          parent     (fix-list-ref parent*)]
+        (when (or (str/blank? tag-name) (str/includes? tag-name " "))
+            (throw+ (ex-info "update-tag: invalid name" {:type :db})))
+		(when (and (some? db-tag) (not= (:_id db-tag) tag-id))
+			(throw+ (ex-info "duplicate name" {:type :db})))
+        (mc-update-by-id "update-tag" tags tag-id
+			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}})))
 
 (defn add-tag
-	[tag-name*]
-	{:pre [(utils/valid? :shop/string tag-name*)]
+    ([tag-name*] (add-tag tag-name* nil))
+    ([tag-name* parent*]
+    {:pre [(utils/valid? :shop/string tag-name*)]
 	 :post [(utils/valid? :shop/tag %)]}
 	(let [tag-name   (->> tag-name* str/trim str/capitalize)
 		  tag-namelc (mk-enlc tag-name)
 		  db-tag     (get-by-enlc tags tag-namelc)
+          parent     (fix-list-ref parent*)
 		  new-tag    (merge {:entryname tag-name
-		  					 :entrynamelc tag-namelc} (mk-std-field))]
+		  					 :entrynamelc tag-namelc
+                             :parent parent}
+                            (mk-std-field))]
 		(if (some? db-tag)
 			db-tag
 			(do
 				(mc-insert "add-tag" tags new-tag)
-				new-tag))))
+				new-tag)))))
 
 (defn add-tags
 	[tags*]

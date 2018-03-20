@@ -4,6 +4,7 @@
                  [clj-time.coerce :as c]
                  [clj-time.format :as f]
                  [clj-time.periodic :as p]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [clojure.string :as str]
                  [clojure.set :as set]
@@ -20,9 +21,7 @@
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
                  [utils.core :as utils]
-            )
-	(:import 	[java.util UUID])
-	(:import 	[com.mongodb MongoOptions ServerAddress]))
+            ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -33,6 +32,7 @@
 (defn get-items
 	[]
 	{:post [(utils/valid? :shop/items %)]}
+    ;(throw+ (ex-info "test throw" {:type :db}))
 	(mc-find-maps "get-items" items {}))
 
 (defn get-item
@@ -61,8 +61,8 @@
 (defn update-item
 	[entry]
 	{:pre [(utils/valid? :shop/item* entry)]}
-	(add-item-usage nil (:_id entry) :update 0)
-	(let [entry* (assoc entry :entrynamelc (mk-enlc (:entryname entry)))]
+    (add-item-usage nil (:_id entry) :update 0)
+    (let [entry* (assoc entry :entrynamelc (mk-enlc (:entryname entry)))]
    		(mc-update-by-id "update-item" items (:_id entry*)
 			{$set (select-keys entry* [:entryname :entrynamelc :unit :url
                              		   :amount :price :tags :parent])})))

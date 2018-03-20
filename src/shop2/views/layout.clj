@@ -3,6 +3,7 @@
               [hiccup.page :as hp]
               [hiccup.form :as hf]
               [hiccup.element :as he]
+              [slingshot.slingshot :refer [throw+ try+]]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
               [environ.core :refer [env]]
@@ -23,7 +24,9 @@
 			[:title title]
 			[:style css-html]
 			[:style css-misc]
-            (map (fn [x] [:style x]) css)]
+            (map (fn [x] [:style x]) css)
+         (hp/include-js "save.js")
+         ]
 		[:body
 			[:table
 				(when (some? (:err-msg request))
@@ -66,13 +69,13 @@
         [:tr [:td (named-block header [:div.error-msg output])]]))
 
 (defn error-page
-    [request src-page err-msg except]
+    [request except]
     (common request "Error" [css-admin css-items] ;
                    [:table
                     [:tr [:td (home-button)]]
-                    [:tr [:td (str "Error in " src-page)]]
-                    (when-not (str/blank? err-msg)
-                        [:tr [:td (named-block "Message" err-msg)]])
+                    ;[:tr [:td (str "Error in " src-page)]]
+                    ;(when-not (str/blank? err-msg)
+                    ;    [:tr [:td (named-block "Message" err-msg)]])
                     (when except (list
                         (err-block-s "Cause" st/root-cause except)
                         (err-block "Params" pp/pprint (:params request))

@@ -55,8 +55,10 @@
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/item*   (s/keys :req-un [:shop/entryname]
-							 :opt-un [:shop/tags :shop/finished :shop/numof :shop/url
-							 		  :shop/amount :shop/unit :shop/price
+							 :opt-un [:shop/tags
+                                      :shop/finished
+                                      :shop/numof :shop/url :shop/amount :shop/unit :shop/price
+                                      :shop/project
 							 		  :shop/parent]))
 
 (s/def :shop/item    (s/merge :shop/item* :shop/std-keys :shop/entrynamelc))
@@ -94,7 +96,8 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/tag*  (s/keys :req-un [:shop/entryname]))
+(s/def :shop/tag*  (s/keys :req-un [:shop/entryname]
+                           :opt-un [:shop/parent]))
 
 (s/def :shop/tag   (s/merge :shop/tag* :shop/std-keys :shop/entrynamelc))
 (s/def :shop/tags* (s/* :shop/tag*))

@@ -4,6 +4,7 @@
               [clj-time.coerce :as c]
               [clj-time.format :as f]
               [clj-time.periodic :as p]
+              [slingshot.slingshot :refer [throw+ try+]]
               [clojure.spec.alpha :as s]
               [clojure.java.io :as io]
               [clojure.string :as str]

@@ -4,6 +4,7 @@
                  [clj-time.coerce :as c]
                  [clj-time.format :as f]
                  [clj-time.periodic :as p]
+                 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [clojure.string :as str]
                  [clojure.set :as set]
@@ -20,9 +21,7 @@
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
                  [utils.core :as utils]
-            )
-	(:import 	[java.util UUID])
-	(:import 	[com.mongodb MongoOptions ServerAddress]))
+            ))
 
 ;;-----------------------------------------------------------------------------
 
@@ -69,7 +68,7 @@
 			(if (= (:_id db-entry) (:_id recipe))
 				(mc-update-by-id "update-recipe" recipes (:_id recipe)
 					{$set (select-keys recipe [:url :items :text])})
-				(throw (ex-info "duplicate name" {:cause "dup"})))
+				(throw+ (ex-info "duplicate name" {:cause "dup"})))
 			(do
 				(mc-update-by-id "update-recipe" recipes (:_id recipe)
 					{$set (select-keys recipe [:entryname :entrynamelc :url :items :text])})
