@@ -61,8 +61,7 @@
     (let [date-id (when (is-today? (:date menu)) "today")]
         [:tr
          [:td.menu-date-td
-          (hf/label {:id date-id :class "menu-date"} :x
-                    (menu-date-short menu))]
+          [:label.menu-date {:id date-id} (menu-date-short menu)]]
          (if r-link?
              [:td.menu-text-td
               (hf/hidden-field (mk-mtag "id" (:date menu)) (:_id menu))
@@ -70,8 +69,7 @@
                              (mk-mtag "txt" (:date menu))
                              (:entryname menu))]
              [:td.menu-text-td
-              (hf/label {:class "menu-text-old"} :x
-                        (:entryname menu))])
+              [:label.menu-text-old (:entryname menu)]])
          [:td.menu-ad-td (mk-recipe-add-del menu r-link?)]
          [:td.menu-link-td (mk-recipe-link menu r-link?)]
          ]))
@@ -87,7 +85,6 @@
                   [:td
                    (home-button)
                    (hf/submit-button {:class "button"} "Updatera!")]]]
-                ;(throw+ (ex-info "test test" {:type ::db}))
                 [:table.menu-table
                  (map #(mk-menu-row % false) (get-menus (old-menu-start) (today)))
                  (map #(mk-menu-row % true) (get-menus (today) (new-menu-end)))])))
@@ -104,9 +101,9 @@
                 :when (and (seq txt) (not= txt (:entryname db-menu)))]
             ;(println "update-menu!:" (mk-mtag "txt" dt) id txt db-menu)
             (if (seq id)
-                (update-menu (merge db-menu {:entryname txt}))
-                (add-menu {:date dt :entryname txt}))))
-    (ring/redirect "/user/menu"))
+                (update-menu (set-name db-menu txt))
+                (add-menu (assoc (create-entity txt) :date dt :recipe nil)))))
+    (ring/redirect "/user/menu/edit"))
 
 ;;-----------------------------------------------------------------------------
 

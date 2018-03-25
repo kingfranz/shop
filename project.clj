@@ -1,4 +1,4 @@
-(defproject shop2 "0.9.4"
+(defproject shop2 "1.0.0"
     :description "Shopping list"
     :url "http://soahojen.se"
     :license {:name "Eclipse Public License"
@@ -9,7 +9,7 @@
                    [ring/ring-core "1.6.3"]
                    [org.clojars.kingfranz/utils "0.2.5"]
                    [org.clojure/spec.alpha "0.1.143"]
-                   [http-kit "2.0.0"]
+                   [http-kit "2.2.0"]
                    [ring/ring-json "0.4.0"]
                    [ring-logger-timbre "0.7.6"]
                    [ring/ring-spec "0.0.4"]
@@ -27,6 +27,7 @@
                    [com.taoensso/timbre "4.10.0"]
                    [compojure "1.6.0"]]
     :main shop2.core
+    ;:main ^:skip-aot shop2.core
     :uberjar-name "shopping.latest.jar"
     :target-path "target/%s"
     :jvm-opts ["-Dclojure.spec.compile-asserts=true"]
@@ -39,7 +40,7 @@
     ;       :auto-reload?  false
     ;       :auto-refresh? false
     ;       :port          3000}
-    :profiles {
-               :dev {
-                     :uberjar {:aot :all}
-                     }})
+    :profiles {:uberjar {:aot :all}}
+    )
+
+; {:jvm-opts ["-Dclojure.spec.compile-asserts=true -XX:-OmitStackTraceInFastThrow"]}

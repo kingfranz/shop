@@ -20,6 +20,7 @@
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
+                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
@@ -32,14 +33,13 @@
 (defn get-items
 	[]
 	{:post [(utils/valid? :shop/items %)]}
-    ;(throw+ (ex-info "test throw" {:type :db}))
-	(mc-find-maps "get-items" items {}))
+    (map conform-item (mc-find-maps "get-items" items {})))
 
 (defn get-item
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/item %)]}
-	(mc-find-one-as-map "get-item" items {:_id id}))
+    (conform-item (mc-find-one-as-map "get-item" items {:_id id})))
 
 (defn item-id-exists?
 	[id]
@@ -48,24 +48,19 @@
 
 (defn add-item
 	[entry]
-	{:pre [(utils/valid? :shop/item* entry)]
+	{:pre [(utils/valid? :shop/item entry)]
 	 :post [(utils/valid? :shop/item %)]}
-	(add-tags (:tags entry))
-	(let [entry* (as-> entry $
-                       (merge $ (mk-std-field))
-                       (assoc $ :entrynamelc (mk-enlc (:entryname $))))]
-		(add-item-usage nil (:_id entry*) :create 0)
-		(mc-insert "add-item" items entry*)
-		entry*))
+    (when (:tag entry)
+        (add-tag (-> entry :tag :entryname)))
+	(add-item-usage nil (:_id entry) :create 0)
+	(mc-insert "add-item" items entry)
+	entry)
 
 (defn update-item
 	[entry]
-	{:pre [(utils/valid? :shop/item* entry)]}
+	{:pre [(utils/valid? :shop/item entry)]}
     (add-item-usage nil (:_id entry) :update 0)
-    (let [entry* (assoc entry :entrynamelc (mk-enlc (:entryname entry)))]
-   		(mc-update-by-id "update-item" items (:_id entry*)
-			{$set (select-keys entry* [:entryname :entrynamelc :unit :url
-                             		   :amount :price :tags :parent])})))
+    (mc-replace-by-id "update-item" items entry))
 
 (defn delete-item
 	[item-id]

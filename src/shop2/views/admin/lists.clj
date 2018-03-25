@@ -55,17 +55,16 @@
 
 (defn- mk-parent-map
     [params]
-    (when-not (or (str/blank? (:parent params))
-                  (= (:parent params) top-lvl-name))
-        (let [p-list (find-list-by-name (:parent params))]
-            (select-keys p-list [:_id :entryname :parent]))))
+    (when-not (= (:parent params) no-id)
+        (select-keys (get-list (:parent params)) [:_id :entryname :parent])))
 
 (defn new-list!
     [{params :params}]
     (if (seq (:entryname params))
-        (add-list {:entryname (:entryname params)
-                   :parent    (mk-parent-map params)
-                   :last      (some? (:low-prio params))})
+        (add-list (-> (create-entity (:entryname params))
+                      (assoc :items  []
+                             :parent (mk-parent-map params)
+                             :last   (some? (:low-prio params)))))
         (throw+ (Exception. "list name is blank")))
     (ring/redirect "/admin"))
 
@@ -104,10 +103,10 @@
     [{params :params}]
     (when (str/blank? (:entryname params))
         (throw+ (Exception. "list name is blank")))
-    (update-list {:_id       (:list-id params)
-                  :entryname (:entryname params)
-                  :parent    (mk-parent-map params)
-                  :last      (some? (:low-prio params))})
+    (update-list (-> (get-list (:list-id params))
+                     (set-name (:entryname params))
+                     (assoc :parent (mk-parent-map params)
+                            :last   (some? (:low-prio params)))))
     (ring/redirect "/admin"))
 
 (defn delete-list!

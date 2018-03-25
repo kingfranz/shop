@@ -21,15 +21,21 @@
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
+                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
 ;;-----------------------------------------------------------------------------
 
 (defn get-projects
-	[]
-	{:post [(utils/valid? :shop/projects %)]}
-	(mc-find-maps "get-projects" projects {:cleared nil}))
+    []
+    {:post [(utils/valid? :shop/projects %)]}
+    (map conform-project (mc-find-maps "get-projects" projects {:cleared nil})))
+
+(defn get-db-projects
+    []
+    {:post [(utils/valid? :shop/projects %)]}
+    (map conform-project (mc-find-maps "get-projects" projects)))
 
 (defn- proj-comp
     [p1 p2]
@@ -39,16 +45,15 @@
 
 (defn get-active-projects
 	[]
-	(->> (mc-find-maps "get-active-projects" projects
-			{:finished nil}
-			{:_id true :entryname true :priority true :tags true :created true})
+	(->> (mc-find-maps "get-active-projects" projects {:finished nil})
+         (map conform-project)
 		 (sort-by identity proj-comp)))
 
 (defn get-project
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/project %)]}
-	(mc-find-one-as-map "get-project" projects {:_id id}))
+    (conform-project (mc-find-one-as-map "get-project" projects {:_id id})))
 
 (defn get-project-dd
     []
@@ -62,12 +67,12 @@
 
 (defn add-project
 	[entry]
-	{:pre [(utils/valid? :shop/project* entry)]
+	{:pre [(utils/valid? :shop/project entry)]
 	 :post [(utils/valid? :shop/project %)]}
-	(add-tags (:tags entry))
-	(let [entry* (merge entry (mk-std-field))]
-		(mc-insert "add-project" projects entry*)
-		entry*))
+    (when (some? (:tag entry))
+        (add-tag (-> entry :tag :entryname)))
+	(mc-insert "add-project" projects entry)
+	entry)
 
 (defn finish-project
 	[project-id]
@@ -81,9 +86,8 @@
 
 (defn update-project
 	[proj]
-	{:pre [(utils/valid? :shop/project* proj)]}
-	(mc-update-by-id "update-project" projects (:_id proj)
-		{$set (select-keys proj [:entryname :priority :finished :tags])}))
+	{:pre [(utils/valid? :shop/project proj)]}
+	(mc-replace-by-id "update-project" projects proj))
 
 (defn clear-projects
 	[]

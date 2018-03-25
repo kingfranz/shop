@@ -19,6 +19,7 @@
               [monger.operators :refer :all]
               [shop2.extra :refer :all]
               [shop2.db :refer :all]
+              [shop2.conformer :refer :all]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
@@ -26,13 +27,13 @@
 (defn get-tags
 	[]
 	{:post [(utils/valid? :shop/tags %)]}
-	(mc-find-maps "get-tags" tags))
+    (map conform-tag (mc-find-maps "get-tags" tags)))
 
 (defn get-tag
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/tag %)]}
-	(mc-find-map-by-id "get-tag" tags id))
+    (conform-tag (mc-find-map-by-id "get-tag" tags id)))
 
 (defn get-tags-dd
     []
@@ -43,8 +44,8 @@
 
 (defn get-tag-names
 	[]
-	{:post [(utils/valid? :shop/strings %)]}
-	(mc-find-maps "get-tag-names" tags {} {:_id true :entryname true}))
+	{:post [(utils/valid? (s/* (s/keys :req-un [:shop/_id :shop/entryname :shop/entrynamelc])) %)]}
+	(mc-find-maps "get-tag-names" tags {} {:_id true :entryname true :entrynamelc true}))
 
 (defn- get-listid-by-name
     [list-name]
@@ -61,8 +62,12 @@
         :else                    (get-listid-by-name lst)))
 
 (defn update-tag
-	[tag-id tag-name* parent*]
-	{:pre [(utils/valid? :shop/_id tag-id)]}
+    ([tag]
+     {:pre [(utils/valid? :shop/tag tag)]}
+     (mc-replace-by-id "update-tag" tags tag))
+    ([tag-id tag-name* parent*]
+	{:pre [(utils/valid? :shop/_id tag-id)
+           (utils/valid? :tags/entryname tag-name*)]}
 	(let [tag-name   (->> tag-name* str/trim str/capitalize)
 		  tag-namelc (mk-enlc tag-name)
 		  db-tag     (get-by-enlc tags tag-namelc)
@@ -72,31 +77,21 @@
 		(when (and (some? db-tag) (not= (:_id db-tag) tag-id))
 			(throw+ (ex-info "duplicate name" {:type :db})))
         (mc-update-by-id "update-tag" tags tag-id
-			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}})))
+			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}}))))
 
 (defn add-tag
-    ([tag-name*] (add-tag tag-name* nil))
-    ([tag-name* parent*]
-    {:pre [(utils/valid? :shop/string tag-name*)]
+    ([tag-name] (add-tag tag-name nil))
+    ([tag-name parent]
+    {:pre [(utils/valid? :tags/entryname tag-name)]
 	 :post [(utils/valid? :shop/tag %)]}
-	(let [tag-name   (->> tag-name* str/trim str/capitalize)
-		  tag-namelc (mk-enlc tag-name)
-		  db-tag     (get-by-enlc tags tag-namelc)
-          parent     (fix-list-ref parent*)
-		  new-tag    (merge {:entryname tag-name
-		  					 :entrynamelc tag-namelc
-                             :parent parent}
-                            (mk-std-field))]
+	(let [new-tag    (assoc (create-entity (str/capitalize tag-name))
+                            :parent (fix-list-ref parent))
+          db-tag     (get-by-enlc tags (:entrynamelc new-tag))]
 		(if (some? db-tag)
 			db-tag
 			(do
 				(mc-insert "add-tag" tags new-tag)
 				new-tag)))))
-
-(defn add-tags
-	[tags*]
-	{:pre [(utils/valid? :shop/tags* tags*)]}
-	(map #(add-tag (:entryname %)) tags*))
 
 (defn delete-tag
 	[id]
@@ -107,9 +102,9 @@
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]}
 	(delete-tag id)
-	(mc-update "delete-tag-all" lists    {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" recipes  {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" menus    {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" projects {} {$pull {:tags {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" items    {} {$pull {:tags {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" lists    {} {$pull {:tag {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" recipes  {} {$pull {:tag {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" menus    {} {$pull {:tag {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" projects {} {$pull {:tag {:_id id}}} {:multi true})
+	(mc-update "delete-tag-all" items    {} {$pull {:tag {:_id id}}} {:multi true})
 	)

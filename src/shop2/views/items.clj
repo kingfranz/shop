@@ -1,6 +1,7 @@
 (ns shop2.views.items
     (:require [shop2.extra :refer :all]
               [shop2.db :refer :all]
+              [shop2.db.user :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
@@ -34,7 +35,8 @@
               [clojure.spec.alpha :as s]
               [clojure.string :as str]
               [clojure.pprint :as pp]
-              [clojure.set :as set]))
+              [clojure.set :as set]
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -69,7 +71,7 @@
        [:td.item-txt-td
         [:div.item-txt (:entryname item)]]
        [:td.item-tags-td
-        [:div.item-tags (some->> item :tags frmt-tags)]]]]])
+        [:div.item-tags (:tag item)]]]]])
 
 (defn- mk-add-item-no-tag
     [item]
@@ -88,7 +90,7 @@
          [:td.items-block
           [:table
            [:tr
-            [:td.tags-head {:style "width: 100%"} (hf/label {:class "tags-head"} :x k)]]]
+            [:td.tags-head {:style "width: 100%"} [:label.tags-head k]]]]
           (map mk-add-item-no-tag (sort-by :entrynamelc v))]]))
 
 (defn- mk-letter
@@ -114,8 +116,7 @@
     [a-list sort-type]
     (if (= sort-type :tags)
         (items-by-tags (->> (get-list-items a-list)
-                            (map #(update % :tags frmt-tags))
-                            (group-by :tags)
+                            (group-by :tag)
                             (into (sorted-map))))
         (items-by-name (->> a-list get-list-items items->alpha))))
 
@@ -135,7 +136,7 @@
                     (ruaf/anti-forgery-field)
                     (hf/hidden-field :list-id list-id)
                     [:div
-                     (homeback-button (str "/user/list/" list-id))
+                     (homeback-button (str "/user/list/get/" list-id))
                      (sort-button sort-type list-id)
                      [:a.link-flex {:href (str "/user/item/new/" list-id)} "+"]
                      [:a.link-flex (hf/submit-button {:class "button-s"} "\u2713")]]
@@ -146,15 +147,9 @@
 
 (defn add-items!
     [{params :params}]
-    (let [list-id (:list-id params)
-          item-ids (->> params
-                        keys
-                        (map name)
-                        (filter #(s/valid? :shop/_id %)))]
-        ;(println "add-items!:" params "\n" item-ids)
-        (doseq [item-id item-ids]
-            (item->list list-id item-id))
-        (ring/redirect (str "/user/item/add/" list-id))))
+    (doseq [item-id (->> params keys (map name) (filter #(s/valid? :shop/_id %)))]
+        (item->list (:list-id params) item-id))
+    (ring/redirect (str "/user/item/add/" (:list-id params))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -164,25 +159,19 @@
                [:table
                 [:tr
                  [:td.new-item-td "Namn:"]
-                 [:td (hf/text-field {:class "new-item-txt" :autofocus true} "new-item-name")]]
-                [:tr
-                 [:td.new-item-td "Enhet:"]
-                 [:td (hf/text-field {:class "new-item-txt"} "new-item-unit")]]
-                [:tr
-                 [:td.new-item-td "Mängd:"]
-                 [:td (hf/text-field {:class "new-item-txt"} "new-item-amount")]]
+                 [:td (hf/text-field {:class "new-item-txt" :autofocus true} :new-item-name)]]
                 [:tr
                  [:td.new-item-td "Pris:"]
-                 [:td (hf/text-field {:class "new-item-txt"} "new-item-price")]]
+                 [:td (hf/text-field {:class "new-item-txt"} :new-item-price)]]
                 [:tr
                  [:td.new-item-td "URL:"]
-                 [:td.url-td (hf/text-field {:class "new-item-txt"} "new-item-url")]]
+                 [:td.url-td (hf/text-field {:class "new-item-txt"} :new-item-url)]]
                 [:tr
                  [:td.new-item-td "Project:"]
                  [:td.url-td (mk-project-dd nil :project "new-item-txt")]]
                 [:tr
                  [:td.new-item-td "One Shot:"]
-                 [:td.url-td (hf/check-box :one-shot "new-cb")]]
+                 [:td.url-td (hf/check-box {:class "new-cb"} :one-shot)]]
                 ]))
 
 (defn new-list-item
@@ -204,37 +193,16 @@
 
 (defn new-list-item!
     [{params :params}]
-    (let [old-tag-id (:tags params)
-          new-tag-name (str/trim (:new-tag params))
-          tag (cond
-                  ; old has value, new has value
-                  (and (seq old-tag-id) (not= old-tag-id no-id)
-                       (seq new-tag-name)) (throw+ (ex-info "Bara en tag" {:type :input}))
-                  ; old has value, new is blank
-                  (and (seq old-tag-id)
-                       (str/blank? new-tag-name)) [(get-tag old-tag-id)]
-                  ; old is no-id, new has value
-                  (and (= old-tag-id no-id)
-                       (seq new-tag-name)) [(add-tag new-tag-name)]
-                  ; old has no-id, new is blank
-                  (and (= old-tag-id no-id)
-                       (str/blank? new-tag-name)) []
-                  ; old is blank, new has value
-                  (and (str/blank? old-tag-id)
-                       (seq new-tag-name)) [(add-tag new-tag-name)]
-                  ; old is blank, new is blank
-                  :else [])
-          proj (when (and (s/valid? :shop/_id (:project params))
-                          (not= (:project params) no-id)) (get-project (:project params)))
-          new-item (add-item
-                       (-> {:entryname (s/assert :shop/string (:new-item-name params))
-                            :parent    (:list-id params)
-                            :tags      tag
-                            :project   proj}
-                           (assoc-num-if :amount (:new-item-amount params))
-                           (assoc-str-if :unit (:new-item-unit params))
-                           (assoc-str-if :url (:new-item-url params))
-                           (assoc-num-if :price (:new-item-price params))))]
+    (let [proj (when (and (s/valid? :shop/_id (name (:project params))) (not= (name (:project params)) no-id))
+                   (get-project (:project params)))
+          item (-> (create-entity (:new-item-name params))
+                   (assoc :parent  (:list-id params)
+                          :tag     (extract-tag params)
+                          :project proj
+                          :url     (:new-item-url params)
+                          :price   (str->num (:new-item-price params))
+                          :oneshot (or (:one-shot params) false)))
+          new-item (add-item item)]
         (item->list (:list-id params) (:_id new-item))
         (ring/redirect (str "/user/item/add/" (:list-id params)))))
 

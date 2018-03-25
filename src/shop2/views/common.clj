@@ -1,6 +1,7 @@
 (ns shop2.views.common
     (:require [shop2.extra :refer :all]
               [shop2.db :refer :all]
+              [shop2.db.user :refer :all]
               [shop2.db.tags :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.views.css :refer :all]
@@ -43,7 +44,7 @@
     ([line-type d-name input]
      [:div.named-div
       (if (= line-type :inline)
-          (hf/label {:class "named-div-l"} :x d-name)
+          [:label.named-div-l d-name]
           [:p.named-div-p d-name])
       input
       [:div {:style "clear:both;float:none;"}]]))
@@ -53,77 +54,75 @@
     [:p
      [:div.items-block
       [:p.tags-head
-       (hf/label {:class "tags-head"} :x header)]
+       [:label.tags-head header]]
       block]])
 
 ;;-----------------------------------------------------------------------------
 
-(defonce top-lvl-name "Ingen")
-(defonce tag-name-regex #"[a-zA-ZåäöÅÄÖ0-9_-]+")
-(defonce blank-tag-id "@@--NO-TAG--@@")
-(defonce blank-tag {:_id blank-tag-id :entryname "NO TAG" :parent nil})
-(defonce blank-proj {:_id blank-tag-id :entryname "NO PROJ"})
+(defonce blank-tag {:_id no-id :entryname "NO TAG" :parent nil})
+(defonce blank-proj {:_id no-id :entryname "NO PROJ"})
 
 (defn- get-old-tag
 	[params]
     (let [s (some-> params :tags str/trim)]
         (if (str/blank? s)
             nil
-            (if (= s blank-tag-id)
+            (if (= s no-id)
                 :blank
-                (if (re-matches uuid-regex s)
+                (if (s/valid? :shop/_id s)
                     s
-                    (throw+ (ex-info "Unknown tag" {:cause :unknown-tag})))))))
+                    (throw+ (ex-info "Unknown tag" {:type :input :cause :unknown-tag})))))))
 
 (defn- get-new-tag
 	[params]
 	(let [s (some-> params :new-tags str/trim)]
 		(if (str/blank? s)
             nil
-            (if (re-matches tag-name-regex s)
+            (if (s/valid? :tags/entryname s)
                 s
-                (throw+ (ex-info "Invalid tag" {:cause :invalid-tag}))))))
+                (throw+ (ex-info "Invalid tag" {:type :input :cause :invalid-tag}))))))
 
-(defn extract-tags
+(defn extract-tag
 	[params]
-    {:post [(utils/valid? :shop/tags %)]}
-	(let [old-tag-id (get-old-tag params)
+    {:post [(utils/valid? (s/nilable :shop/tag) %)]}
+	(let [old-tag-id   (get-old-tag params)
           new-tag-name (get-new-tag params)]
 		(cond
-            (and (some? old-tag-id)
-                 (some? new-tag-name)) (throw+ (ex-info "Can't have both new and old tag" {:type :tags}))
-            (= old-tag-id :blank) []
-            (some? old-tag-id) [(get-tag old-tag-id)]
-            (some? new-tag-name) [(add-tag new-tag-name)]
-            :else []
+            ; old has value, new has value
+            (and (seq old-tag-id) (not= old-tag-id :blank) (seq new-tag-name))
+                (throw+ (ex-info "Can't have both new and old tag" {:type :tags}))
+            ; old has value, new is blank
+            (and (seq old-tag-id) (not= old-tag-id :blank) (nil? new-tag-name))
+                (get-tag old-tag-id)
+            ; old is no-id, new has value
+            (and (= old-tag-id :blank) (seq new-tag-name))
+                (add-tag new-tag-name)
+            ; old is no-id, new is blank
+            (and (= old-tag-id :blank) (nil? new-tag-name))
+                nil
+            ; old is blank, new has value
+            (and (nil? old-tag-id) (seq new-tag-name))
+                (add-tag new-tag-name)
+            ; old is blank, new is blank
+            :else nil
             )))
 
-(defn frmt-tags
-	[tags]
-    {:pre [(utils/valid? :shop/tags tags)]
-     :post [(utils/valid? string? %)]}
-	(->> tags
-		 (map :entryname)
-		 sort
-		 (str/join " ")))
-
 (defn- mk-tag-entry
-    [tag-strings tag]
+    [target tag]
     [:div.cb-div
      (labeled-radio (:entryname tag)
                     "tags"
                     (:_id tag)
-                    (contains? tag-strings (:entryname tag)))])
+                    (= target (:entryname tag)))])
 
 (defn tags-tbl
-    ([] (tags-tbl []))
-    ([tags]
-     (let [tag-strings (set (map :entryname tags))]
-         (named-div "Existerande kategorier:"
+    ([] (tags-tbl nil))
+    ([tag]
+     (named-div "Existerande kategorier:"
                     (->> (get-tag-names)
-                         (sort-by :entryname)
+                         (sort-by :entrynamelc)
                          (concat [blank-tag])
-                         (map #(mk-tag-entry tag-strings %)))))))
+                         (map #(mk-tag-entry (:entryname tag) %))))))
 
 (defn- mk-proj-entry
     [target-id proj]
@@ -138,9 +137,17 @@
     ([proj-id]
      (named-div "Projekt:"
                 (->> (get-active-projects)
-                     (sort-by :entryname)
+                     (sort-by :entrynamelc)
                      (concat [blank-proj])
                      (map #(mk-proj-entry proj-id %))))))
+
+;;-----------------------------------------------------------------------------
+
+(defn str->num
+    [s]
+    (try+
+        (Double/valueOf (str/trim s))
+        (catch Exception _ nil)))
 
 ;;-----------------------------------------------------------------------------
 

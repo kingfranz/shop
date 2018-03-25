@@ -1,39 +1,24 @@
 (ns shop2.views.projects
-  	(:require 	[shop2.extra :refer :all]
-                 [shop2.db :refer :all]
-                 [shop2.views.layout :refer :all]
-                 [shop2.views.common       	:refer :all]
-                 [shop2.views.css          	:refer :all]
-                 [shop2.db.tags :refer :all]
-                 [shop2.db.items			:refer :all]
-                 [shop2.db.lists 			:refer :all]
-                 [shop2.db.menus 			:refer :all]
-                 [shop2.db.projects 		:refer :all]
-                 [shop2.db.recipes 		:refer :all]
-                 [slingshot.slingshot :refer [throw+ try+]]
-                 [clj-time.core :as t]
-                 [clj-time.local :as l]
-                 [clj-time.coerce :as c]
-                 [clj-time.format :as f]
-                 [clj-time.periodic :as p]
-                 [clojure.spec.alpha :as s]
-                 [clojure.string :as str]
-                 [clojure.set :as set]
-                 [clojure.pprint :as pp]
-                 [garden.core :as g]
-                 [garden.units        	:as u]
-                 [garden.selectors    	:as sel]
-                 [garden.stylesheet   	:as ss]
-                 [garden.color        	:as color]
-                 [garden.arithmetic   	:as ga]
-                 [hiccup.core :as h]
-                 [hiccup.def          	:as hd]
-                 [hiccup.element      	:as he]
-                 [hiccup.form         	:as hf]
-                 [hiccup.page         	:as hp]
-                 [hiccup.util         	:as hu]
-                 [ring.util.anti-forgery :as ruaf]
-                 [ring.util.response     	:as ring]))
+    (:require [shop2.extra :refer :all]
+              [shop2.db :refer :all]
+              [shop2.db.user :refer :all]
+              [shop2.views.layout :refer :all]
+              [shop2.views.common :refer :all]
+              [shop2.views.css :refer :all]
+              [shop2.db.tags :refer :all]
+              [shop2.db.items :refer :all]
+              [shop2.db.lists :refer :all]
+              [shop2.db.menus :refer :all]
+              [shop2.db.projects :refer :all]
+              [shop2.db.recipes :refer :all]
+              [slingshot.slingshot :refer [throw+ try+]]
+              [clojure.string :as str]
+              [clojure.edn :refer [read-string] :as edn]
+              [hiccup.form :as hf]
+              [ring.util.anti-forgery :as ruaf]
+              [ring.util.response :as ring]
+              [utils.core :as utils]
+              [clojure.spec.alpha :as s]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -42,27 +27,23 @@
 (def txt-name "proj-txt-")
 (def tags-name "proj-tags-")
 
-(defn- mk-tag
-	[s  i]
-	(keyword (str s i)))
-
 (defn- mk-proj-row
 	[proj]
 	(let [id (if (map? proj) (:_id proj) (str proj))]
 		[:tr
 			[:td.proj-pri-td (hf/drop-down {:class "proj-pri-val"}
-				(mk-tag pri-name id)
+				(utils/mk-tag pri-name id)
 				(range 1 6) (:priority proj))]
 			[:td.proj-check-td
 				(when (map? proj)
 					[:a {:class "proj-check-val"
 						 :href (str "/user/project/finish/" (:_id proj))} "&#10004"])]
 			[:td.proj-txt-td (hf/text-field {:class "proj-txt-val"}
-				(mk-tag txt-name id)
+				(utils/mk-tag txt-name id)
 				(:entryname proj))]
 			[:td.proj-tags-td (hf/text-field {:class "proj-tags-val"}
-				(mk-tag tags-name id)
-				(str/join ", " (map :entryname (:tags proj))))]]))
+				(utils/mk-tag tags-name id)
+				(some-> proj :tag :entryname))]]))
 
 (defn- mk-finished-row
 	[proj]
@@ -72,7 +53,7 @@
 				{:href (str "/user/project/unfinish/" (:_id proj))}
 				(str (:priority proj) " " 
 					 (:entryname proj) " " 
-					 "[" (str/join ", " (map :entryname (:tags proj))) "]" )]]])
+					 "[" (some-> proj :tag :entryname) "]")]]])
 
 (defn- finished?
 	[p]
@@ -93,23 +74,14 @@
 
 (defn- tags-head
 	[stags]
-	(hf/label {:class "proj-head-val"} :xxx stags))
-
-(defn- t->s
-	[tags]
-	(if-let [s (some->> tags
-						(map :entryname)
-						sort
-						(str/join " "))]
-		s
-		"Allmänt"))
+	[:label.proj-head-val stags])
 
 (defn- by-tags
 	[projects]
 	(let [by-tag (->> projects
 		  			  (remove finished?)
-		  			  (map #(assoc % :stags (t->s (:tags %))))
-		  			  (group-by :stags))]
+		  			  (map #(assoc % :tag-txt (or (some-> % :tag :entryname) "Allmänt")))
+		  			  (group-by :tag-txt))]
 		[:table
 			(for [tag-key (sort (keys by-tag))]
 				(list
@@ -121,7 +93,7 @@
 
 (defn- prio-head
 	[pri]
-	(hf/label {:class "proj-head-val"} :xxx (str "Prioritet " pri)))
+	[:label.proj-head-val (str "Prioritet " pri)])
 
 (defn- by-prio
 	[projects]
@@ -146,10 +118,7 @@
 	        (hf/form-to
 	    		[:post "/user/project/edit"]
 	        	(ruaf/anti-forgery-field)
-	        	(hf/hidden-field :proj-keys (->> projects
-	        									 (remove finished?)
-	        									 (map :_id)
-	        									 (str/join "@")))
+	        	(hf/hidden-field :project-ids (->> projects (remove finished?) (map :_id) pr-str))
 	        	[:table.proj-tbl
 		        	[:tr
 		        		[:td
@@ -189,45 +158,46 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn- mk-proj-tags
+(defn- mk-proj-tag
 	[params pkey]
-	(map #(add-tag %)
-		(some-> params
-		    (get (mk-tag tags-name pkey))
-		    (str/replace "\"" "")
-		    (str/split #"(,| )+")
-			set)))
+    (let [param-value (get params (utils/mk-tag tags-name pkey))]
+        (when (s/valid? :tags/entryname param-value)
+            (add-tag param-value))))
 
 (defn edit-projects!
 	[{params :params}]
-	(doseq [pkey (str/split (:proj-keys params) #"@")
-		    :let [f-name (get params (mk-tag txt-name pkey))
-		          f-tags (mk-proj-tags params pkey)]
-			:when (and (seq f-name) (seq f-tags))]
-		(update-project {:_id        pkey
-					   	    :entryname f-name
-					   		:tags      f-tags
-					   		:priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
+	(doseq [pkey (edn/read-string (:project-ids params))
+		    :let [f-name (get params (utils/mk-tag txt-name pkey))
+		          f-tag  (mk-proj-tag params pkey)]
+			:when (and (seq f-name) (seq f-tag))]
+        (update-project (-> (get-project pkey)
+                            (set-name f-name)
+                            (assoc :tag      f-tag
+                                   :priority (->> (utils/mk-tag pri-name pkey) (get params) (Integer/valueOf))
+                                   :finished nil
+                                   :cleared  nil))))
 	(doseq [pkey (range num-new-proj)
-		    :let [f-name (get params (mk-tag txt-name pkey))
-		          f-tags (mk-proj-tags params pkey)]
-			:when (and (seq f-name) (seq f-tags))]
-		(add-project {:entryname f-name
-					   	 :tags      f-tags
-					   	 :priority  (Integer/valueOf (get params (mk-tag pri-name pkey)))}))
-	(ring/redirect "/user/project"))
+		    :let [f-name (get params (utils/mk-tag txt-name pkey))
+		          f-tag  (mk-proj-tag params pkey)]
+			:when (and (seq f-name) (seq f-tag))]
+        (add-project (-> (create-entity f-name)
+                         (assoc :tag      f-tag
+                                :priority (->> (utils/mk-tag pri-name pkey) (get params) (Integer/valueOf))
+                                :finished nil
+                                :cleared  nil))))
+	(ring/redirect "/user/project/edit"))
 
 (defn unfinish-proj
 	[_ id]
 	(unfinish-project id)
-	(ring/redirect "/user/project"))
+	(ring/redirect "/user/project/edit"))
 
 (defn finish-proj
 	[_ id]
 	(finish-project id)
-	(ring/redirect "/user/project"))
+	(ring/redirect "/user/project/edit"))
 
 (defn clear-projs
 	[_]
 	(clear-projects)
-	(ring/redirect "/user/project"))
+	(ring/redirect "/user/project/edit"))

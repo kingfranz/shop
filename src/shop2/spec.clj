@@ -1,5 +1,5 @@
 (ns shop2.spec
-  	(:require [clj-time.core      :as t]
+    (:require [clj-time.core      :as t]
               [clj-time.local     :as l]
               [clj-time.coerce    :as c]
               [clj-time.format    :as f]
@@ -11,101 +11,105 @@
 ;;-----------------------------------------------------------------------------
 
 ; "242be596-a391-4405-a1c0-fa7c3a1aa5c9"
-(defonce uuid-regex
-	#"\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}")
+(defonce uuid-regex #"\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}")
+(defonce tag-name-regex #"[a-zA-ZåäöÅÄÖ0-9_-]+")
+(defonce lcname-regex #"[a-zåäö0-9]+")
+(defonce anti-lcname-regex #"[^a-zåäö0-9]+")
 
-(s/def :shop/string    		(and string? seq))
+(s/def :shop/string    		(s/and string? seq))
 (s/def :shop/strings   		(s/* :shop/string))
 (s/def :shop/date      		#(instance? org.joda.time.DateTime %))
 (s/def :shop/_id       		#(and (string? %) (re-matches uuid-regex %)))
 (s/def :shop/created   		:shop/date)
-(s/def :shop/entryname 		(and string? seq))
-(s/def :shop/entrynamelc 	(and string? seq))
-(s/def :shop/numof     		(and int? pos?))
+(s/def :shop/entryname 		:shop/string)
+(s/def :shop/entrynamelc 	#(and (string? %) (re-matches lcname-regex %)))
 (s/def :shop/parent    		(s/nilable :shop/_id))
-(s/def :list/parent    		(s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
-(s/def :list/kast    		boolean?)
-(s/def :shop/amount    		(s/nilable number?))
-(s/def :shop/unit      		(s/nilable string?))
-(s/def :shop/price     		(s/nilable number?))
-(s/def :shop/text      		(s/nilable string?))
-(s/def :menu/recipe    		(s/keys :req-un [:shop/_id :shop/entryname]))
-(s/def :recipe/item    		(s/keys :req-un [:shop/text] :opt-un [:shop/unit :shop/amount]))
-(s/def :recipe/items   		(s/* :recipe/item))
-(s/def :shop/priority  		(s/int-in 1 6))
 (s/def :shop/finished  		(s/nilable :shop/date))
 (s/def :shop/url       		(s/nilable string?))
-(s/def :shop/cleared   		(s/nilable :shop/date))
-(s/def :shop/std-keys  		(s/keys :req-un [:shop/_id :shop/created]))
-(s/def :shop/username  		:shop/string)
-(s/def :shop/roles     		(s/every keyword? :kind set?))
-(s/def :shop/password  		:shop/string)
-(s/def :shopuser/created 	:shop/string)
-(s/def :shopuser/properties (s/map-of keyword? map?))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/list*   (s/keys :req-un [:shop/entryname]
-							 :opt-un [:shop/items :list/parent :list/last]))
+(s/def :shop/tag   (s/keys :req-un [:shop/_id :shop/created
+                                    :tags/entryname :shop/entrynamelc
+                                    :shop/parent]))
+(s/def :shop/tags  (s/* :shop/tag))
 
-(s/def :shop/list    (s/merge :shop/list* :shop/std-keys))
-(s/def :shop/lists*  (s/* :shop/list*))
-(s/def :shop/lists   (s/* :shop/list))
+(s/def :tags/entryname #(and (string? %) (re-matches tag-name-regex %)))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/item*   (s/keys :req-un [:shop/entryname]
-							 :opt-un [:shop/tags
-                                      :shop/finished
-                                      :shop/numof :shop/url :shop/amount :shop/unit :shop/price
-                                      :shop/project
-							 		  :shop/parent]))
+(s/def :shop/list  (s/keys :req-un [:shop/_id :shop/created
+                                    :shop/entryname :shop/entrynamelc
+                                    :list/items :list/parent :list/last]))
+(s/def :shop/lists (s/* :shop/list))
 
-(s/def :shop/item    (s/merge :shop/item* :shop/std-keys :shop/entrynamelc))
-(s/def :shop/items*  (s/* :shop/item*))
+(s/def :list/item  (s/merge :shop/item (s/keys :req-un [:list/numof :shop/finished])))
+(s/def :list/items (s/* :list/item))
+(s/def :list/last  boolean?)
+(s/def :list/parent (s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
+(s/def :list/numof  (s/and int? pos?))
+
+;;-----------------------------------------------------------------------------
+
+(s/def :shop/item    (s/keys :req-un [:shop/_id :shop/created
+                                      :shop/entryname :shop/entrynamelc
+                                      :item/tag
+                                      :shop/url :item/price
+                                      :item/project
+                                      :shop/parent
+                                      :item/oneshot]))
 (s/def :shop/items   (s/* :shop/item))
 
+(s/def :item/oneshot  boolean?)
+(s/def :item/price    (s/nilable number?))
+(s/def :item/tag      (s/nilable :shop/tag))
+(s/def :item/project  (s/nilable :shop/project))
+
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/menu*     (s/keys :req-un [:shop/entryname :shop/date]
-							   :opt-un [:menu/recipe]))
+(s/def :shop/menu      (s/keys :req-un [:shop/_id :shop/created
+                                        :shop/entryname :shop/entrynamelc
+                                        :shop/date :menu/recipe]))
 
-(s/def :shop/menu      (s/merge :shop/menu* :shop/std-keys))
-(s/def :shop/menus*    (s/* :shop/menu*))
 (s/def :shop/menus     (s/* :shop/menu))
 (s/def :shop/fill-menu (s/keys :req-un [:shop/date]))
 (s/def :shop/x-menus   (s/+ (s/or :full :shop/menu :fill :shop/fill-menu)))
+(s/def :menu/recipe    (s/nilable (s/keys :req-un [:shop/_id :shop/entryname])))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/project*   (s/keys :req-un [:shop/entryname :shop/priority]
-						        :opt-un [:shop/finished :shop/tags :shop/cleared]))
+(s/def :shop/project    (s/keys :req-un [:shop/_id :shop/created
+                                         :shop/entryname :shop/entrynamelc
+                                         :project/priority :shop/finished :project/tag :project/cleared]))
 
-(s/def :shop/project    (s/merge :shop/project* :shop/std-keys))
-(s/def :shop/projects*  (s/* :shop/project*))
 (s/def :shop/projects   (s/* :shop/project))
 
+(s/def :project/priority (s/int-in 1 6))
+(s/def :project/cleared  (s/nilable :shop/date))
+(s/def :project/tag      (s/nilable :shop/tag))
+
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/recipe*  (s/keys :req-un [:shop/entryname]
-							  :opt-un [:recipe/items :shop/url :shop/text]))
-
-(s/def :shop/recipe   (s/merge :shop/recipe* :shop/std-keys :shop/entrynamelc))
-(s/def :shop/recipes* (s/* :shop/recipe*))
+(s/def :shop/recipe   (s/keys :req-un [:shop/_id :shop/created
+                                       :shop/entryname :shop/entrynamelc
+                                       :recipe/items :shop/url :recipe/text]))
 (s/def :shop/recipes  (s/* :shop/recipe))
 
-;;-----------------------------------------------------------------------------
-
-(s/def :shop/tag*  (s/keys :req-un [:shop/entryname]
-                           :opt-un [:shop/parent]))
-
-(s/def :shop/tag   (s/merge :shop/tag* :shop/std-keys :shop/entrynamelc))
-(s/def :shop/tags* (s/* :shop/tag*))
-(s/def :shop/tags  (s/* :shop/tag))
+(s/def :recipe/text   string?)
+(s/def :recipe/unit   string?)
+(s/def :recipe/amount string?)
+(s/def :recipe/item   (s/keys :req-un [:recipe/text :recipe/unit :recipe/amount]))
+(s/def :recipe/items  (s/* :recipe/item))
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/user    (s/keys :req-un [:shop/_id :shopuser/created
-									  :shop/username :shop/roles]
-							 :opt-un [:shopuser/properties]))
-(s/def :shop/user-db (s/merge :shop/user :shop/password))
+(s/def :shop/user    (s/keys :req-un [:shop/_id :user/created
+                                      :user/username :user/password
+                                      :user/roles :user/properties]))
+(s/def :shop/users   (s/* :shop/user))
+
+(s/def :user/username  	:shop/string)
+(s/def :user/roles     	(s/every keyword? :kind set?))
+(s/def :user/password   (s/nilable :shop/string))
+(s/def :user/properties (s/or :empty (s/and map? empty?) :full (s/map-of keyword? map?)))
+(s/def :user/created    (s/or :str string? :dt :shop/created))

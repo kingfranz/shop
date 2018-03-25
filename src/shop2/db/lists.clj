@@ -21,6 +21,7 @@
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.items :refer :all]
+                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
@@ -30,22 +31,22 @@
     [listid]
     {:pre [(utils/valid? :shop/_id listid)]
      :post [(utils/valid? :shop/list %)]}
-    (mc-find-one-as-map "get-list" lists {:_id listid}))
+    (conform-list (mc-find-one-as-map "get-list" lists {:_id listid})))
 
 (defn get-list-by-name
     [list-name]
     {:pre [(utils/valid? :shop/string list-name)]
      :post [(utils/valid? :shop/list %)]}
-    (mc-find-one-as-map "get-list" lists {:entryname list-name}))
+    (conform-list (mc-find-one-as-map "get-list" lists {:entryname list-name})))
 
 (defn get-lists
 	[]
 	{:post [(utils/valid? :shop/lists %)]}
-	(mc-find-maps "get-lists" lists))
+    (map conform-list (mc-find-maps "get-lists" lists)))
 
 (defn get-list-names
 	[]
-	{:post [(utils/valid? :shop/strings %)]}
+    {:post [(utils/valid? (s/* (s/keys :req-un [:shop/_id :shop/entryname])) %)]}
 	(mc-find-maps "get-list-names" lists {} {:_id true :entryname true}))
 
 (defn get-top-list
@@ -59,13 +60,13 @@
 (defn get-top-lists
 	[]
 	{:post [(utils/valid? :shop/lists %)]}
-	(mc-find-maps "get-top-lists" lists {:parent nil}))
+    (map conform-list (mc-find-maps "get-top-lists" lists {:parent nil})))
 
 (defn get-sub-lists
 	[listid]
 	{:pre [(utils/valid? :shop/_id listid)]
 	 :post [(utils/valid? :shop/lists %)]}
-	(mc-find-maps "get-sub-lists" lists {:parent._id listid}))
+    (map conform-list (mc-find-maps "get-sub-lists" lists {:parent._id listid})))
 
 (defn get-lists-dd
     []
@@ -85,17 +86,15 @@
 
 (defn add-list
 	[entry]
-	{:pre [(utils/valid? :shop/list* entry)]
+	{:pre [(utils/valid? :shop/list entry)]
 	 :post [(utils/valid? :shop/list %)]}
-	(let [entry* (merge entry (mk-std-field))]
-		(mc-insert "add-list" lists entry*)
-		entry*))
+	(mc-insert "add-list" lists entry)
+    entry)
 
 (defn update-list
 	[entry]
-	{:pre [(utils/valid? :shop/list* entry)]}
-	(mc-update-by-id "update-list" lists (:_id entry)
-		{$set (select-keys entry [:entryname :parent :last])}))
+	{:pre [(utils/valid? :shop/list entry)]}
+	(mc-replace-by-id "update-list" lists entry))
 
 (defn delete-list
 	[list-id]
@@ -177,7 +176,7 @@
 	[e-name]
 	{:pre [(utils/valid? :shop/string e-name)]
 	 :post [(utils/valid? :shop/list %)]}
-	(mc-find-one-as-map "find-list-by-name" lists {:entryname e-name}))
+    (conform-list (mc-find-one-as-map "find-list-by-name" lists {:entryname e-name})))
 
 (defn list-item+
     [list-id item-id]
@@ -226,5 +225,5 @@
 		(do
 			(add-item-usage list-id item-id :add-to 1)
 			(mc-update-by-id "item->list" lists list-id
-				{$addToSet {:items (assoc (get-item item-id) :numof 1)}}))))
+				{$addToSet {:items (assoc (get-item item-id) :numof 1 :finished nil)}}))))
 

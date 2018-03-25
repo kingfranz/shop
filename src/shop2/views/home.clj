@@ -1,6 +1,7 @@
 (ns shop2.views.home
   	(:require 	[shop2.extra :refer :all]
                  [shop2.db :refer :all]
+                 [shop2.db.user :refer :all]
                  [shop2.db.lists 			:refer :all]
                  [shop2.views.layout :refer :all]
                  [shop2.views.common       	:refer :all]
@@ -10,9 +11,6 @@
                  [shop2.db.menus 			:refer :all]
                  [shop2.db.projects 		:refer :all]
                  [shop2.db.recipes 		:refer :all]
-                 [cemerick.friend :as friend]
-                 [cemerick.friend.workflows :as workflows]
-                 [cemerick.friend.credentials 	:as creds]
                  [slingshot.slingshot :refer [throw+ try+]]
                  [clj-time.core :as t]
                  [clj-time.local :as l]
@@ -101,9 +99,8 @@
 	[menu]
 	; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
 	[:tr
-		[:td.menu-date-td (hf/label {:class "menu-date"} :x
-						  (menu-date-short menu))]
-		[:td [:div.menu-txt (hf/label {:class "home-margin"} :x (:entryname menu))]]])
+		[:td.menu-date-td [:label.menu-date (menu-date-short menu)]]
+		[:td [:div.menu-txt [:label.home-margin (:entryname menu)]]]])
 
 (defn- menu-list
 	[]
@@ -114,17 +111,11 @@
 	[r]
  	[:tr
 		[:td.proj-pri
-			(hf/label
-				{:class "home-margin"} :dummy
-				(str (:priority r)))]
+			[:label.home-margin (str (:priority r))]]
 		[:td
-			(hf/label
-				{:class "home-margin clip"} :dummy
-				(:entryname r))]
+			[:label.home-margin.clip (:entryname r)]]
 		[:td.r-align
-			(hf/label
-				{:class "proj-tags"} :dummy
-				(frmt-tags (:tags r)))]
+			[:label.proj-tags (:tag r)]]
   	])
 
 (defn- projekt-list

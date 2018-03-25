@@ -37,9 +37,9 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn mk-tags-row
-	[tags]
-	[:tr [:td.tags-row {:colspan 3} tags]])
+(defn mk-tag-row
+	[tag]
+	[:tr [:td.tags-row {:colspan 3} tag]])
 
 (defn mk-name
 	[item]
@@ -53,14 +53,6 @@
 		{:href (str (if active? "/user/list/done/" "/user/list/undo/") (:_id a-list) "/" (:_id item))}
 		text])
 
-(defn imenu
-	[item]
-	(get-in item [:menu :entryname]))
-
-(defn ilink
-	[item]
-	(get item :url))
-
 (defn mk-item-row*
 	[a-list item active?]
 	(list
@@ -70,18 +62,9 @@
 				[:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
 			[:td
 				[:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
-			(cond
-				(and (imenu item) (ilink item)) (list
-					[:td.item-menu-td
-						[:a.item-text {:href "/user/menu"} "Meny"]]
-					[:td.item-menu-td
-						[:a.item-text {:href (ilink item) :target "_blank"} "Link"]])
-				(imenu item)
-					[:td.item-menu-td
-						[:a.item-text {:href "/user/menu"} "Meny"]]
-				(ilink item)
-					[:td.item-menu-td
-						[:a.item-text {:href (ilink item) :target "_blank"} "Link"]])))))
+			(when-not (str/blank? (:url item))
+				[:td.item-menu-td
+					[:a.item-text {:href (:url item) :target "_blank"} "Link"]])))))
 
 (defn mk-item-row
 	[a-list item active?]
@@ -91,21 +74,20 @@
 
 (defn- sort-items
   	[item-list]
-   	(let [items-by-tag (group-by #(frmt-tags (:tags %)) item-list)
-          tags (sort (keys items-by-tag))]
-      	(map #(hash-map :tag % :items (sort-by :entrynamelc (get items-by-tag %))) tags)))
+    (->> item-list
+         (group-by #(get-in % [:tag :entryname]))
+         (into (sorted-map))
+         seq))
 
 (defn mk-items
 	[a-list row-type]
-	(let [filter-func (if (= row-type :active)
-		                  (fn [i] (nil? (:finished i)))
-		                  (fn [i] (some? (:finished i))))
-		  item-list   (filter filter-func (:items a-list))]
-		(for [{tags :tag items :items} (sort-items item-list)
-	    	:when (seq items)]
+	(let [item-list (if (= row-type :active)
+                        (remove #(:finished %) (:items a-list))
+                        (filter #(:finished %) (:items a-list)))]
+		(for [[tag items] (sort-items item-list)]
     		(list
-    			(mk-tags-row tags)
-	    		(for [item items]
+    			(mk-tag-row tag)
+	    		(for [item (sort-by :entrynamelc items)]
 	    			(mk-item-row a-list item (= row-type :active)))))))
 	
 (defn mk-list-tbl
@@ -118,8 +100,7 @@
     				[:tr
     					[:th.align-l (home-button)]
     					[:th.list-name-th
-    						(hf/label {:class "list-name"} :xxx
-    							(:entryname a-list))]
+    						[:label.list-name (:entryname a-list)]]
     					[:th.align-r
     						[:a.link-flex {:href (str "/user/item/add/" (:_id a-list))} "+"]]]]]]
     	; rows with not-done items
@@ -139,7 +120,7 @@
 
 (defn show-list-page
     [request list-id]
-	(common-refresh request (:entryname (get-list list-id)) [css-lists]
+    (common-refresh request (:entryname (get-list list-id)) [css-lists]
     	(loop [listid  list-id
                base-id list-id
 			   acc     []]

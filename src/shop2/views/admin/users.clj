@@ -1,6 +1,7 @@
 (ns shop2.views.admin.users
     (:require [shop2.extra :refer :all]
               [shop2.db :refer :all]
+              [shop2.db.user :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]

@@ -155,6 +155,12 @@
               (cc/GET "/renew" request
                   (renew-password request))
 
+              (cc/GET "/copy" request
+                  (copy-password request))
+
+              (cc/GET "/update" request
+                  (update-db-now))
+
               ;---------------------------------------------
               ; users
               (cc/context "/user" []

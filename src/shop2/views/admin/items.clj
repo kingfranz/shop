@@ -43,49 +43,51 @@
     (named-div "Information"
                [:table.group
                 [:tr
-                 [:td.item-info-th [:label "Parent"]]
-                 [:td (mk-list-dd (:parent item) :parent "item-info")]]
-                [:tr
                  [:td.item-info-th [:label "Namn"]]
                  [:td (hf/text-field {:class "item-info"} :entryname (:entryname item))]]
-                [:tr
-                 [:td.item-info-th [:label "Enhet"]]
-                 [:td (hf/text-field {:class "item-info"} :unit (:unit item))]]
-                [:tr
-                 [:td.item-info-th [:label "Mängd"]]
-                 [:td (hf/text-field {:class "item-info"} :amount (:amount item))]]
                 [:tr
                  [:td.item-info-th [:label "Pris"]]
                  [:td (hf/text-field {:class "item-info"} :price (:price item))]]
                 [:tr
                  [:td.item-info-th [:label "URL"]]
                  [:td (hf/text-field {:class "item-info"} :url (:url item))]]
+                [:tr
+                 [:td.item-info-th [:label "Parent"]]
+                 [:td (mk-list-dd (:parent item) :parent "item-info")]]
+                [:tr
+                 [:td.new-item-td "Project:"]
+                 [:td.url-td (mk-project-dd nil :project "new-item-txt")]]
+                [:tr
+                 [:td.new-item-td "One Shot:"]
+                 [:td.url-td (hf/check-box :one-shot "new-cb")]]
                 ]))
 
 ;;-----------------------------------------------------------------------------
 
 (defn- extract-id
     [params]
-    (if (or (str/blank? (:_id params))
-            (not (item-id-exists? (:_id params))))
-        (throw+ (ex-info "invalid id" {:type :input}))
-        (:_id params)))
+    (when-not (item-id-exists? (:_id params))
+        (throw+ (ex-info "invalid id" {:type :input})))
+    (:_id params))
 
 (defn- extract-name
     [params]
-    (if (str/blank? (:entryname params))
-        (throw+ (ex-info "invalid name" {:type :input}))
-        (:entryname params)))
+    (when (str/blank? (:entryname params))
+        (throw+ (ex-info "invalid name" {:type :input})))
+    (:entryname params))
 
 (defn- extract-parent
     [params]
-    (when (str/blank? (:parent params))
-        (throw+ (ex-info "invalid parent" {:type :input})))
-    (when-not (= (:parent params) top-lvl-name)
-        (if-let [found (utils/find-first #(= (:entryname %) (:parent params))
-                                         (get-list-names))]
-            (:_id found)
-            (throw+ (ex-info "invalid parent" {:type :input})))))
+    (when-not (= (:parent params) no-id)
+        (when-not (list-id-exists? (:parent params))
+            (throw+ (ex-info "invalid parent" {:type :input})))
+        (:parent params)))
+
+(defn- extract-project
+    [params]
+    (when-not (= (:project params) no-id)
+        (or (get-project (:project params))
+            (throw+ (ex-info "invalid project" {:type :input})))))
 
 (defn- extract-str
     [tag params]
@@ -114,22 +116,20 @@
                     [:div
                      (info-part item)
                      (named-div "Ny kategori:" (hf/text-field {:class "item-info"} :new-tag))
-                     (tags-tbl (when (= (count (:tags item)) 1) (:tags item)))]
+                     (tags-tbl (:tag item))]
                     ))))
 
 (defn edit-item!
     [{params :params}]
-    ;(println "edit-item!")
-    (update-item {
-                  :_id       (extract-id params)
-                  :entryname (extract-name params)
-                  :parent    (extract-parent params)
-                  :unit      (extract-str :unit params)
-                  :amount    (extract-num :amount params)
-                  :price     (extract-num :price params)
-                  :url       (extract-str :url params)
-                  :tags      (extract-tags params)})
-    ;(println "->" (str "/admin/item/edit/" (extract-id params)))
+    (update-item (-> (extract-id params)
+                     (get-item)
+                     (set-name (extract-name params))
+                     (assoc :parent  (extract-parent params)
+                            :project (extract-project params)
+                            :oneshot (or (:oneshot params) false)
+                            :price   (extract-num :price params)
+                            :url     (extract-str :url params)
+                            :tag     (extract-tag params))))
     (ring/redirect (str "/admin/item/edit/" (extract-id params))))
 
 ;;-----------------------------------------------------------------------------
@@ -155,13 +155,13 @@
 
 (defn new-item!
     [{params :params}]
-    (add-item {:entryname (extract-name params)
-               :parent    (extract-parent params)
-               :unit      (extract-str :unit params)
-               :amount    (extract-num :amount params)
-               :price     (extract-num :price params)
-               :url       (extract-str :url params)
-               :tags      (extract-tags params)}))
+    (add-item (assoc (create-entity (extract-name params))
+               :parent  (extract-parent params)
+               :project (extract-project params)
+               :oneshot (or (:oneshot params) false)
+               :price   (extract-num :price params)
+               :url     (extract-str :url params)
+               :tag     (extract-tag params))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -174,9 +174,7 @@
 
 (defn- item-tag
     [item]
-    (when-not (or (empty? (:tags item))
-                  (> (count (:tags item)) 1))
-        (-> item :tags first :_id)))
+    (some-> item :tag :_id))
 
 (defn bulk-edit-items
     [request]
@@ -193,6 +191,7 @@
                   [:th.width-400px [:label.fz24.width-100p "Name"]]
                   [:th.width-200px [:label.fz24.width-100p "Tags"]]
                   [:th.width-200px [:label.fz24.width-100p "Parent"]]
+                  [:th.width-200px [:label.fz24.width-100p "Project"]]
                   ]
                  (for [item (->> (get-items) (sort-by :entrynamelc))]
                      [:tr
@@ -209,7 +208,14 @@
                                      (get-tags-dd)
                                      (item-tag item))]
                       [:td.width-200px
-                       (mk-list-dd (:parent item) (utils/mk-tag (:_id item) "parent") "fz24 width-100p")]])])))
+                       (mk-list-dd (:parent item)
+                                   (utils/mk-tag (:_id item) "parent")
+                                   "fz24 width-100p")]
+                      [:td.width-200px
+                       (mk-project-dd (:project item)
+                                      (utils/mk-tag (:_id item) "project")
+                                      "fz24 width-100p")]
+                      ])])))
 
 (defn bulk-edit-items!
     [{params :params}]
@@ -217,16 +223,23 @@
             :let [do-del (get params (utils/mk-tag (:_id item) "delete"))
                   iname (get params (utils/mk-tag (:_id item) "name"))
                   tag (get params (utils/mk-tag (:_id item) "tag"))
-                  parent (get params (utils/mk-tag (:_id item) "parent"))]
+                  parent (get params (utils/mk-tag (:_id item) "parent"))
+                  project (get params (utils/mk-tag (:_id item) "project"))
+                  ]
             :when (or do-del
                       (not= iname (:entryname item))
                       (not= tag (item-tag item))
-                      (not= parent (:parent item)))]
+                      (not= parent (:parent item))
+                      (not= project (:project item))
+                      )]
         (if do-del
             (delete-item (:_id item))
-            (update-item (assoc item :entryname iname
-                                     :tags (if (= tag no-id) [] [(get-tag tag)])
-                                     :parent (when-not (= parent no-id) parent)))))
+            (update-item (-> item
+                             (set-name iname)
+                             (assoc :tag (when-not (= tag no-id) (get-tag tag))
+                                    :parent (when-not (= parent no-id) parent)
+                                    :project (when-not (= project no-id) (get-project project))
+                                    )))))
     (ring/redirect "/admin/"))
 
 ;;-----------------------------------------------------------------------------

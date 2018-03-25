@@ -1,5 +1,6 @@
 (ns shop2.core
     (:require [shop2.db :refer :all]
+              [shop2.db.user :refer :all]
               [shop2.controllers.routes :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.session-store :refer :all]
@@ -51,11 +52,16 @@
 		(try+
             ;(println "wrap!")
 			(handler request)
+            (catch [:type :conform-error] {:keys [msg spec obj]}
+                (println "## Conformer Exception:" spec "\n" obj)
+                (log/fatal msg)
+                ;(error-page request e)
+                )
             (catch Throwable e
                 (println "## Exception:" (.getMessage e) e)
                 (log/fatal e)
-                ;(error-page request e)
-                {:status 400 :body "## EXCEPTION ##"}
+                (error-page request e)
+                ;{:status 400 :body "## EXCEPTION ##"}
                 ))))
 
 (defn unauth-handler
@@ -70,7 +76,7 @@
         ;(println "cred2:" creds)
         (let [password-key (or (-> creds meta ::password-key) :password)]
             (when (= password (get creds password-key))
-                (dissoc creds password-key)))))
+                (assoc creds password-key nil)))))
 
 (defn ring-spy
     [handler]
@@ -88,9 +94,10 @@
     (fn [^Exception e data request]
         (f {:message (.getMessage e), :type type})))
 
-(defn -main [& args] ;; entry point, lein run will pick up and start from here
+;; entry point, lein run will pick up and start from here
+(defn -main
+    [& args]
 	(-> all-routes
-        (wrap-fallback-exception)
         (wrap-anti-forgery)
         (friend/authenticate {
                               :unauthorized-handler unauth-handler
@@ -98,12 +105,14 @@
                               :workflows            [(workflows/interactive-form)]})
         ;ring-spy
         ;(rmd/wrap-defaults ring-default)
+        (ring-spy)
         (wrap-session {:store (->ShopStore )})
         (wrap-keyword-params)
         (wrap-params)
         (wrap-cookies)
-        (wrap-with-logger)
+        ;(wrap-with-logger)
         ;(wrap-with-body-logger)
+        (wrap-fallback-exception)
         (run-server {:port 3000})
         ))
 

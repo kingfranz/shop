@@ -20,6 +20,7 @@
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
+                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
@@ -32,49 +33,28 @@
 (defn get-recipes
 	[]
 	{:post [(utils/valid? :shop/recipes %)]}
-	(mc-find-maps "get-recipes" recipes))
+    (map conform-recipe (mc-find-maps "get-recipes" recipes)))
 
 (defn get-recipe
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/recipe %)]}
-	(mc-find-one-as-map "get-recipe" recipes {:_id id}))
+    (conform-recipe (mc-find-one-as-map "get-recipe" recipes {:_id id})))
 
 (defn add-recipe
 	[entry]
-	{:pre [(utils/valid? :shop/recipe* entry)]
+	{:pre [(utils/valid? :shop/recipe entry)]
 	 :post [(utils/valid? :shop/recipe %)]}
-	(add-tags (:tags entry))
-	(let [entrynamelc (mk-enlc (:entryname entry))
-		  db-entry (get-by-enlc recipes entrynamelc)
-		  entry* (-> entry
-		  			 (merge {:entrynamelc entrynamelc} (mk-std-field))
-		  			 (update :entryname str/trim))]
-		(if (some? db-entry)
-			db-entry
-			(do
-				(mc-insert "add-recipe" recipes entry*)
-				entry*))))
+	(mc-insert "add-recipe" recipes entry)
+	entry)
 
 (defn update-recipe
-	[recipe*]
-	{:pre [(utils/valid? :shop/recipe* recipe*)]}
-	(let [entrynamelc (mk-enlc (:entryname recipe*))
-		  recipe (-> recipe*
-		  			 (assoc :entrynamelc entrynamelc)
-		  			 (update :entryname str/trim))
-		  db-entry (get-by-enlc recipes entrynamelc)]
-		(if (some? db-entry)
-			(if (= (:_id db-entry) (:_id recipe))
-				(mc-update-by-id "update-recipe" recipes (:_id recipe)
-					{$set (select-keys recipe [:url :items :text])})
-				(throw+ (ex-info "duplicate name" {:cause "dup"})))
-			(do
-				(mc-update-by-id "update-recipe" recipes (:_id recipe)
-					{$set (select-keys recipe [:entryname :entrynamelc :url :items :text])})
-				; now update the recipe in menus
-				(mc-update "update-recipe" menus {:recipe._id (:_id recipe)}
-					{$set {:recipe (select-keys recipe [:_id :entryname])}}
-					{:multi true})))
-		recipe))
+	[recipe]
+	{:pre [(utils/valid? :shop/recipe recipe)]}
+	(mc-replace-by-id "update-recipe" recipes recipe)
+    ; now update the recipe in menus
+	(mc-update "update-recipe" menus {:recipe._id (:_id recipe)}
+               {$set {:recipe (select-keys recipe [:_id :entryname])}}
+               {:multi true})
+    recipe)
 

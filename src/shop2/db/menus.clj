@@ -20,6 +20,7 @@
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.recipes :refer :all]
+                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
@@ -31,17 +32,14 @@
 
 (defn add-menu
 	[entry]
-	{:pre [(utils/valid? :shop/menu* entry)]
-	 :post [(utils/valid? :shop/menu %)]}
-	(let [entry* (merge entry (mk-std-field))]
-		(mc-insert "add-menu" menus entry*)
-		entry*))
+	{:pre [(utils/valid? :shop/menu entry)]}
+	(mc-insert "add-menu" menus entry)
+	entry)
 
 (defn update-menu
 	[entry]
 	{:pre [(utils/valid? :shop/menu entry)]}
-	(mc-update-by-id "update-menu" menus (:_id entry)
-		{$set (select-keys entry [:entryname :date :tags :recipe])} {:upsert true}))
+	(mc-replace-by-id "update-menu" menus entry))
 
 (defn add-recipe-to-menu
 	[menu-dt recipe-id]
@@ -56,12 +54,20 @@
 	(mc-update "remove-recipe-from-menu" menus {:date menu-dt} {$unset {:recipe nil}}))
 
 (defn get-menus
-	[from to]
-	{:pre [(utils/valid? :shop/date from) (utils/valid? :shop/date to)]
-	 :post [(utils/valid? :shop/x-menus %)]}
-	(let [db-menus* (mc-find-maps "get-menus" menus {:date {$gte from $lt to}})
-		  db-menus  (map fix-date db-menus*)
-		  new-menus (set/difference (set (time-range from to (t/days 1)))
-		  	                        (set (map :date db-menus)))]
-		(sort-by :date (concat db-menus (map (fn [dt] {:date dt}) new-menus)))))
+    [from to]
+    {:pre [(utils/valid? :shop/date from) (utils/valid? :shop/date to)]
+     :post [(utils/valid? :shop/x-menus %)]}
+    (let [db-menus (->> (mc-find-maps "get-menus" menus {:date {$gte from $lt to}})
+                        (map conform-menu)
+                        (map fix-date))
+          new-menus (set/difference (set (time-range from to (t/days 1)))
+                                    (set (map :date db-menus)))]
+        (sort-by :date (concat db-menus (map (fn [dt] {:date dt}) new-menus)))))
+
+(defn get-db-menus
+    []
+    {:post [(utils/valid? :shop/menus %)]}
+    (->> (mc-find-maps "get-db-menus" menus)
+         (map conform-menu)
+         (map fix-date)))
 
