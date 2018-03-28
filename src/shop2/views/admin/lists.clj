@@ -11,29 +11,12 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
-              [garden.core :as g]
-              [garden.units :as u]
-              [garden.selectors :as sel]
-              [garden.stylesheet :as ss]
-              [garden.color :as color]
-              [garden.arithmetic :as ga]
-              [hiccup.core :as h]
-              [hiccup.def :as hd]
-              [hiccup.element :as he]
               [hiccup.form :as hf]
-              [hiccup.page :as hp]
-              [hiccup.util :as hu]
               [ring.util.anti-forgery :as ruaf]
               [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.spec.alpha :as s]
-              [clojure.string :as str]
-              [clojure.set :as set]))
+              [clojure.string :as str]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -61,10 +44,9 @@
 (defn new-list!
     [{params :params}]
     (if (seq (:entryname params))
-        (add-list (-> (create-entity (:entryname params))
-                      (assoc :items  []
-                             :parent (mk-parent-map params)
-                             :last   (some? (:low-prio params)))))
+        (add-list (create-list-obj (:entryname params)
+                                   (mk-parent-map params)
+                                   (some? (:low-prio params))))
         (throw+ (Exception. "list name is blank")))
     (ring/redirect "/admin"))
 
@@ -92,7 +74,7 @@
                       [:td.item-info-th
                        [:label "Överornad lista:"]]
                       [:td.item-info-th
-                       (mk-list-dd (:parent a-list) :parent "tags-head")]]
+                       (mk-list-dd (some-> a-list :parent :_id) :parent "tags-head")]]
                      [:tr
                       [:td.item-info-th
                        [:label "Lågprioriterad lista?"]]

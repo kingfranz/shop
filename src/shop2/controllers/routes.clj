@@ -1,7 +1,5 @@
 (ns shop2.controllers.routes
-    (:require [clojure.string :as str]
-              [clojure.pprint :as pp]
-              [ring.util.response :as ring]
+    (:require [ring.util.response :as ring]
               [slingshot.slingshot :refer [throw+ try+]]
               [compojure.core :as cc]
               [cemerick.friend :as friend]

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module cursive.leiningen.project.LeiningenProjectsManager.displayName="shop2:1.0.0" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="WEB_MODULE" version="4">
+<module cursive.leiningen.project.LeiningenProjectsManager.displayName="shop2:1.2.0" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/target/default/classes" />
     <output-test url="file://$MODULE_DIR$/target/default/classes" />
@@ -50,6 +50,7 @@
     <orderEntry type="library" name="Leiningen: metosin/ring-http-response:0.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.jcip/jcip-annotations:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.sourceforge.nekohtml/nekohtml:1.9.10" level="project" />
+    <orderEntry type="library" name="Leiningen: orchestra:2017.11.12-1" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpclient:4.3.5" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpcore:4.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojars.gjahad/debug-repl:0.3.3" level="project" />

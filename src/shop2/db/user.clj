@@ -30,7 +30,7 @@
     [uname]
     {:pre [(utils/valid? :user/username uname)]
      :post [(utils/valid? (s/nilable :shop/user) %)]}
-    (some-> (mc-find-one-as-map "get-user" users
+    (some-> (mc-find-one-as-map "get-user" "users"
                  {:username {$regex (str "^" (str/trim uname) "$") $options "i"}})
             (fix-user)
             (conform-user)))
@@ -41,7 +41,7 @@
     [uid]
     {:pre [(utils/valid? :shop/_id uid)]
      :post [(utils/valid? (s/nilable :shop/user) %)]}
-    (some-> (mc-find-map-by-id "get-user-by-id" users uid)
+    (some-> (mc-find-map-by-id "get-user-by-id" "users" uid)
             (fix-user)
             (conform-user)))
 
@@ -50,7 +50,7 @@
 (defn get-users
     []
     {:post [(utils/valid? (s/* :shop/user) %)]}
-    (some->> (mc-find-maps "get-user" users {})
+    (some->> (mc-find-maps "get-user" "users" {})
              (map fix-user)
              (map conform-user)))
 
@@ -87,12 +87,12 @@
                        ;:password (creds/hash-bcrypt (verify-passwd passwd))
                        :password (verify-passwd passwd)
                        :roles    roles} (mk-std-field))]
-        (mc-insert "create-user" users user)
+        (mc-insert "create-user" "users" user)
         user))
 
 (defn delete-user
     [userid]
-    (mc-remove-by-id "delete-user" users userid))
+    (mc-remove-by-id "delete-user" "users" userid))
 
 ;;-----------------------------------------------------------------------------
 
@@ -100,13 +100,13 @@
     [uid name]
     {:pre [(utils/valid? :shop/_id uid)
            (utils/valid? :shop/string name)]}
-    (mc-update-by-id "set-user-name" users uid {$set {:username name}}))
+    (mc-update-by-id "set-user-name" "users" uid {$set {:username name}}))
 
 (defn set-user-password
     [uid passwd]
     {:pre [(utils/valid? :shop/_id uid)
            (utils/valid? :shop/password passwd)]}
-    (mc-update-by-id "set-user-password" users uid
+    (mc-update-by-id "set-user-password" "users" uid
                      {$set {:password passwd}}))
 ; {$set {:password (creds/hash-bcrypt (verify-passwd passwd))}}))
 
@@ -116,7 +116,7 @@
     [uid roles]
     {:pre [(utils/valid? :shop/_id uid)
            (utils/valid? :shop/roles roles)]}
-    (mc-update-by-id "set-user-roles" users uid {$set {:roles roles}}))
+    (mc-update-by-id "set-user-roles" "users" uid {$set {:roles roles}}))
 
 ;;-----------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@
            (utils/valid? keyword? prop-key)
            (utils/valid? map? prop-val)]}
     (let [props (:properties (get-user-by-id uid))]
-        (mc-update-by-id "set-user-property" users uid
+        (mc-update-by-id "set-user-property" "users" uid
                          {$set {:properties (assoc props prop-key prop-val)}})))
 
 ;;-----------------------------------------------------------------------------
@@ -134,4 +134,4 @@
 (defn update-user
     [user]
     {:pre [(utils/valid? :shop/user user)]}
-    (mc-replace-by-id "update-user" users user))
+    (mc-replace-by-id "update-user" "users" user))

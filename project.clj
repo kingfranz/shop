@@ -1,4 +1,4 @@
-(defproject shop2 "1.0.0"
+(defproject shop2 "1.2.0"
     :description "Shopping list"
     :url "http://soahojen.se"
     :license {:name "Eclipse Public License"
@@ -9,6 +9,7 @@
                    [ring/ring-core "1.6.3"]
                    [org.clojars.kingfranz/utils "0.2.5"]
                    [org.clojure/spec.alpha "0.1.143"]
+                   [orchestra "2017.11.12-1"]
                    [http-kit "2.2.0"]
                    [ring/ring-json "0.4.0"]
                    [ring-logger-timbre "0.7.6"]
@@ -27,6 +28,7 @@
                    [com.taoensso/timbre "4.10.0"]
                    [compojure "1.6.0"]]
     :main shop2.core
+    :aot [shop2.core]
     ;:main ^:skip-aot shop2.core
     :uberjar-name "shopping.latest.jar"
     :target-path "target/%s"

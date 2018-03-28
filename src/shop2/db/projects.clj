@@ -27,15 +27,23 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn create-project-obj
+    [pname tag priority]
+    (-> (create-entity pname)
+        (assoc :tag tag
+               :priority priority
+               :finished nil
+               :cleared nil)))
+
 (defn get-projects
     []
     {:post [(utils/valid? :shop/projects %)]}
-    (map conform-project (mc-find-maps "get-projects" projects {:cleared nil})))
+    (map conform-project (mc-find-maps "get-projects" "projects" {:cleared nil})))
 
 (defn get-db-projects
     []
     {:post [(utils/valid? :shop/projects %)]}
-    (map conform-project (mc-find-maps "get-projects" projects)))
+    (map conform-project (mc-find-maps "get-projects" "projects")))
 
 (defn- proj-comp
     [p1 p2]
@@ -45,7 +53,7 @@
 
 (defn get-active-projects
 	[]
-	(->> (mc-find-maps "get-active-projects" projects {:finished nil})
+	(->> (mc-find-maps "get-active-projects" "projects" {:finished nil})
          (map conform-project)
 		 (sort-by identity proj-comp)))
 
@@ -53,7 +61,7 @@
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/project %)]}
-    (conform-project (mc-find-one-as-map "get-project" projects {:_id id})))
+    (conform-project (mc-find-one-as-map "get-project" "projects" {:_id id})))
 
 (defn get-project-dd
     []
@@ -71,27 +79,27 @@
 	 :post [(utils/valid? :shop/project %)]}
     (when (some? (:tag entry))
         (add-tag (-> entry :tag :entryname)))
-	(mc-insert "add-project" projects entry)
+	(mc-insert "add-project" "projects" entry)
 	entry)
 
 (defn finish-project
 	[project-id]
 	{:pre [(utils/valid? :shop/_id project-id)]}
-	(mc-update-by-id "finish-project" projects project-id {$set {:finished (l/local-now)}}))
+	(mc-update-by-id "finish-project" "projects" project-id {$set {:finished (l/local-now)}}))
 
 (defn unfinish-project
 	[project-id]
 	{:pre [(utils/valid? :shop/_id project-id)]}
-	(mc-update-by-id "unfinish-project" projects project-id {$set {:finished nil}}))
+	(mc-update-by-id "unfinish-project" "projects" project-id {$set {:finished nil}}))
 
 (defn update-project
 	[proj]
 	{:pre [(utils/valid? :shop/project proj)]}
-	(mc-replace-by-id "update-project" projects proj))
+	(mc-replace-by-id "update-project" "projects" proj))
 
 (defn clear-projects
 	[]
-	(mc-update clear-projects projects
+	(mc-update clear-projects "projects"
 		{:finished {$type "date"}}
 		{$set {:cleared (l/local-now)}}
 		{:multi true}))

@@ -1,206 +1,186 @@
 (ns shop2.db.lists
-	(:require 	[clj-time.core :as t]
-                 [clj-time.local :as l]
-                 [clj-time.coerce :as c]
-                 [clj-time.format :as f]
-                 [clj-time.periodic :as p]
-                 [slingshot.slingshot :refer [throw+ try+]]
-                 [clojure.spec.alpha :as s]
-                 [clojure.string :as str]
-                 [clojure.set :as set]
-                 [clojure.pprint :as pp]
-                 [clojure.spec.alpha :as s]
-                 [cheshire.core :refer :all]
-                 [hiccup.form :as hf]
-                 [taoensso.timbre :as log]
-                 [monger.core :as mg]
-                 [monger.credentials :as mcr]
-                 [monger.collection :as mc]
-                 [monger.joda-time :as jt]
-                 [monger.operators :refer :all]
-                 [shop2.extra :refer :all]
-                 [shop2.db :refer :all]
-                 [shop2.db.items :refer :all]
-                 [shop2.conformer :refer :all]
-                 [utils.core :as utils]
-            ))
+    (:require 	 [shop2.extra :refer :all]
+                  [shop2.db :refer :all]
+                  [shop2.db.items :refer :all]
+                  [shop2.conformer :refer :all]
+                  [clj-time.local :as l]
+                  [slingshot.slingshot :refer [throw+ try+]]
+                  [clojure.spec.alpha :as s]
+                  [orchestra.core :refer [defn-spec]]
+                  [orchestra.spec.test :as st]
+                  [cheshire.core :refer :all]
+                  [hiccup.form :as hf]
+                  [taoensso.timbre :as log]
+                  [monger.operators :refer :all]
+                  [utils.core :as utils]
+                  ))
 
 ;;-----------------------------------------------------------------------------
 
-(defn get-list
-    [listid]
-    {:pre [(utils/valid? :shop/_id listid)]
-     :post [(utils/valid? :shop/list %)]}
-    (conform-list (mc-find-one-as-map "get-list" lists {:_id listid})))
+(defn-spec create-list-obj :shop/list
+           [lst-name :shop/entryname, parent :shop/parent, last? boolean?]
+           (-> (create-entity lst-name)
+               (assoc :items  []
+                      :parent parent
+                      :last   last?)))
 
-(defn get-list-by-name
-    [list-name]
-    {:pre [(utils/valid? :shop/string list-name)]
-     :post [(utils/valid? :shop/list %)]}
-    (conform-list (mc-find-one-as-map "get-list" lists {:entryname list-name})))
+(defn-spec get-list :shop/list
+           [listid :shop/_id]
+           (mc-find-one-as-map "get-list" "lists" {:_id listid}))
 
-(defn get-lists
-	[]
-	{:post [(utils/valid? :shop/lists %)]}
-    (map conform-list (mc-find-maps "get-lists" lists)))
+(defn-spec get-list-by-name :shop/list
+           [list-name :shop/entryname]
+           (mc-find-one-as-map "get-list" "lists" {:entryname list-name}))
 
-(defn get-list-names
-	[]
-    {:post [(utils/valid? (s/* (s/keys :req-un [:shop/_id :shop/entryname])) %)]}
-	(mc-find-maps "get-list-names" lists {} {:_id true :entryname true}))
+(defn-spec get-lists :shop/lists
+           []
+           (mc-find-maps "get-lists" "lists"))
 
-(defn get-top-list
-	[a-list]
-	{:pre [(utils/valid? :shop/list a-list)]
-	 :post [(utils/valid? :shop/list %)]}
-	(if (nil? (:parent a-list))
-		a-list
-		(get-top-list (get-list (:parent a-list)))))
+(defn-spec get-list-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+           []
+           (mc-find-maps "get-list-names" "lists" {} {:_id true :entryname true}))
 
-(defn get-top-lists
-	[]
-	{:post [(utils/valid? :shop/lists %)]}
-    (map conform-list (mc-find-maps "get-top-lists" lists {:parent nil})))
+(defn-spec get-top-list :shop/list
+           [a-list :shop/list]
+           (if (nil? (:parent a-list))
+               a-list
+               (get-top-list (get-list (:parent a-list)))))
 
-(defn get-sub-lists
-	[listid]
-	{:pre [(utils/valid? :shop/_id listid)]
-	 :post [(utils/valid? :shop/lists %)]}
-    (map conform-list (mc-find-maps "get-sub-lists" lists {:parent._id listid})))
+(defn-spec get-lists-dd (s/coll-of (s/cat :str string? :id :shop/_id))
+           []
+           (->> (get-lists)
+                (sort-by :entryname)
+                (map (fn [l] [(:entryname l) (:_id l)]))
+                (concat [["" no-id]])))
 
-(defn get-lists-dd
-    []
-    (->> (get-lists)
-         (sort-by :entryname)
-         (map (fn [l] [(:entryname l) (:_id l)]))
-         (concat [["" no-id]])))
+(defn-spec mk-list-dd any?
+           [current-id :shop/_id, dd-name keyword?, dd-class string?]
+           (hf/drop-down {:class dd-class} dd-name (get-lists-dd) current-id))
 
-(defn mk-list-dd
-    [current-id dd-name dd-class]
-    (hf/drop-down {:class dd-class} dd-name (get-lists-dd) current-id))
+(defn-spec list-id-exists? boolean?
+           [id :shop/_id]
+           (= (get (mc-find-map-by-id "list-id-exists?" "lists" id {:_id true}) :_id) id))
 
-(defn list-id-exists?
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]}
-	(= (get (mc-find-map-by-id "list-id-exists?" lists id {:_id true}) :_id) id))
+(defn-spec add-list :shop/list
+           [entry :shop/list]
+           (mc-insert "add-list" "lists" entry)
+           entry)
 
-(defn add-list
-	[entry]
-	{:pre [(utils/valid? :shop/list entry)]
-	 :post [(utils/valid? :shop/list %)]}
-	(mc-insert "add-list" lists entry)
-    entry)
+(defn-spec update-list any?
+           [entry :shop/list]
+           (mc-replace-by-id "update-list" "lists" entry))
 
-(defn update-list
-	[entry]
-	{:pre [(utils/valid? :shop/list entry)]}
-	(mc-replace-by-id "update-list" lists entry))
+(defn-spec purge-parent :list/parent
+           [lst-parent :list/parent, to-remove-id :shop/_id]
+           (when-not (nil? lst-parent)
+               (if (= (:_id lst-parent) to-remove-id)
+                   (purge-parent (:parent lst-parent) to-remove-id)
+                   (update lst-parent :parent #(purge-parent (:parent lst-parent) to-remove-id)))))
 
-(defn delete-list
-	[list-id]
-	{:pre [(utils/valid? :shop/_id list-id)]}
-	(mc-remove-by-id "delete-list" lists list-id)
-	(doseq [mlist (mc-find-maps "delete-list" lists {} {:_id true :parent true})
-	  :let [np (some->> mlist :parent :parent)]
-	  :when (= (some->> mlist :parent :_id) list-id)]
-		(mc-update-by-id "delete-list" lists (:_id mlist) {$set {:parent np}})))
+(defn-spec delete-list any?
+           [list-id :shop/_id]
+           (mc-remove-by-id "delete-list" "lists" list-id)
+           (doseq [mlist (mc-find-maps "delete-list" "lists" {} {:_id true :parent true})
+                   :let [np (purge-parent (:parent mlist) list-id)]
+                   :when (not= (:parent mlist) np)]
+               (mc-update-by-id "delete-list" "lists" (:_id mlist) {$set {:parent np}})))
 
-(defn get-lists-with-count
-	[]
-	(mc-aggregate "get-lists-with-count" lists
-		[{$project {:_id true
-		 		    :entryname true
-		 		    :parent true
-         			:last true
-		 		    :count {
-		 		    	$cond [{$gt ["$items" nil]}
-					           {$size {
-					           		"$filter" {
-					           			:input "$items"
-					                    :as "item"
-					                    :cond {$not [{$gt ["$$item.finished" nil]}]}}}}
-					           0]}}}]))
+(s/def :list/count integer?)
+(s/def :list/total number?)
+(s/def :shop/list-with-count (s/keys :req-un [:shop/_id :shop/entryname :list/parent :list/last :list/count :list/total]))
+(s/def :shop/lists-with-count (s/* :shop/list-with-count))
 
-(defn find-item
-    [list-id item-id]
-    {:pre [(utils/valid? :shop/_id list-id)
-           (utils/valid? :shop/_id item-id)]}
-    (some->> (mc-find-one-as-map "find-item" lists {:_id list-id :items._id item-id} {:items.$ 1})
-             :items
-             first))
+(defn-spec get-lists-with-count :shop/lists-with-count
+           []
+           (mc-aggregate "get-lists-with-count" "lists"
+                         [{$project {:entryname true
+                                     :parent    true
+                                     :last      true
+                                     :items     {"$filter" {:input "$items" :cond {"$eq" ["$$this.finished" nil]}}}}}
+                          {$project {:entryname true
+                                     :parent    true
+                                     :last      true
+                                     :items     {"$map" {:input "$items" :in {"$multiply" ["$$this.price" "$$this.numof"]}}}}}
+                          {$project {:entryname true
+                                     :parent    true
+                                     :last      true
+                                     :count     {"$size" "$items"}
+                                     :total     {"$sum" "$items"}}}]))
 
-(defn- item-finished?
-    [list-id item-id]
-    {:pre [(utils/valid? :shop/_id list-id) (utils/valid? :shop/_id item-id)]}
-    (-> (find-item list-id item-id) :finished some?))
+(defn-spec find-list-item-by-id (s/nilable :list/item)
+           [list-id :shop/_id, item-id :shop/_id]
+           (some->> (mc-find-one-as-map "find-item" "lists" {:_id list-id :items._id item-id} {:items.$ 1})
+                    :items
+                    first))
 
-(defn finish-list-item
-	[list-id item-id]
-	{:pre [(utils/valid? :shop/_id list-id) (utils/valid? :shop/_id item-id)]}
-	(add-item-usage list-id item-id :finish 0)
-	(mc-update "finish-list-item" lists
-		{:_id list-id :items._id item-id}
-		{$set {:items.$.finished (l/local-now)}}))
+(defn-spec find-list-item-by-name (s/nilable :list/item)
+           [list-id :shop/_id, item-name :shop/entryname]
+           (some->> (mc-find-one-as-map "find-item" "lists" {:_id list-id :items.entryname item-name} {:items.$ 1})
+                    :items
+                    first))
 
-(defn unfinish-list-item
-	[list-id item-id]
-	{:pre [(utils/valid? :shop/_id list-id) (utils/valid? :shop/_id item-id)]}
-	(add-item-usage list-id item-id :unfinish 0)
-	(mc-update "unfinish-list-item" lists
-		{:_id list-id :items._id item-id}
-		{$set {:items.$.finished nil :items.$.numof 1}}))
+(defn-spec item-finished? boolean?
+           [list-id :shop/_id, item-id :shop/_id]
+           (-> (find-list-item-by-id list-id item-id) :finished some?))
 
-(defn del-finished-list-items
-	[list-id]
-	{:pre [(utils/valid? :shop/_id list-id)]}
-	(let [a-list (get-list list-id)
-		  clean (remove #(some? (:finished %)) (:items a-list))]
-		(mc-update-by-id "del-finished-list-items" lists list-id
-			{$set {:items clean}})))
+(defn-spec finish-list-item any?
+    [list-id :shop/_id, item-id :shop/_id]
+    (add-item-usage list-id item-id :finish 0)
+    (mc-update "finish-list-item" "lists"
+               {:_id list-id :items._id item-id}
+               {$set {:items.$.finished (l/local-now)}}))
 
-(defn- remove-item
-	[list-id item-id]
-	(add-item-usage list-id item-id :remove 0)
-	(mc-update "remove-item" lists
-		{:_id list-id}
-		{$pull {:items {:_id item-id}}}))
+(defn-spec unfinish-list-item any?
+    [list-id :shop/_id, item-id :shop/_id]
+    (add-item-usage list-id item-id :unfinish 0)
+    (mc-update "unfinish-list-item" "lists"
+               {:_id list-id :items._id item-id}
+               {$set {:items.$.finished nil :items.$.numof 1}}))
 
-(defn- mod-item
-	[list-id item-id num-of]
-	(add-item-usage list-id item-id :mod num-of)
-	(mc-update "mod-item" lists
-		{:_id list-id :items._id item-id}
-		{$inc {:items.$.numof num-of}}))
+(defn-spec del-finished-list-items any?
+    [list-id :shop/_id]
+    (let [a-list (get-list list-id)
+          clean (remove #(some? (:finished %)) (:items a-list))]
+        (mc-update-by-id "del-finished-list-items" "lists" list-id
+                         {$set {:items clean}})))
 
-(defn find-list-by-name
-	[e-name]
-	{:pre [(utils/valid? :shop/string e-name)]
-	 :post [(utils/valid? :shop/list %)]}
-    (conform-list (mc-find-one-as-map "find-list-by-name" lists {:entryname e-name})))
+(defn-spec remove-item any?
+    [list-id :shop/_id, item-id :shop/_id]
+    (add-item-usage list-id item-id :remove 0)
+    (mc-update "remove-item" "lists"
+               {:_id list-id}
+               {$pull {:items {:_id item-id}}}))
 
-(defn list-item+
-    [list-id item-id]
-    {:pre [(utils/valid? :shop/_id list-id)
-           (utils/valid? :shop/_id item-id)]}
+(defn-spec mod-item any?
+    [list-id :shop/_id, item-id :shop/_id, num-of integer?]
+    (add-item-usage list-id item-id :mod num-of)
+    (mc-update "mod-item" "lists"
+               {:_id list-id :items._id item-id}
+               {$inc {:items.$.numof num-of}}))
+
+(defn-spec find-list-by-name :shop/list
+    [e-name :shop/entryname]
+    (mc-find-one-as-map "find-list-by-name" "lists" {:entryname e-name}))
+
+(defn-spec list-item+ any?
+    [list-id :shop/_id, item-id :shop/_id]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
         (throw+ (ex-info "unknown list" {:type :db :src "list-item+"})))
     ; make sure the item is already in the list
-    (if (find-item list-id item-id)
+    (if (find-list-item-by-id list-id item-id)
         ; yes it was
         (mod-item list-id item-id 1)
         ; no
         (throw+ (ex-info "unknown item" {:type :db :src "list-item+"}))))
 
-(defn list-item-
-    [list-id item-id]
-    {:pre [(utils/valid? :shop/_id list-id)
-           (utils/valid? :shop/_id item-id)]}
+(defn-spec list-item- any?
+    [list-id :shop/_id, item-id :shop/_id]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
         (throw+ (ex-info "unknown list" {:type :db :src "list-item-"})))
     ; make sure the item is already in the list
-    (if-let [item (find-item list-id item-id)]
+    (if-let [item (find-list-item-by-id list-id item-id)]
         ; yes it was
         (if (= (:numof item) 1)
             (finish-list-item list-id item-id)
@@ -208,22 +188,36 @@
         ; no
         (throw+ (ex-info "unknown item" {:type :db :src "list-item-"}))))
 
-(defn item->list
-    [list-id item-id]
-	{:pre [(utils/valid? :shop/_id list-id)
-		   (utils/valid? :shop/_id item-id)]}
-	; make sure it's a valid list
-	(when-not (list-id-exists? list-id)
-		(throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
-	; find the item if it's already in the list
-	(if (find-item list-id item-id)
-		; yes it was
+(defn-spec item->list any?
+    [list-id :shop/_id, item-id :shop/_id]
+    ; make sure it's a valid list
+    (when-not (list-id-exists? list-id)
+        (throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
+    ; find the item if it's already in the list
+    (if (find-list-item-by-id list-id item-id)
+        ; yes it was
         (if (item-finished? list-id item-id)
             (unfinish-list-item list-id item-id)
             (throw+ (ex-info "item already in list" {:type :db :src "item->list"})))
-		; no, we need to add it
-		(do
-			(add-item-usage list-id item-id :add-to 1)
-			(mc-update-by-id "item->list" lists list-id
-				{$addToSet {:items (assoc (get-item item-id) :numof 1 :finished nil)}}))))
+        ; no, we need to add it
+        (do
+            (add-item-usage list-id item-id :add-to 1)
+            (mc-update-by-id "item->list" "lists" list-id
+                             {$addToSet {:items (assoc (get-item item-id) :numof 1 :finished nil)}}))))
 
+(defn-spec oneshot->list any?
+    [list-id :shop/_id, item :shop/_id]
+    ; make sure it's a valid list
+    (when-not (list-id-exists? list-id)
+        (throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
+    ; find the item if it's already in the list
+    (if-let [litem (find-list-item-by-name list-id (:entryname item))]
+        ; yes it was
+        (if (:finished litem)
+            (unfinish-list-item list-id (:_id litem))
+            (throw+ (ex-info "item already in list" {:type :db :src "item->list"})))
+        ; no, we need to add it
+        (mc-update-by-id "item->list" "lists" list-id
+                         {$addToSet {:items (assoc item :numof 1 :finished nil)}})))
+
+(st/instrument)

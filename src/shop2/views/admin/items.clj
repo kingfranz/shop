@@ -116,7 +116,7 @@
                     [:div
                      (info-part item)
                      (named-div "Ny kategori:" (hf/text-field {:class "item-info"} :new-tag))
-                     (tags-tbl (:tag item))]
+                     (tags-tbl nil (:tag item))]
                     ))))
 
 (defn edit-item!
@@ -124,12 +124,12 @@
     (update-item (-> (extract-id params)
                      (get-item)
                      (set-name (extract-name params))
-                     (assoc :parent  (extract-parent params)
+                     (assoc :parent (extract-parent params)
                             :project (extract-project params)
                             :oneshot (or (:oneshot params) false)
-                            :price   (extract-num :price params)
-                            :url     (extract-str :url params)
-                            :tag     (extract-tag params))))
+                            :price (extract-num :price params)
+                            :url (extract-str :url params)
+                            :tag (extract-tag params))))
     (ring/redirect (str "/admin/item/edit/" (extract-id params))))
 
 ;;-----------------------------------------------------------------------------
@@ -151,17 +151,17 @@
                                             (concat [["" no-id]])))
                  (info-part nil)
                  (named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
-                 (tags-tbl)])))
+                 (tags-tbl nil nil)])))
 
 (defn new-item!
     [{params :params}]
-    (add-item (assoc (create-entity (extract-name params))
-               :parent  (extract-parent params)
-               :project (extract-project params)
-               :oneshot (or (:oneshot params) false)
-               :price   (extract-num :price params)
-               :url     (extract-str :url params)
-               :tag     (extract-tag params))))
+    (add-item (create-item-obj (extract-name params)
+                               (extract-parent params)
+                               (extract-tag params)
+                               (extract-project params)
+                               (extract-str :url params)
+                               (extract-num :price params)
+                               (or (:oneshot params) false))))
 
 ;;-----------------------------------------------------------------------------
 

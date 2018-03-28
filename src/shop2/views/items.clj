@@ -40,14 +40,6 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn- get-parents
-    [a-list]
-    (loop [parent (:parent a-list)
-           acc #{(:_id a-list)}]
-        (if (nil? parent)
-            acc
-            (recur (:parent parent) (conj acc (:_id parent))))))
-
 (defn- get-list-items
     [a-list]
     (let [items (get-items)
@@ -116,9 +108,9 @@
     [a-list sort-type]
     (if (= sort-type :tags)
         (items-by-tags (->> (get-list-items a-list)
-                            (group-by :tag)
+                            (group-by #(-> % :tag :entryname))
                             (into (sorted-map))))
-        (items-by-name (->> a-list get-list-items items->alpha))))
+        (items-by-name (->> (get-list-items a-list) items->alpha))))
 
 (defn- sort-button
     [st list-id]
@@ -187,7 +179,7 @@
                 [:div
                  (info-part)
                  (named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
-                 (tags-tbl)])))
+                 (tags-tbl list-id nil)])))
 
 ;;-----------------------------------------------------------------------------
 
@@ -195,15 +187,16 @@
     [{params :params}]
     (let [proj (when (and (s/valid? :shop/_id (name (:project params))) (not= (name (:project params)) no-id))
                    (get-project (:project params)))
-          item (-> (create-entity (:new-item-name params))
-                   (assoc :parent  (:list-id params)
-                          :tag     (extract-tag params)
-                          :project proj
-                          :url     (:new-item-url params)
-                          :price   (str->num (:new-item-price params))
-                          :oneshot (or (:one-shot params) false)))
-          new-item (add-item item)]
-        (item->list (:list-id params) (:_id new-item))
+          item (create-item-obj (:new-item-name params)
+                                (:list-id params)
+                                (extract-tag params)
+                                proj
+                                (:new-item-url params)
+                                (str->num (:new-item-price params))
+                                (= (:one-shot params) "true"))]
+        (if (:oneshot item)
+            (oneshot->list (:list-id params) item)
+            (item->list (:list-id params) (:_id (add-item item))))
         (ring/redirect (str "/user/item/add/" (:list-id params)))))
 
 ;;-----------------------------------------------------------------------------

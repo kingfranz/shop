@@ -501,6 +501,7 @@
      [:.button-s:hover {:background-color :green}]
 
         [:.width-100p {:width (u/percent 100)}]
+        [:.width-90p {:width (u/percent 90)}]
         [:.width-100px {:width (u/px 100)}]
         [:.width-200px {:width (u/px 200)}]
         [:.width-300px {:width (u/px 300)}]

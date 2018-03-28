@@ -24,7 +24,8 @@
               [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
               [ring.middleware.content-type :refer [wrap-content-type]]
               [ring.util.http-response :as response]
-              [clojure.pprint :as pp])
+              [clojure.pprint :as pp]
+              [clojure.spec.test.alpha :as s])
     (:use [org.httpkit.server :only [run-server]])
     (:gen-class))
 
@@ -97,14 +98,13 @@
 ;; entry point, lein run will pick up and start from here
 (defn -main
     [& args]
+    (s/instrument)
 	(-> all-routes
         (wrap-anti-forgery)
         (friend/authenticate {
                               :unauthorized-handler unauth-handler
                               :credential-fn        (partial cred get-user)
                               :workflows            [(workflows/interactive-form)]})
-        ;ring-spy
-        ;(rmd/wrap-defaults ring-default)
         (ring-spy)
         (wrap-session {:store (->ShopStore )})
         (wrap-keyword-params)

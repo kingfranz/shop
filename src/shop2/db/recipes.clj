@@ -28,32 +28,32 @@
 
 (defn get-recipe-names
 	[]
-	(mc-find-maps "get-recipe-names" recipes {} {:_id true :entryname true}))
+	(mc-find-maps "get-recipe-names" "recipes" {} {:_id true :entryname true}))
 
 (defn get-recipes
 	[]
 	{:post [(utils/valid? :shop/recipes %)]}
-    (map conform-recipe (mc-find-maps "get-recipes" recipes)))
+    (map conform-recipe (mc-find-maps "get-recipes" "recipes")))
 
 (defn get-recipe
 	[id]
 	{:pre [(utils/valid? :shop/_id id)]
 	 :post [(utils/valid? :shop/recipe %)]}
-    (conform-recipe (mc-find-one-as-map "get-recipe" recipes {:_id id})))
+    (conform-recipe (mc-find-one-as-map "get-recipe" "recipes" {:_id id})))
 
 (defn add-recipe
 	[entry]
 	{:pre [(utils/valid? :shop/recipe entry)]
 	 :post [(utils/valid? :shop/recipe %)]}
-	(mc-insert "add-recipe" recipes entry)
+	(mc-insert "add-recipe" "recipes" entry)
 	entry)
 
 (defn update-recipe
 	[recipe]
 	{:pre [(utils/valid? :shop/recipe recipe)]}
-	(mc-replace-by-id "update-recipe" recipes recipe)
+	(mc-replace-by-id "update-recipe" "recipes" recipe)
     ; now update the recipe in menus
-	(mc-update "update-recipe" menus {:recipe._id (:_id recipe)}
+	(mc-update "update-recipe" "menus" {:recipe._id (:_id recipe)}
                {$set {:recipe (select-keys recipe [:_id :entryname])}}
                {:multi true})
     recipe)

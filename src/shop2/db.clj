@@ -4,23 +4,13 @@
               [utils.core :as utils]
               [slingshot.slingshot :refer [throw+ try+]]
               [taoensso.timbre :as log]
-              [clj-time.core :as t]
               [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
               [clojure.spec.alpha :as s]
               [clojure.string :as str]
-              [clojure.set :as set]
-              [clojure.pprint :as pp]
-              [cemerick.friend :as friend]
-              [cemerick.friend.workflows :as workflows]
-              [cemerick.friend.credentials :as creds]
               [cheshire.core :refer :all]
               [monger.core :as mg]
               [monger.credentials :as mcr]
               [monger.collection :as mc]
-              [monger.joda-time :as jt]
               [monger.operators :refer :all]
               [environ.core :refer [env]]
               )
@@ -31,24 +21,14 @@
 ; mongo --port 27017 -u "mongoadmin" -p "Benq.fp731" --authenticationDatabase "admin"
 ; db.createUser({user:"shopper",pwd:"kAllE.kUlA399",roles:[{role:"readWrite",db:"shopdb"}]})
 
-(defonce db-conn (mg/connect-with-credentials (env :database-ip)
+(def db-conn (mg/connect-with-credentials (env :database-ip)
 							(mcr/create (env :database-user)
                    						(env :database-db)
                          				(env :database-pw)
                              )))
-(defonce shopdb (mg/get-db db-conn (env :database-db)))
+(def shopdb (mg/get-db db-conn (env :database-db)))
 
-(defonce sessions   "sessions")
-(defonce item-usage "item-usage")
-(defonce users      "users")
-(defonce recipes    "recipes")
-(defonce menus      "menus")
-(defonce items      "items")
-(defonce projects   "projects")
-(defonce lists      "lists")
-(defonce tags       "tags")
-
-(defonce no-id "00000000-0000-0000-0000-000000000000")
+(def no-id "00000000-0000-0000-0000-000000000000")
 
 ;;-----------------------------------------------------------------------------
 
@@ -157,7 +137,7 @@
            (utils/valid? :shop/_id item-id)
            (utils/valid? keyword? action)
            (utils/valid? number? numof)]}
-	(mc-insert "add-item-usage" item-usage
+	(mc-insert "add-item-usage" "item-usage"
 		(merge {:listid list-id :itemid item-id :action action :numof numof}
 			   (mk-std-field))))
 

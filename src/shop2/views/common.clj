@@ -2,37 +2,29 @@
     (:require [shop2.extra :refer :all]
               [shop2.db :refer :all]
               [shop2.db.user :refer :all]
+              [shop2.db.lists :refer :all]
               [shop2.db.tags :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.views.css :refer :all]
               [shop2.spec :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
-              [garden.core :as g]
-              [garden.units :as u]
-              [garden.selectors :as sel]
-              [garden.stylesheet :as ss]
-              [garden.color :as color]
-              [garden.arithmetic :as ga]
-              [hiccup.core :as h]
-              [hiccup.def :as hd]
               [hiccup.element :as he]
               [hiccup.form :as hf]
-              [hiccup.page :as hp]
-              [hiccup.util :as hu]
-              [ring.util.anti-forgery :as ruaf]
-              [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
               [clojure.string :as str]
-              [clojure.set :as set]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
+
+(defn-spec get-parents (s/coll-of :shop/_id :kind set?)
+    [a-list :shop/list]
+    (loop [parent (:parent a-list)
+           acc #{(:_id a-list)}]
+        (if (nil? parent)
+            acc
+            (recur (:parent parent) (conj acc (:_id parent))))))
 
 (defn- labeled-radio
     [label group value checked?]
@@ -59,46 +51,39 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defonce blank-tag {:_id no-id :entryname "NO TAG" :parent nil})
-(defonce blank-proj {:_id no-id :entryname "NO PROJ"})
+(def blank-tag {:_id no-id :entryname "NO TAG" :parent nil})
+(def blank-proj {:_id no-id :entryname "NO PROJ"})
 
-(defn- get-old-tag
-	[params]
-    (let [s (some-> params :tags str/trim)]
-        (if (str/blank? s)
-            nil
-            (if (= s no-id)
-                :blank
-                (if (s/valid? :shop/_id s)
-                    s
-                    (throw+ (ex-info "Unknown tag" {:type :input :cause :unknown-tag})))))))
+(defn-spec get-old-tag (s/nilable :shop/_id)
+	[params map?]
+    (when-not (str/blank? (:tags params))
+        (when-not (s/valid? :shop/_id (:tags params))
+            (throw+ (ex-info "Unknown tag" {:type :input :cause :unknown-tag})))
+        (:tags params)))
 
-(defn- get-new-tag
-	[params]
-	(let [s (some-> params :new-tags str/trim)]
-		(if (str/blank? s)
-            nil
-            (if (s/valid? :tags/entryname s)
-                s
-                (throw+ (ex-info "Invalid tag" {:type :input :cause :invalid-tag}))))))
+(defn-spec get-new-tag any?
+	[params map?]
+	(when-not (str/blank? (:new-tags params))
+        (when-not (s/valid? :tags/entryname (:new-tags params))
+            (throw+ (ex-info "Invalid tag" {:type :input :cause :invalid-tag})))
+        (:new-tags params)))
 
-(defn extract-tag
-	[params]
-    {:post [(utils/valid? (s/nilable :shop/tag) %)]}
-	(let [old-tag-id   (get-old-tag params)
+(defn-spec extract-tag (s/nilable :shop/tag)
+	[params map?]
+    (let [old-tag-id   (get-old-tag params)
           new-tag-name (get-new-tag params)]
 		(cond
             ; old has value, new has value
-            (and (seq old-tag-id) (not= old-tag-id :blank) (seq new-tag-name))
+            (and (seq old-tag-id) (not= old-tag-id no-id) (seq new-tag-name))
                 (throw+ (ex-info "Can't have both new and old tag" {:type :tags}))
             ; old has value, new is blank
-            (and (seq old-tag-id) (not= old-tag-id :blank) (nil? new-tag-name))
+            (and (seq old-tag-id) (not= old-tag-id no-id) (nil? new-tag-name))
                 (get-tag old-tag-id)
             ; old is no-id, new has value
-            (and (= old-tag-id :blank) (seq new-tag-name))
+            (and (= old-tag-id no-id) (seq new-tag-name))
                 (add-tag new-tag-name)
             ; old is no-id, new is blank
-            (and (= old-tag-id :blank) (nil? new-tag-name))
+            (and (= old-tag-id no-id) (nil? new-tag-name))
                 nil
             ; old is blank, new has value
             (and (nil? old-tag-id) (seq new-tag-name))
@@ -107,25 +92,33 @@
             :else nil
             )))
 
-(defn- mk-tag-entry
-    [target tag]
+(defn-spec mk-tag-entry any?
+    "create a labeled radio button for a tag"
+    [target string?, tag :shop/tag]
     [:div.cb-div
      (labeled-radio (:entryname tag)
                     "tags"
                     (:_id tag)
                     (= target (:entryname tag)))])
 
-(defn tags-tbl
-    ([] (tags-tbl nil))
-    ([tag]
-     (named-div "Existerande kategorier:"
-                    (->> (get-tag-names)
+(defn-spec filter-tag-parent :shop/tags
+    [parent :shop/parent, tags :shop/tags]
+    (if parent
+        (let [parents (get-parents (get-list parent))]
+            (filter #(or (nil? (:parent %)) (contains? parents (:parent %))) tags))
+        tags))
+
+(defn-spec tags-tbl any?
+    [parent :shop/parent, tag :item/tag]
+    (named-div "Existerande kategorier:"
+                    (->> (get-tags)
+                         (filter-tag-parent parent)
                          (sort-by :entrynamelc)
                          (concat [blank-tag])
-                         (map #(mk-tag-entry (:entryname tag) %))))))
+                         (map #(mk-tag-entry (:entryname tag) %)))))
 
-(defn- mk-proj-entry
-    [target-id proj]
+(defn-spec mk-proj-entry any?
+    [target-id :shop/_id, proj :shop/project]
     [:div.cb-div
      (labeled-radio (:entryname proj)
                     "projects"
@@ -143,8 +136,8 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn str->num
-    [s]
+(defn-spec str->num double?
+    [s string?]
     (try+
         (Double/valueOf (str/trim s))
         (catch Exception _ nil)))
@@ -177,8 +170,8 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn udata
-	[req]
+(defn-spec udata :shop/user
+	[req map?]
 	(if-let [current (get-in req [:session :cemerick.friend/identity :current])]
 		(if-let [udata (get-in req [:session :cemerick.friend/identity :authentications current])]
 			(if (s/valid? :shop/user udata)
@@ -187,8 +180,8 @@
 			(throw+ (ex-info "invalid session2" {:cause (str udata)})))
 		(throw+ (ex-info "invalid request" {:cause (str req)}))))
 
-(defn uid
-	[req]
+(defn-spec uid :shop/_id
+	[req map?]
 	(-> req udata :_id))
 
 ;;-----------------------------------------------------------------------------

@@ -6,6 +6,7 @@
                  [clj-time.periodic :as p]
                  [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
+                 [orchestra.core :refer [defn-spec]]
                  [clojure.string :as str]
                  [clojure.set :as set]
                  [clojure.pprint :as pp]
@@ -26,45 +27,54 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn get-item-names
+(defn-spec create-item-obj :shop/item
+    "create a new item"
+    [iname :shop/entryname
+     parent :shop/parent
+     tag :item/tag
+     proj :item/project
+     url :shop/url
+     price :item/price
+     oneshot :item/oneshot]
+    (-> (create-entity iname)
+        (assoc :parent  parent
+               :tag     tag
+               :project proj
+               :url     url
+               :price   price
+               :oneshot oneshot)))
+
+(defn-spec get-item-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
-	(mc-find-maps "get-item-names" items {} {:_id true :entryname true}))
+	(mc-find-maps "get-item-names" "items" {} {:_id true :entryname true}))
 
-(defn get-items
+(defn-spec get-items :shop/items
 	[]
-	{:post [(utils/valid? :shop/items %)]}
-    (map conform-item (mc-find-maps "get-items" items {})))
+	(map conform-item (mc-find-maps "get-items" "items" {})))
 
-(defn get-item
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]
-	 :post [(utils/valid? :shop/item %)]}
-    (conform-item (mc-find-one-as-map "get-item" items {:_id id})))
+(defn-spec get-item :shop/item
+	[id :shop/_id]
+	(conform-item (mc-find-one-as-map "get-item" "items" {:_id id})))
 
-(defn item-id-exists?
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]}
-	(= (get (mc-find-map-by-id "item-id-exists?" items id {:_id true}) :_id) id))
+(defn-spec item-id-exists? boolean?
+	[id :shop/_id]
+	(= (get (mc-find-map-by-id "item-id-exists?" "items" id {:_id true}) :_id) id))
 
-(defn add-item
-	[entry]
-	{:pre [(utils/valid? :shop/item entry)]
-	 :post [(utils/valid? :shop/item %)]}
-    (when (:tag entry)
+(defn-spec add-item :shop/item
+	[entry :shop/item]
+	(when (:tag entry)
         (add-tag (-> entry :tag :entryname)))
 	(add-item-usage nil (:_id entry) :create 0)
-	(mc-insert "add-item" items entry)
+	(mc-insert "add-item" "items" entry)
 	entry)
 
-(defn update-item
-	[entry]
-	{:pre [(utils/valid? :shop/item entry)]}
-    (add-item-usage nil (:_id entry) :update 0)
-    (mc-replace-by-id "update-item" items entry))
+(defn-spec update-item any?
+	[entry :shop/item]
+	(add-item-usage nil (:_id entry) :update 0)
+    (mc-replace-by-id "update-item" "items" entry))
 
-(defn delete-item
-	[item-id]
-	{:pre [(utils/valid? :shop/_id item-id)]}
+(defn-spec delete-item any?
+	[item-id :shop/_id]
 	(add-item-usage nil item-id :delete 0)
-	(mc-remove-by-id "delete-item" items item-id))
+	(mc-remove-by-id "delete-item" "items" item-id))
 
