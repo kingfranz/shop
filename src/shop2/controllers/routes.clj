@@ -75,11 +75,11 @@
                   (cc/GET "/edit" request
                       (edit-projects request))
 
-                  (cc/GET "/tag" request
-                      (set-group-type request :by-tag))
+                  (cc/GET "/proj" request
+                      (set-group-type request :proj))
 
                   (cc/GET "/prio" request
-                      (set-group-type request :by-prio))
+                      (set-group-type request :prio))
 
                   (cc/POST "/edit" request
                       (edit-projects! request))
@@ -155,9 +155,6 @@
 
               (cc/GET "/copy" request
                   (copy-password request))
-
-              (cc/GET "/update" request
-                  (update-db-now))
 
               ;---------------------------------------------
               ; users

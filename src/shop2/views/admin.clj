@@ -105,8 +105,6 @@
          [:a.button-s {:href "/admin/renew"} "Renew PW"]]
         [:div.item-div
          [:a.button-s {:href "/admin/copy"} "Copy PW"]]
-        [:div.item-div
-         [:a.button-s {:href "/admin/update"} "Update DB"]]
         [:p]
         [:label (str "Shopping " (env :app-version))]
         (admin-block "Listor"
@@ -131,24 +129,6 @@
                      "/admin/tag/bulk-edit"
                      "/admin/tag/edit"
                      (map (fn [{ename :entryname id :_id}] [ename id]) (sort-by :entrynamelc (get-tags))))))
-
-(defn update-db-now
-    []
-    (doseq [entity (get-items)]
-        (update-item entity))
-    (doseq [entity (get-lists)]
-        (update-list entity))
-    (doseq [entity (get-db-menus)]
-        (update-menu entity))
-    (doseq [entity (get-db-projects)]
-        (update-project entity))
-    (doseq [entity (get-recipes)]
-        (update-recipe entity))
-    (doseq [entity (get-tags)]
-        (update-tag entity))
-    (doseq [entity (get-users)]
-        (update-user entity))
-    )
 
 ;;-----------------------------------------------------------------------------
 

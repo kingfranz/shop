@@ -3,6 +3,7 @@
               [shop2.db :refer :all]
               [shop2.db.user :refer :all]
               [shop2.db.lists :refer :all]
+              [shop2.views.projects :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
@@ -16,7 +17,9 @@
               [ring.util.response :as ring]
               [orchestra.spec.test :as st]
               [orchestra.core :refer [defn-spec]]
-              [clojure.string :as str]))
+              [clojure.string :as str]
+              [clojure.spec.alpha :as s]
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -25,38 +28,29 @@
     (= (->> req udata :properties :home :list-type) "tree"))
 
 (defn-spec mk-list-name string?
-    [slist :shop/lists-with-count]
+    [slist :shop/list-with-count]
     (str (:entryname slist) " - " (:count slist)))
 
 (defn-spec sub-tree any?
-    [lists :shop/lists, slist :shop/lists-with-count]
+    [lists :shop/lists-with-count, this-list :shop/list-with-count]
     (let [sub-lists (->> lists
-                         (filter #(some->> % :parent :_id (= (:_id slist))))
+                         (filter #(some->> % :parent :_id (= (:_id this-list))))
                          (sort-by :entryname))]
         [:li
-         [:a.link-thick {:href (str "/user/list/get/" (:_id slist))} (mk-list-name slist)]
+         [:a.link-thick {:href (str "/user/list/get/" (:_id this-list))} (mk-list-name this-list)]
          (when (seq sub-lists)
              [:ul
               (map #(sub-tree lists %) sub-lists)])]))
 
-(defn-spec list-cmp* integer?
-    [x1 integer?, x2 integer?]
-    (if (> (:count x1) (:count x2))
-        -1
-        (if (< (:count x1) (:count x2))
-            1
-            (compare (:entryname x1) (:entryname x2)))))
-
 (defn-spec list-cmp integer?
-    [x1 integer?, x2 integer?]
-    (cond
-        (and (:last x1) (:last x2)) (list-cmp* x1 x2)
-        (and (:last x1) (not (:last x2))) 1
-        (and (not (:last x1)) (:last x2)) -1
-        :else (list-cmp* x1 x2)))
+    [l1 :shop/list-with-count, l2 :shop/list-with-count]
+    (or (comp-nil (:last l1) (:last l2))
+        (comp-nil (:count l2) (:count l1))
+        (comp-nil (:entryname l1) (:entryname l2))
+        0))
 
 (defn-spec list-row any?
-    [a-list :shop/list]
+    [a-list :shop/list-with-count]
     [:table.width-90p
      [:tr
       [:td.v-align [:a.link-thick {:href (str "/user/list/get/" (:_id a-list))}
@@ -64,24 +58,24 @@
       [:td.r-align [:label (if (zero? (:total a-list)) "" (:total a-list))]]]])
 
 (defn-spec list-tbl any?
-    [lists :shop/list]
+    [lists :shop/lists-with-count]
     [:table.width-100p
-     (for [a-list (->> lists (filter #(nil? (:finished %))) (sort-by identity list-cmp))]
+     (for [a-list (sort-by identity list-cmp lists)]
          [:tr [:td (list-row a-list)]])])
 
 (defn-spec list-tree any?
-    [request map?]
-    (let [lists (get-lists-with-count)]
-        (if (want-tree? request)
-            [:ul.tree
-             (map #(sub-tree lists %)
-                  (->> lists
-                       (filter #(nil? (:parent %)))
-                       (sort-by :entryname)))]
-            (list-tbl lists))))
+           [request map?]
+           (let [lists (get-lists-with-count)]
+               (if (want-tree? request)
+                   [:ul.tree
+                    (map #(sub-tree lists %)
+                         (->> lists
+                              (filter #(nil? (:parent %)))
+                              (sort-by :entryname)))]
+                   (list-tbl lists))))
 
 (defn-spec mk-menu-row any?
-    [menu :shop/menu]
+    [menu :shop/x-menu]
     ; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
     [:tr
      [:td.menu-date-td [:label.menu-date (menu-date-short menu)]]
@@ -93,21 +87,21 @@
      (map mk-menu-row (get-menus (today) (new-menu-end)))])
 
 (defn-spec mk-proj-row any?
-    [r :shop/project]
+    [proj :shop/project]
+;           (throw+ (ex-info "TEST" {:type :test}))
     [:tr
      [:td.proj-pri
-      [:label.home-margin (str (:priority r))]]
+      [:label.home-margin (str (:priority proj))]]
      [:td
-      [:label.home-margin.clip (:entryname r)]]
+      [:label.home-margin.clip (:entryname proj)]]
      [:td.r-align
-      [:label.proj-tags (:tag r)]]
+      [:label.proj-tags (:tag proj)]]
      ])
 
 (defn- projekt-list
     []
-    [:table {:style "width:100%"}
-     (->> (get-active-projects)
-          (map mk-proj-row))])
+    [:table.width-100p
+     (map mk-proj-row (get-active-projects))])
 
 (defn- recipe-list
     []
@@ -129,6 +123,8 @@
 
 (defn home-page
     [request]
+    ;(throw+ (ex-info "TEST" {:type :test}))
+    ;(throw+ (Exception. "Testing!"))
     (common-refresh request "Shopping" [css-home-tree css-home css-menus]
                     [:div.column
                      (if (want-tree? request)
@@ -141,7 +137,7 @@
                      [:div.home-box (menu-list)]]
                     [:div.column
                      [:p.header [:a.link-home {:href "/user/project/edit"} "Projekt"]]
-                     [:div.home-box (projekt-list)]]
+                     [:div.home-box (display-projects)]]
                     [:div.column
                      [:p.header [:a.link-home {:href "/user/recipe/new"} "Recept"]]
                      [:div.home-box (recipe-list)]]

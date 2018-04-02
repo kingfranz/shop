@@ -1,56 +1,38 @@
 (ns shop2.db.recipes
-	(:require 	[clj-time.core :as t]
-                 [clj-time.local :as l]
-                 [clj-time.coerce :as c]
-                 [clj-time.format :as f]
-                 [clj-time.periodic :as p]
-                 [slingshot.slingshot :refer [throw+ try+]]
-                 [clojure.spec.alpha :as s]
-                 [clojure.string :as str]
-                 [clojure.set :as set]
-                 [clojure.pprint :as pp]
-                 [clojure.spec.alpha :as s]
+	(:require 	 [slingshot.slingshot :refer [throw+ try+]]
                  [cheshire.core :refer :all]
                  [taoensso.timbre :as log]
-                 [monger.core :as mg]
-                 [monger.credentials :as mcr]
-                 [monger.collection :as mc]
-                 [monger.joda-time :as jt]
-                 [monger.operators :refer :all]
+                  [clojure.spec.alpha :as s]
+                  [orchestra.core :refer [defn-spec]]
+                  [orchestra.spec.test :as st]
+                  [monger.operators :refer :all]
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
-                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
 ;;-----------------------------------------------------------------------------
 
-(defn get-recipe-names
+(defn-spec get-recipe-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
 	(mc-find-maps "get-recipe-names" "recipes" {} {:_id true :entryname true}))
 
-(defn get-recipes
+(defn-spec get-recipes :shop/recipes
 	[]
-	{:post [(utils/valid? :shop/recipes %)]}
-    (map conform-recipe (mc-find-maps "get-recipes" "recipes")))
+	(mc-find-maps "get-recipes" "recipes"))
 
-(defn get-recipe
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]
-	 :post [(utils/valid? :shop/recipe %)]}
-    (conform-recipe (mc-find-one-as-map "get-recipe" "recipes" {:_id id})))
+(defn-spec get-recipe :shop/recipe
+	[id :shop/_id]
+	(mc-find-one-as-map "get-recipe" "recipes" {:_id id}))
 
-(defn add-recipe
-	[entry]
-	{:pre [(utils/valid? :shop/recipe entry)]
-	 :post [(utils/valid? :shop/recipe %)]}
+(defn-spec add-recipe :shop/recipe
+	[entry :shop/recipe]
 	(mc-insert "add-recipe" "recipes" entry)
 	entry)
 
-(defn update-recipe
-	[recipe]
-	{:pre [(utils/valid? :shop/recipe recipe)]}
+(defn-spec update-recipe :shop/recipe
+	[recipe :shop/recipe]
 	(mc-replace-by-id "update-recipe" "recipes" recipe)
     ; now update the recipe in menus
 	(mc-update "update-recipe" "menus" {:recipe._id (:_id recipe)}
@@ -58,3 +40,4 @@
                {:multi true})
     recipe)
 
+(st/instrument)

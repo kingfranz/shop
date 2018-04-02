@@ -1,73 +1,52 @@
 (ns shop2.db.tags
-    (:require [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
-              [slingshot.slingshot :refer [throw+ try+]]
+    (:require [slingshot.slingshot :refer [throw+ try+]]
               [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [clojure.string :as str]
-              [clojure.set :as set]
-              [clojure.pprint :as pp]
-              [clojure.spec.alpha :as s]
               [cheshire.core :refer :all]
               [taoensso.timbre :as log]
-              [monger.core :as mg]
-              [monger.credentials :as mcr]
-              [monger.collection :as mc]
-              [monger.joda-time :as jt]
               [monger.operators :refer :all]
               [shop2.extra :refer :all]
               [shop2.db :refer :all]
-              [shop2.conformer :refer :all]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn get-tags
+(defn-spec get-tags :shop/tags
 	[]
-	{:post [(utils/valid? :shop/tags %)]}
-    (map conform-tag (mc-find-maps "get-tags" "tags")))
+	(mc-find-maps "get-tags" "tags"))
 
-(defn get-tag
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]
-	 :post [(utils/valid? :shop/tag %)]}
-    (conform-tag (mc-find-map-by-id "get-tag" "tags" id)))
+(defn-spec get-tag :shop/tag
+	[id :shop/_id]
+	(mc-find-map-by-id "get-tag" "tags" id))
 
-(defn get-tags-dd
+(defn-spec get-tag-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+           []
+           (mc-find-maps "get-tag-names" "tags" {} {:_id true :entryname true}))
+
+(defn-spec get-tags-dd (s/coll-of (s/cat :str string? :id :shop/_id))
     []
-    (->> (get-tags)
+    (->> (get-tag-names)
          (sort-by :entryname)
          (map (fn [l] [(:entryname l) (:_id l)]))
          (concat [["" no-id]])))
 
-(defn get-tag-names
-	[]
-	{:post [(utils/valid? (s/* (s/keys :req-un [:shop/_id :shop/entryname :shop/entrynamelc])) %)]}
-	(mc-find-maps "get-tag-names" "tags" {} {:_id true :entryname true :entrynamelc true}))
-
-(defn- get-listid-by-name
-    [list-name]
-    {:pre [(utils/valid? :shop/string list-name)]
-     :post [(utils/valid? :shop/_id %)]}
+(defn-spec get-listid-by-name (s/nilable :shop/_id)
+    [list-name :shop/string]
     (mc-find-one-as-map "get-list" "lists" {:entryname list-name} {:_id true}))
 
-(defn- fix-list-ref
-    [lst]
-    {:pre [(utils/valid? (s/nilable string?) lst)]}
+(defn-spec fix-list-ref (s/nilable :shop/_id)
+    [lst (s/nilable string?)]
     (cond
         (str/blank? lst)         nil
         (s/valid? :shop/_id lst) lst
         :else                    (get-listid-by-name lst)))
 
-(defn update-tag
-    ([tag]
-     {:pre [(utils/valid? :shop/tag tag)]}
+(defn-spec update-tag any?
+    ([tag :shop/tag]
      (mc-replace-by-id "update-tag" "tags" tag))
-    ([tag-id tag-name* parent*]
-	{:pre [(utils/valid? :shop/_id tag-id)
-           (utils/valid? :tags/entryname tag-name*)]}
+    ([tag-id :shop/_id, tag-name* :tags/entryname, parent* :shop/parent]
 	(let [tag-name   (->> tag-name* str/trim str/capitalize)
 		  tag-namelc (mk-enlc tag-name)
 		  db-tag     (get-by-enlc "tags" tag-namelc)
@@ -79,12 +58,11 @@
         (mc-update-by-id "update-tag" "tags" tag-id
 			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}}))))
 
-(defn add-tag
-    ([tag-name] (add-tag tag-name nil))
-    ([tag-name parent]
-    {:pre [(utils/valid? :tags/entryname tag-name)]
-	 :post [(utils/valid? :shop/tag %)]}
-	(let [new-tag    (assoc (create-entity (str/capitalize tag-name))
+(defn-spec add-tag :shop/tag
+    ([tag-name :shop/entryname]
+        (add-tag tag-name nil))
+    ([tag-name :shop/entryname, parent (s/nilable string?)]
+    (let [new-tag    (assoc (create-entity (str/capitalize tag-name))
                             :parent (fix-list-ref parent))
           db-tag     (get-by-enlc "tags" (:entrynamelc new-tag))]
 		(if (some? db-tag)
@@ -93,14 +71,12 @@
 				(mc-insert "add-tag" "tags" new-tag)
 				new-tag)))))
 
-(defn delete-tag
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]}
+(defn-spec delete-tag any?
+	[id :shop/_id]
 	(mc-remove-by-id "delete-tag" "tags" id))
 
-(defn delete-tag-all
-	[id]
-	{:pre [(utils/valid? :shop/_id id)]}
+(defn-spec delete-tag-all any?
+	[id :shop/_id]
 	(delete-tag id)
 	(mc-update "delete-tag-all" "lists"    {} {$pull {:tag {:_id id}}} {:multi true})
 	(mc-update "delete-tag-all" "recipes"  {} {$pull {:tag {:_id id}}} {:multi true})
@@ -108,3 +84,5 @@
 	(mc-update "delete-tag-all" "projects" {} {$pull {:tag {:_id id}}} {:multi true})
 	(mc-update "delete-tag-all" "items"    {} {$pull {:tag {:_id id}}} {:multi true})
 	)
+
+(st/instrument)

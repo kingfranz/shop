@@ -4,8 +4,9 @@
               [clj-time.format :as f]
               [clj-time.periodic :as p]
               [slingshot.slingshot :refer [throw+ try+]]
-              ;[clojure.spec.alpha :as s]
-              ;[orchestra.core :refer [defn-spec]]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               ))
 
 ;;-----------------------------------------------------------------------------
@@ -56,3 +57,10 @@
 	(if (seq txt)
 		(assoc m k txt)
 		m))
+
+(defn comp-nil
+    [v1 v2]
+    (let [result (compare v1 v2)]
+        (when-not (zero? result)
+            result)))
+

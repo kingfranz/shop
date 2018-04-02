@@ -2,7 +2,6 @@
     (:require 	 [shop2.extra :refer :all]
                   [shop2.db :refer :all]
                   [shop2.db.items :refer :all]
-                  [shop2.conformer :refer :all]
                   [clj-time.local :as l]
                   [slingshot.slingshot :refer [throw+ try+]]
                   [clojure.spec.alpha :as s]
@@ -18,7 +17,7 @@
 ;;-----------------------------------------------------------------------------
 
 (defn-spec create-list-obj :shop/list
-           [lst-name :shop/entryname, parent :shop/parent, last? boolean?]
+           [lst-name :shop/entryname, parent :list/parent, last? boolean?]
            (-> (create-entity lst-name)
                (assoc :items  []
                       :parent parent
@@ -48,13 +47,13 @@
 
 (defn-spec get-lists-dd (s/coll-of (s/cat :str string? :id :shop/_id))
            []
-           (->> (get-lists)
+           (->> (get-list-names)
                 (sort-by :entryname)
                 (map (fn [l] [(:entryname l) (:_id l)]))
                 (concat [["" no-id]])))
 
 (defn-spec mk-list-dd any?
-           [current-id :shop/_id, dd-name keyword?, dd-class string?]
+           [current-id (s/nilable :shop/_id), dd-name keyword?, dd-class string?]
            (hf/drop-down {:class dd-class} dd-name (get-lists-dd) current-id))
 
 (defn-spec list-id-exists? boolean?
@@ -88,7 +87,7 @@
 (s/def :list/count integer?)
 (s/def :list/total number?)
 (s/def :shop/list-with-count (s/keys :req-un [:shop/_id :shop/entryname :list/parent :list/last :list/count :list/total]))
-(s/def :shop/lists-with-count (s/* :shop/list-with-count))
+(s/def :shop/lists-with-count (s/coll-of :shop/list-with-count))
 
 (defn-spec get-lists-with-count :shop/lists-with-count
            []

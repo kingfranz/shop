@@ -17,7 +17,7 @@
 (defonce anti-lcname-regex #"[^a-zåäö0-9]+")
 
 (s/def :shop/string    		(s/and string? seq))
-(s/def :shop/strings   		(s/* :shop/string))
+(s/def :shop/strings   		(s/coll-of :shop/string))
 (s/def :shop/date      		#(instance? org.joda.time.DateTime %))
 (s/def :shop/_id       		#(and (string? %) (re-matches uuid-regex %)))
 (s/def :shop/created   		:shop/date)
@@ -32,7 +32,7 @@
 (s/def :shop/tag   (s/keys :req-un [:shop/_id :shop/created
                                     :tags/entryname :shop/entrynamelc
                                     :shop/parent]))
-(s/def :shop/tags  (s/* :shop/tag))
+(s/def :shop/tags  (s/coll-of :shop/tag))
 
 (s/def :tags/entryname #(and (string? %) (re-matches tag-name-regex %)))
 
@@ -41,10 +41,10 @@
 (s/def :shop/list  (s/keys :req-un [:shop/_id :shop/created
                                     :shop/entryname :shop/entrynamelc
                                     :list/items :list/parent :list/last]))
-(s/def :shop/lists (s/* :shop/list))
+(s/def :shop/lists (s/coll-of :shop/list))
 
 (s/def :list/item  (s/merge :shop/item (s/keys :req-un [:list/numof :shop/finished])))
-(s/def :list/items (s/* :list/item))
+(s/def :list/items (s/coll-of :list/item))
 (s/def :list/last  boolean?)
 (s/def :list/parent (s/nilable (s/keys :req-un [:shop/_id :shop/entryname :list/parent])))
 (s/def :list/numof  (s/and int? pos?))
@@ -58,7 +58,7 @@
                                       :item/project
                                       :shop/parent
                                       :item/oneshot]))
-(s/def :shop/items   (s/* :shop/item))
+(s/def :shop/items   (s/coll-of :shop/item))
 
 (s/def :item/oneshot  boolean?)
 (s/def :item/price    (s/nilable number?))
@@ -71,42 +71,43 @@
                                         :shop/entryname :shop/entrynamelc
                                         :shop/date :menu/recipe]))
 
-(s/def :shop/menus     (s/* :shop/menu))
+(s/def :shop/menus     (s/coll-of :shop/menu))
 (s/def :shop/fill-menu (s/keys :req-un [:shop/date]))
-(s/def :shop/x-menus   (s/+ (s/or :full :shop/menu :fill :shop/fill-menu)))
+(s/def :shop/x-menu    (s/or :full :shop/menu :fill :shop/fill-menu))
+(s/def :shop/x-menus   (s/coll-of :shop/x-menu))
 (s/def :menu/recipe    (s/nilable (s/keys :req-un [:shop/_id :shop/entryname])))
 
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/project    (s/keys :req-un [:shop/_id :shop/created
                                          :shop/entryname :shop/entrynamelc
-                                         :project/priority :shop/finished :project/tag :project/cleared]))
+                                         :shop/parent
+                                         :project/priority :shop/finished :project/cleared]))
 
-(s/def :shop/projects   (s/* :shop/project))
+(s/def :shop/projects   (s/coll-of :shop/project))
 
 (s/def :project/priority (s/int-in 1 6))
 (s/def :project/cleared  (s/nilable :shop/date))
-(s/def :project/tag      (s/nilable :shop/tag))
 
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/recipe   (s/keys :req-un [:shop/_id :shop/created
                                        :shop/entryname :shop/entrynamelc
                                        :recipe/items :shop/url :recipe/text]))
-(s/def :shop/recipes  (s/* :shop/recipe))
+(s/def :shop/recipes  (s/coll-of :shop/recipe))
 
 (s/def :recipe/text   string?)
 (s/def :recipe/unit   string?)
 (s/def :recipe/amount string?)
 (s/def :recipe/item   (s/keys :req-un [:recipe/text :recipe/unit :recipe/amount]))
-(s/def :recipe/items  (s/* :recipe/item))
+(s/def :recipe/items  (s/coll-of :recipe/item))
 
 ;;-----------------------------------------------------------------------------
 
 (s/def :shop/user    (s/keys :req-un [:shop/_id :user/created
                                       :user/username :user/password
                                       :user/roles :user/properties]))
-(s/def :shop/users   (s/* :shop/user))
+(s/def :shop/users   (s/coll-of :shop/user))
 
 (s/def :user/username  	:shop/string)
 (s/def :user/roles     	(s/every keyword? :kind set?))

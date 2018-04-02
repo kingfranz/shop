@@ -12,29 +12,12 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
-              [garden.core :as g]
-              [garden.units :as u]
-              [garden.selectors :as sel]
-              [garden.stylesheet :as ss]
-              [garden.color :as color]
-              [garden.arithmetic :as ga]
-              [hiccup.core :as h]
-              [hiccup.def :as hd]
-              [hiccup.element :as he]
               [hiccup.form :as hf]
-              [hiccup.page :as hp]
-              [hiccup.util :as hu]
               [ring.util.anti-forgery :as ruaf]
               [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.spec.alpha :as s]
               [clojure.string :as str]
-              [clojure.set :as set]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
@@ -55,7 +38,8 @@
 
 (defn new-tag!
     [{params :params}]
-    (add-tag (:entryname params) (:parent params)))
+    (add-tag (:entryname params) (:parent params))
+    (ring/redirect "/admin/"))
 
 ;;-----------------------------------------------------------------------------
 
@@ -135,18 +119,23 @@
                       [:td.width-200px
                        (mk-list-dd (:parent tag) (utils/mk-tag (:_id tag) "parent") "fz24 width-100p")]])])))
 
+(defn- purge-no-id
+    [v]
+    (when (and (not= v no-id) (s/valid? :shop/_id v))
+        v))
+
 (defn bulk-edit-tags!
     [{params :params}]
     (doseq [tag (get-tags)
-            :let [do-del (get params (utils/mk-tag (:_id tag) "delete"))
-                  iname (get params (utils/mk-tag (:_id tag) "name"))
-                  parent (get params (utils/mk-tag (:_id tag) "parent"))]
+            :let [do-del (= (get params (utils/mk-tag (:_id tag) "delete")) "true")
+                  iname (str/trim (get params (utils/mk-tag (:_id tag) "name")))
+                  parent (purge-no-id (get params (utils/mk-tag (:_id tag) "parent")))]
             :when (or do-del
-                      (not= iname (:entryname tag))
+                      (and (not= iname (:entryname tag)) (s/valid? :shop/entryname iname))
                       (not= parent (:parent tag)))]
         (if do-del
             (delete-tag (:_id tag))
-            (update-tag (:_id tag) iname (when-not (= parent no-id) parent))))
+            (update-tag (:_id tag) iname parent)))
     (ring/redirect "/admin/"))
 
 ;;-----------------------------------------------------------------------------

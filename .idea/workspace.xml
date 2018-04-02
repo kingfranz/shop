@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a79396c0-6f0a-44b7-af7c-a2d168fe7ab2" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__orchestra_2017_11_12_1.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/project.clj" afterPath="$PROJECT_DIR$/project.clj" />
       <change beforePath="$PROJECT_DIR$/shop2.iml" afterPath="$PROJECT_DIR$/shop2.iml" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/conformer.clj" afterPath="" />
       <change beforePath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" afterPath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/core.clj" afterPath="$PROJECT_DIR$/src/shop2/core.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/db.clj" afterPath="$PROJECT_DIR$/src/shop2/db.clj" />
@@ -17,13 +18,15 @@
       <change beforePath="$PROJECT_DIR$/src/shop2/db/tags.clj" afterPath="$PROJECT_DIR$/src/shop2/db/tags.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/db/user.clj" afterPath="$PROJECT_DIR$/src/shop2/db/user.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/extra.clj" afterPath="$PROJECT_DIR$/src/shop2/extra.clj" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/spec.clj" afterPath="$PROJECT_DIR$/src/shop2/spec.clj" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/common.clj" afterPath="$PROJECT_DIR$/src/shop2/views/common.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/css.clj" afterPath="$PROJECT_DIR$/src/shop2/views/css.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/home.clj" afterPath="$PROJECT_DIR$/src/shop2/views/home.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/lists.clj" afterPath="$PROJECT_DIR$/src/shop2/views/lists.clj" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/views/layout.clj" afterPath="$PROJECT_DIR$/src/shop2/views/layout.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/projects.clj" afterPath="$PROJECT_DIR$/src/shop2/views/projects.clj" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -36,31 +39,93 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="home.clj" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
+      <file leaf-file-name="common.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="431">
-              <caret line="135" column="73" lean-forward="true" selection-start-line="135" selection-start-column="73" selection-end-line="135" selection-end-column="73" />
+            <state relative-caret-position="-1255">
+              <caret line="52" column="14" lean-forward="false" selection-start-line="52" selection-start-column="14" selection-end-line="52" selection-end-column="14" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lists.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/db/lists.clj">
+      <file leaf-file-name="project.clj" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="53">
-              <caret line="73" column="4" lean-forward="false" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="4" />
+            <state relative-caret-position="90">
+              <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="core.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/core.clj">
+      <file leaf-file-name="spec.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="78" column="4" lean-forward="false" selection-start-line="78" selection-start-column="4" selection-end-line="78" selection-end-column="4" />
+            <state relative-caret-position="143">
+              <caret line="57" column="6" lean-forward="false" selection-start-line="57" selection-start-column="6" selection-end-line="57" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="projects.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/projects.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="81">
+              <caret line="18" column="3" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
+              <folding>
+                <element signature="e#2443#2742#0" expanded="false" />
+                <element signature="e#2744#2935#0" expanded="false" />
+                <element signature="e#2937#2988#0" expanded="false" />
+                <element signature="e#2990#3063#0" expanded="false" />
+                <element signature="e#4215#4292#0" expanded="false" />
+                <element signature="e#4294#4764#0" expanded="false" />
+                <element signature="e#4766#4872#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="projects.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/db/projects.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="305">
+              <caret line="48" column="10" lean-forward="false" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="extra.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="719">
+              <caret line="60" column="6" lean-forward="false" selection-start-line="60" selection-start-column="6" selection-end-line="60" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="layout.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/layout.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="647">
+              <caret line="72" column="6" lean-forward="false" selection-start-line="72" selection-start-column="6" selection-end-line="72" selection-end-column="6" />
+              <folding>
+                <element signature="e#1158#1237#0" expanded="false" />
+                <element signature="e#1454#1606#0" expanded="false" />
+                <element signature="e#1689#1749#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="css.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="333">
+              <caret line="43" column="30" lean-forward="false" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -77,36 +142,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>\[shop2\.db\.user \:refer \:all\]\n</find>
-      <find>get-user</find>
-      <find>pos</find>
-      <find>unit</find>
-      <find>t-&gt;</find>
-      <find>;abel</find>
-      <find>hf/label</find>
-      <find>top-lvl-name</find>
-      <find>blank-tag-id</find>
-      <find>smhi</find>
-      <find>frmt</find>
-      <find>:shop/std-keys</find>
+      <find>info</find>
+      <find>info-part</find>
+      <find>info-pa</find>
+      <find>{:_id</find>
+      <find>list-w</find>
+      <find>} {:_id</find>
+      <find>\} \{:_id</find>
+      <find>list-tbl</find>
+      <find>sort-by</find>
+      <find>fname</find>
       <find>item-tag</find>
-      <find>:tags</find>
-      <find>numb</find>
-      <find>price</find>
-      <find>update-user</find>
-      <find>top-lvl</find>
-      <find>get-pa</find>
-      <find>align</find>
-      <find>assoc-num-if</find>
-      <find>menu-old-range</find>
-      <find>:blank</find>
-      <find>keywo</find>
-      <find>mk-list-dd</find>
-      <find>contains</find>
-      <find>find</find>
-      <find>:pr</find>
-      <find>defn-spec</find>
-      <find>lists</find>
+      <find>&quot;true&quot;</find>
+      <find>monger.coll</find>
+      <find>any?</find>
+      <find>mc/</find>
+      <find>item-div</find>
+      <find>get-db-projects</find>
+      <find>upda</find>
+      <find>-head</find>
+      <find>by-proje</find>
+      <find>exis</find>
+      <find>fata</find>
+      <find>table.items-block</find>
+      <find>mk-proj-row</find>
+      <find>items-b</find>
+      <find>tags-he</find>
+      <find>err</find>
+      <find>mk-name-field</find>
+      <find>bold</find>
+      <find>:right</find>
     </findStrings>
     <replaceStrings>
       <replace>tag</replace>
@@ -116,10 +181,17 @@
       <replace>throw+</replace>
       <replace>utils/mk-tag</replace>
       <replace>&quot;lists&quot;</replace>
+      <replace>}\n{:_id</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/shop2/views/css.clj" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/shop2/views/projects.clj" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/shop2/db/tags.clj" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/shop2/views/home.clj" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -133,43 +205,43 @@
         <option value="$PROJECT_DIR$/load.html" />
         <option value="$PROJECT_DIR$/src/shop2/session_store.clj" />
         <option value="$PROJECT_DIR$/resources/public/save.js" />
-        <option value="$PROJECT_DIR$/src/shop2/views/layout.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
         <option value="$PROJECT_DIR$/shop.log" />
         <option value="$PROJECT_DIR$/update-server.sh" />
         <option value="$PROJECT_DIR$/resources/public/login.js" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.clj" />
         <option value="$PROJECT_DIR$/src/user.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/users.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/menus.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/spec.clj" />
         <option value="$PROJECT_DIR$/req-trace.txt" />
         <option value="$PROJECT_DIR$/mongobackup.sh" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin.clj" />
         <option value="$PROJECT_DIR$/src/shop2/conformer.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/recipe.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/projects.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/css.clj" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.txt" />
-        <option value="$PROJECT_DIR$/src/shop2/views/items.clj" />
-        <option value="$PROJECT_DIR$/project.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/lists.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/db.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/db/items.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/db/menus.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/db/projects.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/tags.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db/menus.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/user.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/common.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/core.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/spec.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/lists.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db/items.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db/projects.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/items.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/core.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/layout.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/home.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/css.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/projects.clj" />
+        <option value="$PROJECT_DIR$/project.clj" />
       </list>
     </option>
   </component>
@@ -187,6 +259,15 @@
             <id />
           </State>
           <State>
+            <id>Clojure</id>
+          </State>
+          <State>
+            <id>General</id>
+          </State>
+          <State>
+            <id>Language Injection</id>
+          </State>
+          <State>
             <id>Manifest</id>
           </State>
           <State>
@@ -195,7 +276,7 @@
         </expanded-state>
         <selected-state>
           <State>
-            <id>SpellCheckingInspection</id>
+            <id>Language Injection</id>
           </State>
         </selected-state>
       </profile-state>
@@ -217,7 +298,17 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
+      <pane id="Scratches">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -265,17 +356,6 @@
               <item name="views" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="shop2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="shop2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -286,7 +366,7 @@
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="TEXT&#10;JSON&#10;Clojure" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../shopsrc/shop2/db/lists.clj" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../shopsrc/shop2" />
     <property name="project.structure.last.edited" value="Global Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -387,6 +467,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16126943" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24012475" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -397,7 +478,6 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32952183" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.11330561" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -457,7 +537,8 @@
     <MESSAGE value="many changes" />
     <MESSAGE value="auto login" />
     <MESSAGE value="1.0 new spec!" />
-    <option name="LAST_COMMIT_MESSAGE" value="1.0 new spec!" />
+    <MESSAGE value="defn-spec" />
+    <option name="LAST_COMMIT_MESSAGE" value="defn-spec" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -466,22 +547,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/user.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1800">
-          <caret line="100" column="5" lean-forward="false" selection-start-line="100" selection-start-column="5" selection-end-line="100" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="20" column="55" lean-forward="false" selection-start-line="20" selection-start-column="55" selection-end-line="20" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_3.clj" />
     <entry file="file://$USER_HOME$/shopping/req-trace.txt">
       <provider selected="true" editor-type-id="text-editor">
@@ -531,31 +596,10 @@
       </provider>
     </entry>
     <entry file="file:///var/smhi/smhi-3.log" />
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/layout.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-398">
-          <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="105" column="35" lean-forward="false" selection-start-line="105" selection-start-column="35" selection-end-line="105" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="32" column="84" lean-forward="false" selection-start-line="32" selection-start-column="84" selection-end-line="32" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/shop.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="1498" column="15" lean-forward="true" selection-start-line="1498" selection-start-column="15" selection-end-line="1498" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -580,38 +624,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/items.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="153" column="34" lean-forward="false" selection-start-line="153" selection-start-column="34" selection-end-line="153" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/recipe.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="449">
           <caret line="124" column="4" lean-forward="false" selection-start-line="124" selection-start-column="4" selection-end-line="124" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/projects.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="415">
-          <caret line="174" column="3" lean-forward="false" selection-start-line="174" selection-start-column="3" selection-end-line="174" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/tags.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="96" column="3" lean-forward="false" selection-start-line="96" selection-start-column="3" selection-end-line="96" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="491" column="4" lean-forward="false" selection-start-line="491" selection-start-column="4" selection-end-line="491" selection-end-column="4" />
         </state>
       </provider>
     </entry>
@@ -643,123 +659,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/items.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="594">
-          <caret line="195" column="32" lean-forward="false" selection-start-line="195" selection-start-column="32" selection-end-line="195" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-735">
-          <caret line="99" column="4" lean-forward="false" selection-start-line="99" selection-start-column="4" selection-end-line="99" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/project.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="37" lean-forward="false" selection-start-line="12" selection-start-column="37" selection-end-line="12" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/lists.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" column="38" lean-forward="false" selection-start-line="18" selection-start-column="38" selection-end-line="18" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/lists.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="14" lean-forward="false" selection-start-line="14" selection-start-column="14" selection-end-line="14" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/controllers/routes.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="6" lean-forward="false" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/items.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1404">
-          <caret line="78" column="39" lean-forward="false" selection-start-line="78" selection-start-column="39" selection-end-line="78" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/menus.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1242">
-          <caret line="69" column="42" lean-forward="false" selection-start-line="69" selection-start-column="42" selection-end-line="69" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/projects.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="792">
-          <caret line="101" column="38" lean-forward="true" selection-start-line="101" selection-start-column="38" selection-end-line="101" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/recipes.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="737">
-          <caret line="55" column="34" lean-forward="true" selection-start-line="55" selection-start-column="34" selection-end-line="55" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/tags.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1944">
-          <caret line="108" column="36" lean-forward="false" selection-start-line="108" selection-start-column="36" selection-end-line="108" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="6" lean-forward="true" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="12" lean-forward="false" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/db/user.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1800">
-          <caret line="100" column="5" lean-forward="false" selection-start-line="100" selection-start-column="5" selection-end-line="100" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="34" column="2" lean-forward="false" selection-start-line="34" selection-start-column="2" selection-end-line="34" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -771,26 +674,248 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/core.clj">
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/recipes.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="78" column="4" lean-forward="false" selection-start-line="78" selection-start-column="4" selection-end-line="78" selection-end-column="4" />
+        <state relative-caret-position="756">
+          <caret line="42" column="14" lean-forward="false" selection-start-line="42" selection-start-column="14" selection-end-line="42" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../shopsrc/shop2/db/menus.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-432">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/menus.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="6" lean-forward="false" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/user.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="14" lean-forward="false" selection-start-line="2" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/items.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="467">
+          <caret line="209" column="0" lean-forward="false" selection-start-line="204" selection-start-column="0" selection-end-line="209" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/tags.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="35" column="2" lean-forward="false" selection-start-line="35" selection-start-column="2" selection-end-line="35" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="4" lean-forward="false" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/profiles.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/controllers/routes.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/lists.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="47" column="34" lean-forward="false" selection-start-line="47" selection-start-column="34" selection-end-line="47" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="107" column="0" lean-forward="false" selection-start-line="107" selection-start-column="0" selection-end-line="107" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/items.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="44" column="33" lean-forward="false" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/db/lists.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="53">
-          <caret line="73" column="4" lean-forward="false" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="4" />
+        <state relative-caret-position="450">
+          <caret line="88" column="80" lean-forward="false" selection-start-line="88" selection-start-column="80" selection-end-line="88" selection-end-column="80" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="143">
+          <caret line="57" column="6" lean-forward="false" selection-start-line="57" selection-start-column="6" selection-end-line="57" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/shop.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-369">
+          <caret line="3828" column="37" lean-forward="false" selection-start-line="3828" selection-start-column="33" selection-end-line="3828" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/items.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+          <folding>
+            <element signature="e#2437#2690#0" expanded="false" />
+            <element signature="e#2692#2958#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/tags.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="7" lean-forward="true" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="687">
+          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1255">
+          <caret line="52" column="14" lean-forward="false" selection-start-line="52" selection-start-column="14" selection-end-line="52" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/core.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="739">
+          <caret line="104" column="0" lean-forward="false" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
+          <folding>
+            <element signature="e#3043#3130#0" expanded="false" />
+            <element signature="e#3132#3505#0" expanded="false" />
+            <element signature="e#3507#3859#0" expanded="false" />
+            <element signature="e#3861#3983#0" expanded="false" />
+            <element signature="e#3985#4234#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/layout.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="647">
+          <caret line="72" column="6" lean-forward="false" selection-start-line="72" selection-start-column="6" selection-end-line="72" selection-end-column="6" />
+          <folding>
+            <element signature="e#1158#1237#0" expanded="false" />
+            <element signature="e#1454#1606#0" expanded="false" />
+            <element signature="e#1689#1749#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
-          <caret line="135" column="73" lean-forward="true" selection-start-line="135" selection-start-column="73" selection-end-line="135" selection-end-column="73" />
+        <state relative-caret-position="107">
+          <caret line="91" column="4" lean-forward="false" selection-start-line="91" selection-start-column="4" selection-end-line="91" selection-end-column="4" />
+          <folding>
+            <element signature="e#1718#1950#0" expanded="false" />
+            <element signature="e#1952#2271#0" expanded="false" />
+            <element signature="e#2273#2450#0" expanded="false" />
+            <element signature="e#2452#2852#0" expanded="false" />
+            <element signature="e#2854#3105#0" expanded="false" />
+            <element signature="e#3107#3211#0" expanded="false" />
+            <element signature="e#3621#3979#0" expanded="false" />
+            <element signature="e#3981#4226#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/projects.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="48" column="10" lean-forward="false" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="719">
+          <caret line="60" column="6" lean-forward="false" selection-start-line="60" selection-start-column="6" selection-end-line="60" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="333">
+          <caret line="43" column="30" lean-forward="false" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/projects.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="81">
+          <caret line="18" column="3" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="3" />
+          <folding>
+            <element signature="e#2443#2742#0" expanded="false" />
+            <element signature="e#2744#2935#0" expanded="false" />
+            <element signature="e#2937#2988#0" expanded="false" />
+            <element signature="e#2990#3063#0" expanded="false" />
+            <element signature="e#4215#4292#0" expanded="false" />
+            <element signature="e#4294#4764#0" expanded="false" />
+            <element signature="e#4766#4872#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
           <folding />
         </state>
       </provider>

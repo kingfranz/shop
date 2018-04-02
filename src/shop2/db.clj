@@ -6,6 +6,8 @@
               [taoensso.timbre :as log]
               [clj-time.local :as l]
               [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [clojure.string :as str]
               [cheshire.core :refer :all]
               [monger.core :as mg]
@@ -21,21 +23,20 @@
 ; mongo --port 27017 -u "mongoadmin" -p "Benq.fp731" --authenticationDatabase "admin"
 ; db.createUser({user:"shopper",pwd:"kAllE.kUlA399",roles:[{role:"readWrite",db:"shopdb"}]})
 
-(def db-conn (mg/connect-with-credentials (env :database-ip)
+(defonce db-conn (mg/connect-with-credentials (env :database-ip)
 							(mcr/create (env :database-user)
                    						(env :database-db)
                          				(env :database-pw)
                              )))
-(def shopdb (mg/get-db db-conn (env :database-db)))
+(defonce shopdb (mg/get-db db-conn (env :database-db)))
 
-(def no-id "00000000-0000-0000-0000-000000000000")
+(defonce no-id "00000000-0000-0000-0000-000000000000")
 
 ;;-----------------------------------------------------------------------------
 
-(defn mk-id
+(defn-spec mk-id :shop/_id
 	[]
- 	{:post [(utils/valid? :shop/_id %)]}
-	(str (UUID/randomUUID)))
+ 	(str (UUID/randomUUID)))
 
 (defn mk-std-field
 	[]
@@ -100,45 +101,41 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn mk-enlc
-	[en]
- 	{:pre [(utils/valid? :shop/string en)]
-     :post [(utils/valid? :shop/entrynamelc %)]}
-	(-> en str/trim str/lower-case (str/replace anti-lcname-regex "")))
+(defn-spec mk-enlc :shop/entrynamelc
+	[en :shop/entryname]
+ 	(-> en str/trim str/lower-case (str/replace anti-lcname-regex "")))
 
-(defn update-enlc
-    [entity]
+(defn-spec update-enlc (s/keys :req-un [:shop/entryname :shop/entrynamelc])
+    [entity (s/keys :req-un [:shop/entryname])]
     (assoc entity :entrynamelc (mk-enlc (:entryname entity))))
 
-(defn set-name
-    [entity name]
-    (->> name
+(defn-spec set-name (s/keys :req-un [:shop/entryname :shop/entrynamelc])
+    [entity map?, ename :shop/entryname]
+    (->> ename
          str/trim
-         (s/assert :shop/string)
          (assoc entity :entryname)
          (update-enlc)))
 
-(defn create-entity
-    [ename]
+(defn-spec create-entity (s/keys :req-un [:shop/_id :shop/created :shop/entryname :shop/entrynamelc])
+    [ename :shop/string]
     (-> (mk-std-field)
         (set-name ename)))
 
-(defn get-by-enlc
-	[tbl en]
- 	{:pre [(utils/valid? :shop/string tbl) (utils/valid? :shop/string en)]
-     :post [(utils/valid? (s/nilable map?) %)]}
-	(mc-find-one-as-map "get-by-enlc" tbl {:entrynamelc en}))
+(defn-spec get-by-enlc (s/nilable map?)
+	[tbl :shop/string, en :shop/string]
+ 	(mc-find-one-as-map "get-by-enlc" tbl {:entrynamelc en}))
 
 ;;-----------------------------------------------------------------------------
 
-(defn add-item-usage
-	[list-id item-id action numof]
- 	{:pre [(utils/valid? (s/nilable :shop/_id) list-id)
-           (utils/valid? :shop/_id item-id)
-           (utils/valid? keyword? action)
-           (utils/valid? number? numof)]}
-	(mc-insert "add-item-usage" "item-usage"
-		(merge {:listid list-id :itemid item-id :action action :numof numof}
-			   (mk-std-field))))
+(defn-spec add-item-usage any?
+	[list-id (s/nilable :shop/_id), item-id :shop/_id, action keyword?, numof integer?]
+ 	(mc-insert "add-item-usage" "item-usage"
+		(assoc (mk-std-field)
+            :listid list-id
+            :itemid item-id
+            :action action
+            :numof numof)))
 
 ;;-----------------------------------------------------------------------------
+
+(st/instrument)

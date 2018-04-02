@@ -68,13 +68,15 @@
 
 (defn error-page
     [request except]
-    (common request "Error" [css-admin css-items] ;
-                   [:table
-                    [:tr [:td (home-button)]]
-                    ;[:tr [:td (str "Error in " src-page)]]
-                    ;(when-not (str/blank? err-msg)
-                    ;    [:tr [:td (named-block "Message" err-msg)]])
-                    (when except (list
-                        (err-block-s "Cause" st/root-cause except)
-                        (err-block "Params" pp/pprint (:params request))
-                        (err-block "Stacktrace" st/print-stack-trace except)))]))
+    (try+
+        {:status  400
+         :headers {"title" "ERROR!"}
+         :body    (hp/html5
+                      [:style css-html css-misc css-admin css-items]
+                      [:table
+                       [:tr [:td (home-button)]]
+                       (when except (list
+                                        (err-block-s "Cause" st/root-cause except)
+                                        (err-block "Params" pp/pprint (:params request))
+                                        (err-block "Stacktrace" st/print-stack-trace except)))])}
+        (catch Throwable e (println "error-page:" (.getMessage e) "\n" e))))

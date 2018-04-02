@@ -8,6 +8,9 @@
               [shop2.views.css :refer :all]
               [shop2.spec :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [hiccup.element :as he]
               [hiccup.form :as hf]
               [environ.core :refer [env]]
@@ -94,15 +97,15 @@
 
 (defn-spec mk-tag-entry any?
     "create a labeled radio button for a tag"
-    [target string?, tag :shop/tag]
+    [target (s/nilable string?), tag (s/keys :req-un [:shop/_id :shop/entryname])]
     [:div.cb-div
      (labeled-radio (:entryname tag)
                     "tags"
                     (:_id tag)
                     (= target (:entryname tag)))])
 
-(defn-spec filter-tag-parent :shop/tags
-    [parent :shop/parent, tags :shop/tags]
+(defn-spec filter-tag-parent (s/coll-of :shop/tag)
+    [parent :shop/parent, tags (s/coll-of :shop/tag)]
     (if parent
         (let [parents (get-parents (get-list parent))]
             (filter #(or (nil? (:parent %)) (contains? parents (:parent %))) tags))
@@ -136,10 +139,11 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn-spec str->num double?
-    [s string?]
+(defn-spec str->num (s/nilable double?)
+    [s (s/nilable string?)]
     (try+
-        (Double/valueOf (str/trim s))
+        (when s
+            (Double/valueOf (str/trim s)))
         (catch Exception _ nil)))
 
 ;;-----------------------------------------------------------------------------
@@ -185,3 +189,5 @@
 	(-> req udata :_id))
 
 ;;-----------------------------------------------------------------------------
+
+(st/instrument)

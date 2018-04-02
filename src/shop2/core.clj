@@ -1,6 +1,9 @@
 (ns shop2.core
     (:require [shop2.db :refer :all]
               [shop2.db.user :refer :all]
+              [shop2.db.projects :refer :all]
+              [shop2.db.items :refer :all]
+              [shop2.views.css :refer :all]
               [shop2.controllers.routes :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.session-store :refer :all]
@@ -53,17 +56,21 @@
 		(try+
             ;(println "wrap!")
 			(handler request)
-            (catch [:type :conform-error] {:keys [msg spec obj]}
+            (catch [:type :test] {:keys [msg spec obj]}
                 (println "## Conformer Exception:" spec "\n" obj)
                 (log/fatal msg)
-                ;(error-page request e)
-                )
-            (catch Throwable e
+                (error-page request nil))
+            (catch Exception e
                 (println "## Exception:" (.getMessage e) e)
                 (log/fatal e)
-                (error-page request e)
-                ;{:status 400 :body "## EXCEPTION ##"}
-                ))))
+                (error-page request e))
+            (catch Throwable e
+                (println "## Throwable:" (.getMessage e) e)
+                (log/fatal e)
+                (error-page request e))
+                ;(common request "Error" [css-admin css-items] (.getMessage e))
+            ;(catch Object e (println "CATCH! Object" (type e) e))
+            )))
 
 (defn unauth-handler
 	[_]
@@ -95,17 +102,28 @@
     (fn [^Exception e data request]
         (f {:message (.getMessage e), :type type})))
 
+(defn convert-db
+    []
+    (doseq [item (doall (get-raw-items))]
+        (-> item
+            (select-keys [:_id :created :entryname :entrynamelc :tag :url :price :project :parent :oneshot])
+            (utils/spy)
+            (update-item)))
+    )
+
 ;; entry point, lein run will pick up and start from here
 (defn -main
     [& args]
-    (s/instrument)
+    ;(convert-db)
+    ;(System/exit 0)
 	(-> all-routes
+        (wrap-fallback-exception)
         (wrap-anti-forgery)
         (friend/authenticate {
                               :unauthorized-handler unauth-handler
                               :credential-fn        (partial cred get-user)
                               :workflows            [(workflows/interactive-form)]})
-        (ring-spy)
+        ;(ring-spy)
         (wrap-session {:store (->ShopStore )})
         (wrap-keyword-params)
         (wrap-params)

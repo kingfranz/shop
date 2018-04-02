@@ -6,5 +6,8 @@
       <option name="processLiterals" value="true" />
       <option name="processComments" value="true" />
     </inspection_tool>
+    <inspection_tool class="SyntaxError" enabled="true" level="ERROR" enabled_by_default="true">
+      <scope name="Problems" level="ERROR" enabled="true" />
+    </inspection_tool>
   </profile>
 </component>

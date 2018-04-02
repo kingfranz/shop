@@ -503,11 +503,17 @@
         [:.width-100p {:width (u/percent 100)}]
         [:.width-90p {:width (u/percent 90)}]
         [:.width-100px {:width (u/px 100)}]
+        [:.width-150px {:width (u/px 150)}]
         [:.width-200px {:width (u/px 200)}]
         [:.width-300px {:width (u/px 300)}]
         [:.width-400px {:width (u/px 400)}]
         [:.fz24 {:font-size (u/px 24)}]
 
+        [:.isb (-> (mk-lnk 8 16 4 2 32 2)
+                   (assoc :font-size (u/px 24))
+                   (dissoc :padding :margin))]
+        [:p.no-margin {:margin 0}]
+        [:.bold {:font-weight :bold}]
         ))
 
 (def css-html
@@ -592,7 +598,7 @@
 			(ss/at-media {:screen true :max-width (u/px 700)}
 	    		[:& {:font-size (u/px 24)}])]
 		[:.proj-pri-td {
-			:width (u/px 40)
+			:width (u/px 50)
 		}]
 		[:.proj-check-td {
 			:width (u/px 20)
@@ -603,6 +609,12 @@
 		[:.proj-tags-td {
 			:width (u/px 200)
 		}]
+        [:div.horizontalgap {
+                             :float :left
+                             :overflow :hidden
+                             :height (u/px 1)
+                             :width (u/px 0)
+                             }]
 		[:.proj-pri-val {
 			:width full
 			:font-size (u/px 18)

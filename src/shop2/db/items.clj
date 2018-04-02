@@ -1,27 +1,15 @@
 (ns shop2.db.items
-	(:require 	[clj-time.core :as t]
-                 [clj-time.local :as l]
-                 [clj-time.coerce :as c]
-                 [clj-time.format :as f]
-                 [clj-time.periodic :as p]
-                 [slingshot.slingshot :refer [throw+ try+]]
+	(:require 	 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [orchestra.core :refer [defn-spec]]
-                 [clojure.string :as str]
-                 [clojure.set :as set]
-                 [clojure.pprint :as pp]
                  [clojure.spec.alpha :as s]
+                 [orchestra.core :refer [defn-spec]]
+                 [orchestra.spec.test :as st]
                  [cheshire.core :refer :all]
                  [taoensso.timbre :as log]
-                 [monger.core :as mg]
-                 [monger.credentials :as mcr]
-                 [monger.collection :as mc]
-                 [monger.joda-time :as jt]
-                 [monger.operators :refer :all]
                  [shop2.extra :refer :all]
                  [shop2.db :refer :all]
                  [shop2.db.tags :refer :all]
-                 [shop2.conformer :refer :all]
                  [utils.core :as utils]
             ))
 
@@ -50,11 +38,15 @@
 
 (defn-spec get-items :shop/items
 	[]
-	(map conform-item (mc-find-maps "get-items" "items" {})))
+	(mc-find-maps "get-items" "items" {}))
+
+(defn get-raw-items
+           []
+           (mc-find-maps "get-raw-items" "items" {}))
 
 (defn-spec get-item :shop/item
 	[id :shop/_id]
-	(conform-item (mc-find-one-as-map "get-item" "items" {:_id id})))
+	(mc-find-one-as-map "get-item" "items" {:_id id}))
 
 (defn-spec item-id-exists? boolean?
 	[id :shop/_id]
@@ -78,3 +70,4 @@
 	(add-item-usage nil item-id :delete 0)
 	(mc-remove-by-id "delete-item" "items" item-id))
 
+(st/instrument)

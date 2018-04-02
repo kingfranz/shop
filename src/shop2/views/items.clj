@@ -50,7 +50,7 @@
                             (map :_id)
                             set)]
         (->> items
-             (filter #(contains? id-parents (:parent %)))
+             (filter #(or (nil? (:parent %)) (contains? id-parents (:parent %))))
              (remove #(contains? active-items (:_id %))))))
 
 (defn- mk-add-item
@@ -63,7 +63,7 @@
        [:td.item-txt-td
         [:div.item-txt (:entryname item)]]
        [:td.item-tags-td
-        [:div.item-tags (:tag item)]]]]])
+        [:div.item-tags (some-> item :tag :entryname)]]]]])
 
 (defn- mk-add-item-no-tag
     [item]
@@ -87,7 +87,10 @@
 
 (defn- mk-letter
     [items]
-    [:tr [:td.items-block (map mk-add-item (sort-by :entrynamelc items))]])
+    [:tr
+     [:td.items-block
+      [:p.no-margin (hf/submit-button {:class "isb"} "\u2713")]
+      (map mk-add-item (sort-by :entrynamelc items))]])
 
 (defn- items-by-name
     [alpha]
@@ -131,7 +134,7 @@
                      (homeback-button (str "/user/list/get/" list-id))
                      (sort-button sort-type list-id)
                      [:a.link-flex {:href (str "/user/item/new/" list-id)} "+"]
-                     [:a.link-flex (hf/submit-button {:class "button-s"} "\u2713")]]
+                     (hf/submit-button {:class "button-s"} "\u2713")]
                     [:div
                      [:table (item-list a-list sort-type)]]))))
 
