@@ -1,18 +1,24 @@
 (ns shop2.db.recipes
-	(:require 	 [slingshot.slingshot :refer [throw+ try+]]
-                 [cheshire.core :refer :all]
-                 [taoensso.timbre :as log]
-                  [clojure.spec.alpha :as s]
-                  [orchestra.core :refer [defn-spec]]
-                  [orchestra.spec.test :as st]
-                  [monger.operators :refer :all]
-                 [shop2.extra :refer :all]
-                 [shop2.db :refer :all]
-                 [shop2.db.tags :refer :all]
-                 [utils.core :as utils]
-            ))
+    (:require [slingshot.slingshot :refer [throw+ try+]]
+              [cheshire.core :refer :all]
+              [taoensso.timbre :as log]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
+              [monger.operators :refer :all]
+              [shop2.extra :refer :all]
+              [shop2.db :refer :all]
+              [shop2.db.notes :refer :all]
+              [utils.core :as utils]
+              ))
 
 ;;-----------------------------------------------------------------------------
+
+(defn-spec create-recipe-obj :shop/recipe
+           [rname :shop/entryname, url :shop/url, text string?, items :recipe/items]
+           (-> (create-note-obj rname text)
+               (assoc :url url
+                      :items items)))
 
 (defn-spec get-recipe-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]

@@ -5,6 +5,7 @@
               [cemerick.friend :as friend]
               [shop2.views.home :refer :all]
               [shop2.views.recipe :refer :all]
+              [shop2.views.notes :refer :all]
               [shop2.views.items :refer :all]
               [shop2.views.menus :refer :all]
               [shop2.views.admin :refer :all]
@@ -70,6 +71,25 @@
 
                   (cc/POST "/new" request
                       (new-recipe! request))
+                  )
+
+              ;---------------------------------------------
+              ; notes
+              (cc/context "/note" []
+                  (cc/GET "/edit/:id" request
+                      (edit-note request (-> request :params :id)))
+
+                  (cc/GET "/new" request
+                      (new-note request))
+
+                  (cc/GET "/delete/:id" request
+                      (delete-note! request (-> request :params :id)))
+
+                  (cc/POST "/edit" request
+                      (edit-note! request))
+
+                  (cc/POST "/new" request
+                      (new-note! request))
                   )
 
               ;---------------------------------------------

@@ -12,6 +12,7 @@
               [shop2.db.menus :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
+              [shop2.db.notes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
               [hiccup.element :as he]
               [ring.util.response :as ring]
@@ -88,16 +89,23 @@
 
 (defn- recipe-list
     []
-    ;(throw+ {:type :input :src "recipe-list" :cause "just a test"})
     [:table
      (map (fn [r]
               [:tr
                [:td.home-margin
                 [:a.link-thin {:href (str "/user/recipe/edit/" (:_id r))}
                  (:entryname r)]]])
-          (sort-by :entryname
-                   #(compare (str/lower-case %1) (str/lower-case %2))
-                   (get-recipe-names)))])
+          (sort-by :entrynamelc (get-recipe-names)))])
+
+(defn- note-list
+    []
+    [:table
+     (map (fn [r]
+              [:tr
+               [:td.home-margin
+                [:a.link-thin {:href (str "/user/note/edit/" (:_id r))}
+                 (:entryname r)]]])
+          (sort-by :entrynamelc (get-note-names)))])
 
 (defn- lo-admin
     [req]
@@ -121,8 +129,12 @@
                      [:p.header [:a.link-home {:href "/user/project/edit"} "Projekt"]]
                      [:div.home-box (display-projects)]]
                     [:div.column
-                     [:p.header [:a.link-home {:href "/user/recipe/new"} "Recept"]]
-                     [:div.home-box (recipe-list)]]
+                     [:div.column
+                      [:p.header [:a.link-home {:href "/user/recipe/new"} "Recept"]]
+                      [:div.home-box (recipe-list)]]
+                     [:div.column
+                      [:p.header [:a.link-home {:href "/user/note/new"} "Note"]]
+                      [:div.home-box (note-list)]]]
                     ))
 
 (defn-spec set-home-type any?

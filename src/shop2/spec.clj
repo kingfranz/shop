@@ -92,9 +92,16 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/recipe   (s/keys :req-un [:shop/_id :shop/created
-                                       :shop/entryname :shop/entrynamelc
-                                       :recipe/items :shop/url :recipe/text]))
+(s/def :shop/note   (s/keys :req-un [:shop/_id :shop/created
+                                     :shop/entryname :shop/entrynamelc
+                                     :note/text]))
+(s/def :shop/notes  (s/coll-of :shop/note))
+
+(s/def :note/text   string?)
+
+;;-----------------------------------------------------------------------------
+
+(s/def :shop/recipe   (s/merge :shop/note (s/keys :req-un [:recipe/items :shop/url])))
 (s/def :shop/recipes  (s/coll-of :shop/recipe))
 
 (s/def :recipe/text   string?)

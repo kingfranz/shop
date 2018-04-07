@@ -2,36 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a79396c0-6f0a-44b7-af7c-a2d168fe7ab2" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/src/shop2/db/notes.clj" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/src/shop2/views/notes.clj" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/update-server.sh" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/vmserver.service" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/project.clj" afterPath="$PROJECT_DIR$/project.clj" />
       <change beforePath="$PROJECT_DIR$/shop2.iml" afterPath="$PROJECT_DIR$/shop2.iml" />
       <change beforePath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" afterPath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/core.clj" afterPath="$PROJECT_DIR$/src/shop2/core.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db.clj" afterPath="$PROJECT_DIR$/src/shop2/db.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/items.clj" afterPath="$PROJECT_DIR$/src/shop2/db/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/lists.clj" afterPath="$PROJECT_DIR$/src/shop2/db/lists.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/menus.clj" afterPath="$PROJECT_DIR$/src/shop2/db/menus.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/projects.clj" afterPath="$PROJECT_DIR$/src/shop2/db/projects.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/db/recipes.clj" afterPath="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/tags.clj" afterPath="$PROJECT_DIR$/src/shop2/db/tags.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/user.clj" afterPath="$PROJECT_DIR$/src/shop2/db/user.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/extra.clj" afterPath="$PROJECT_DIR$/src/shop2/extra.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/spec.clj" afterPath="$PROJECT_DIR$/src/shop2/spec.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/users.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/users.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/common.clj" afterPath="$PROJECT_DIR$/src/shop2/views/common.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/css.clj" afterPath="$PROJECT_DIR$/src/shop2/views/css.clj" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/home.clj" afterPath="$PROJECT_DIR$/src/shop2/views/home.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/layout.clj" afterPath="$PROJECT_DIR$/src/shop2/views/layout.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/lists.clj" afterPath="$PROJECT_DIR$/src/shop2/views/lists.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/menus.clj" afterPath="$PROJECT_DIR$/src/shop2/views/menus.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/projects.clj" afterPath="$PROJECT_DIR$/src/shop2/views/projects.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/recipe.clj" afterPath="$PROJECT_DIR$/src/shop2/views/recipe.clj" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -48,53 +30,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="menus.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1440">
-              <caret line="80" column="39" lean-forward="false" selection-start-line="80" selection-start-column="39" selection-end-line="80" selection-end-column="39" />
-              <folding>
-                <element signature="e#2296#2863#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="core.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../utils/src/utils/core.clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3708">
-              <caret line="206" column="81" lean-forward="false" selection-start-line="206" selection-start-column="4" selection-end-line="206" selection-end-column="81" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="menus.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/db/menus.clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="774">
-              <caret line="43" column="30" lean-forward="false" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="common.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2448">
-              <caret line="136" column="0" lean-forward="false" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="recipe.clj" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shop2/views/recipe.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="143">
-              <caret line="42" column="4" lean-forward="false" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
+            <state relative-caret-position="0">
+              <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="notes.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/notes.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="459">
+              <caret line="30" column="4" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -103,9 +53,31 @@
       <file leaf-file-name="project.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="24" lean-forward="false" selection-start-line="0" selection-start-column="24" selection-end-line="0" selection-end-column="24" />
+            <state relative-caret-position="198">
+              <caret line="11" column="5" lean-forward="false" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="spec.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1854">
+              <caret line="103" column="3" lean-forward="false" selection-start-line="103" selection-start-column="3" selection-end-line="103" selection-end-column="3" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="home.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+              <folding>
+                <element signature="e#3796#4041#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -113,18 +85,18 @@
       <file leaf-file-name="recipes.clj" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shop2/db/recipes.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="630">
-              <caret line="35" column="4" lean-forward="false" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
+            <state relative-caret-position="360">
+              <caret line="20" column="22" lean-forward="false" selection-start-line="20" selection-start-column="22" selection-end-line="20" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="db.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/db.clj">
+      <file leaf-file-name="notes.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/db/notes.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="57" column="52" lean-forward="false" selection-start-line="57" selection-start-column="52" selection-end-line="57" selection-end-column="52" />
+            <state relative-caret-position="792">
+              <caret line="44" column="16" lean-forward="false" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -133,23 +105,19 @@
       <file leaf-file-name="routes.clj" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shop2/controllers/routes.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="441">
-              <caret line="65" column="5" lean-forward="false" selection-start-line="65" selection-start-column="5" selection-end-line="65" selection-end-column="5" />
+            <state relative-caret-position="270">
+              <caret line="15" column="2" lean-forward="false" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="admin.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
+      <file leaf-file-name="css.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="432">
-              <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-              <folding>
-                <element signature="e#1836#3113#0" expanded="false" />
-                <element signature="e#3115#4091#0" expanded="false" />
-                <element signature="e#4093#4871#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="14094">
+              <caret line="783" column="15" lean-forward="false" selection-start-line="783" selection-start-column="15" selection-end-line="783" selection-end-column="15" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -160,13 +128,12 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
+        <option value="Clojure Namespace" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>tags-he</find>
-      <find>err</find>
       <find>mk-name-field</find>
       <find>bold</find>
       <find>:right</find>
@@ -195,6 +162,8 @@
       <find>fix-da</find>
       <find>get-db-menus</find>
       <find>mk-recipe-item-list</find>
+      <find>recipe</find>
+      <find>rec</find>
     </findStrings>
     <replaceStrings>
       <replace>tag</replace>
@@ -206,6 +175,7 @@
       <replace>}\n{:_id</replace>
       <replace>utils/mk-tag</replace>
       <replace>:shop/item</replace>
+      <replace>note</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -242,16 +212,13 @@
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.txt" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/tags.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/home.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/users.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/user.clj" />
         <option value="$PROJECT_DIR$/src/shop2/core.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/lists.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/css.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/common.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/spec.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/projects.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
@@ -264,9 +231,15 @@
         <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/menus.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/recipe.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/spec.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db/notes.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/home.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/css.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/notes.clj" />
+        <option value="$PROJECT_DIR$/vmserver.service" />
         <option value="$PROJECT_DIR$/project.clj" />
       </list>
     </option>
@@ -329,17 +302,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
-              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -391,8 +353,19 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
+              <item name="Scratches" type="d62648e6:ScratchProjectViewPane$MyRootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -403,6 +376,7 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="cursive.last.file.extension./home/soren/Linux/clojure/shop2/src" value="clj" />
   </component>
   <component name="ReplState" timestamp="1523030592006">{:repl-history {:ide [], :local [], :remote []}}</component>
   <component name="RunDashboard">
@@ -487,20 +461,21 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="85" y="57" width="1340" height="1068" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32952183" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="REPL" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17033678" sideWeight="0.5044743" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32913843" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32952183" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32913843" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Leiningen" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6414286" sideWeight="0.49552572" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18582089" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32913843" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -514,6 +489,7 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.log" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.service" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -571,7 +547,8 @@
     <MESSAGE value="defn-spec" />
     <MESSAGE value="projects redone" />
     <MESSAGE value="removed niglet" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed niglet" />
+    <MESSAGE value="added delete-recipe and more error checks" />
+    <option name="LAST_COMMIT_MESSAGE" value="added delete-recipe and more error checks" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -580,27 +557,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/shopping/req-trace.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="6509" column="5" lean-forward="false" selection-start-line="6509" selection-start-column="5" selection-end-line="6509" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../smhi/project.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="21" column="33" lean-forward="true" selection-start-line="21" selection-start-column="2" selection-end-line="21" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/session_store.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/load.html" />
     <entry file="file://$PROJECT_DIR$/load2.html" />
     <entry file="file://$PROJECT_DIR$/resources/public/save.js" />
@@ -696,7 +652,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1008">
           <caret line="56" column="71" lean-forward="false" selection-start-line="56" selection-start-column="71" selection-end-line="56" selection-end-column="71" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -704,7 +659,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1170">
           <caret line="65" column="72" lean-forward="false" selection-start-line="65" selection-start-column="72" selection-end-line="65" selection-end-column="72" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -715,18 +669,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="729">
-          <caret line="202" column="48" lean-forward="false" selection-start-line="202" selection-start-column="48" selection-end-line="202" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/db/lists.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2213">
           <caret line="194" column="4" lean-forward="false" selection-start-line="194" selection-start-column="4" selection-end-line="194" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -734,13 +680,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="467">
           <caret line="60" column="35" lean-forward="false" selection-start-line="60" selection-start-column="35" selection-end-line="60" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
-          <caret line="135" column="0" lean-forward="true" selection-start-line="133" selection-start-column="0" selection-end-line="135" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -811,15 +750,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1134">
           <caret line="63" column="3" lean-forward="false" selection-start-line="63" selection-start-column="3" selection-end-line="63" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1980">
-          <caret line="110" column="5" lean-forward="false" selection-start-line="110" selection-start-column="5" selection-end-line="110" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,17 +757,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2052">
           <caret line="114" column="5" lean-forward="false" selection-start-line="114" selection-start-column="5" selection-end-line="114" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1440">
+        <state relative-caret-position="0">
           <caret line="80" column="39" lean-forward="false" selection-start-line="80" selection-start-column="39" selection-end-line="80" selection-end-column="39" />
-          <folding>
-            <element signature="e#2296#2863#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -845,7 +771,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3708">
           <caret line="206" column="81" lean-forward="false" selection-start-line="206" selection-start-column="4" selection-end-line="206" selection-end-column="81" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -853,7 +778,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="774">
           <caret line="43" column="30" lean-forward="false" selection-start-line="43" selection-start-column="30" selection-end-line="43" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -861,7 +785,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2448">
           <caret line="136" column="0" lean-forward="false" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -869,11 +792,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding>
-            <element signature="e#1836#3113#0" expanded="false" />
-            <element signature="e#3115#4091#0" expanded="false" />
-            <element signature="e#4093#4871#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -881,38 +799,87 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="57" column="52" lean-forward="false" selection-start-line="57" selection-start-column="52" selection-end-line="57" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/spec.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1854">
+          <caret line="103" column="3" lean-forward="false" selection-start-line="103" selection-start-column="3" selection-end-line="103" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/db/notes.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="792">
+          <caret line="44" column="16" lean-forward="false" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="16" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/db/recipes.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="4" lean-forward="false" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
+        <state relative-caret-position="360">
+          <caret line="20" column="22" lean-forward="false" selection-start-line="20" selection-start-column="22" selection-end-line="20" selection-end-column="22" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+          <folding>
+            <element signature="e#3796#4041#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/controllers/routes.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="441">
-          <caret line="65" column="5" lean-forward="false" selection-start-line="65" selection-start-column="5" selection-end-line="65" selection-end-column="5" />
+        <state relative-caret-position="270">
+          <caret line="15" column="2" lean-forward="false" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/recipe.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="42" column="4" lean-forward="false" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
+        <state relative-caret-position="0">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/css.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="14094">
+          <caret line="783" column="15" lean-forward="false" selection-start-line="783" selection-start-column="15" selection-end-line="783" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vmserver.service">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="44" lean-forward="false" selection-start-line="5" selection-start-column="44" selection-end-line="5" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/notes.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="30" column="4" lean-forward="false" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="24" lean-forward="false" selection-start-line="0" selection-start-column="24" selection-end-line="0" selection-end-column="24" />
+        <state relative-caret-position="198">
+          <caret line="11" column="5" lean-forward="false" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
           <folding />
         </state>
       </provider>

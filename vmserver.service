@@ -1,0 +1,10 @@
+[Unit]
+Description=VirtualBox Server VM
+
+[Service]
+WorkingDirectory=/home/soren
+ExecStart=/usr/bin/VBoxManage startvm server
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

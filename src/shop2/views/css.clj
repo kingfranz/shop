@@ -757,6 +757,38 @@
 
 ;;-----------------------------------------------------------------------------
 
+(def css-note
+    (g/css
+        [:.btn-spacer {
+                       :height (u/px 25)
+                       }]
+        [:.note-area {
+                        :background-color transparent
+                        :font-size (u/px 18)
+                        :color :white
+                        :width full
+                        :height full
+                        :border [[(u/px 1) :solid :grey]]}]
+        [:.note-title-txt-td {
+                             :width full
+                             :text-align :center
+                             :border [[(u/px 1) :solid :grey]]
+                             }]
+        [:.note-title-txt {
+                          :width full
+                          :background-color transparent
+                          :color :white
+                          :border 0
+                          :font-size (u/px 24)
+                          }]
+        [:.note-area-div {
+                         :width full
+                         :height (u/px 300)
+                         }]
+        ))
+
+;;-----------------------------------------------------------------------------
+
 (def css-tags
 	(g/css
 		[:.group {
