@@ -28,9 +28,11 @@
               [ring.middleware.content-type :refer [wrap-content-type]]
               [ring.util.http-response :as response]
               [clojure.pprint :as pp]
-              [clojure.spec.test.alpha :as s])
+              [clojure.spec.test.alpha :as s]
+              [clojure.string :as str])
     (:use [org.httpkit.server :only [run-server]])
-    (:gen-class))
+    (:gen-class)
+    (:import (clojure.lang ExceptionInfo)))
 
 ;;-----------------------------------------------------------------------------
 
@@ -41,35 +43,35 @@
 
 ;;-----------------------------------------------------------------------------
 
-;(def ring-default
-;	(-> rmd/site-defaults
-;		(assoc-in [:session :store] (ShopStore.))
-;		;(assoc-in [:session :cookie-attrs :expires] (t/plus (l/local-now) (t/years 10)))
-;		;(assoc-in [:session :cookie-name] "secure-shop-session")
-;		))
-
 (defonce dirty-fix (logfile/setup-log "shop" 1000000 3))
 
-(defn wrap-fallback-exception
+(defn- report-exception
+    [request etype src cause context]
+    (println "##" etype "Exception in" src cause (:message context))
+    (log/fatal (:message context))
+    (log/fatal (->> (:stack-trace context) seq (map StackTraceElement->vec) (str/join "\n")))
+    (error-page request
+                etype
+                context
+                cause
+                src))
+
+(defn- wrap-fallback-exception
 	[handler]
 	(fn [request]
 		(try+
-            ;(println "wrap!")
-			(handler request)
-            (catch [:type :test] {:keys [msg spec obj]}
-                (println "## Conformer Exception:" spec "\n" obj)
-                (log/fatal msg)
-                (error-page request nil))
+    		(handler request)
+            (catch [:type :db] {:keys [src cause]}
+                (report-exception request "DB" src cause &throw-context))
+            (catch [:type :input] {:keys [src cause]}
+                (report-exception request "Input" src cause &throw-context))
             (catch Exception e
-                (println "## Exception:" (.getMessage e) e)
-                (log/fatal e)
-                (error-page request e))
+                (report-exception request "Exception" nil (:cause &throw-context) &throw-context))
+            (catch (some? (get % :clojure.spec.alpha/problems)) err
+                (report-exception request "Spec Error" nil (:cause &throw-context) &throw-context))
             (catch Throwable e
-                (println "## Throwable:" (.getMessage e) e)
-                (log/fatal e)
-                (error-page request e))
-                ;(common request "Error" [css-admin css-items] (.getMessage e))
-            ;(catch Object e (println "CATCH! Object" (type e) e))
+                (report-exception request "Throwable" nil (:cause &throw-context) &throw-context))
+            ;(catch Object e (println "\nCaught Object:" (type e) (str e) "\n") (throw+ e))
             )))
 
 (defn unauth-handler
@@ -114,8 +116,6 @@
 ;; entry point, lein run will pick up and start from here
 (defn -main
     [& args]
-    ;(convert-db)
-    ;(System/exit 0)
 	(-> all-routes
         (wrap-fallback-exception)
         (wrap-anti-forgery)

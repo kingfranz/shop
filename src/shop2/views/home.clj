@@ -86,25 +86,9 @@
     [:table
      (map mk-menu-row (get-menus (today) (new-menu-end)))])
 
-(defn-spec mk-proj-row any?
-    [proj :shop/project]
-;           (throw+ (ex-info "TEST" {:type :test}))
-    [:tr
-     [:td.proj-pri
-      [:label.home-margin (str (:priority proj))]]
-     [:td
-      [:label.home-margin.clip (:entryname proj)]]
-     [:td.r-align
-      [:label.proj-tags (:tag proj)]]
-     ])
-
-(defn- projekt-list
-    []
-    [:table.width-100p
-     (map mk-proj-row (get-active-projects))])
-
 (defn- recipe-list
     []
+    ;(throw+ {:type :input :src "recipe-list" :cause "just a test"})
     [:table
      (map (fn [r]
               [:tr
@@ -123,8 +107,6 @@
 
 (defn home-page
     [request]
-    ;(throw+ (ex-info "TEST" {:type :test}))
-    ;(throw+ (Exception. "Testing!"))
     (common-refresh request "Shopping" [css-home-tree css-home css-menus]
                     [:div.column
                      (if (want-tree? request)

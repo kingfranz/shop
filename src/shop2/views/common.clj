@@ -14,8 +14,6 @@
               [hiccup.element :as he]
               [hiccup.form :as hf]
               [environ.core :refer [env]]
-              [clojure.spec.alpha :as s]
-              [orchestra.core :refer [defn-spec]]
               [clojure.string :as str]
               [utils.core :as utils]))
 
@@ -29,14 +27,14 @@
             acc
             (recur (:parent parent) (conj acc (:_id parent))))))
 
-(defn- labeled-radio
-    [label group value checked?]
+(defn-spec labeled-radio any?
+    [label :shop/entryname, group string?, value :shop/_id, checked? boolean?]
     [:label.new-cb-n label (hf/radio-button group checked? value)])
 
-(defn named-div
-    ([d-name input]
+(defn-spec named-div any?
+    ([d-name string?, input any?]
      (named-div :break d-name input))
-    ([line-type d-name input]
+    ([line-type keyword?, d-name string?, input any?]
      [:div.named-div
       (if (= line-type :inline)
           [:label.named-div-l d-name]
@@ -61,14 +59,14 @@
 	[params map?]
     (when-not (str/blank? (:tags params))
         (when-not (s/valid? :shop/_id (:tags params))
-            (throw+ (ex-info "Unknown tag" {:type :input :cause :unknown-tag})))
+            (throw+ {:type :input :src "get-old-tag" :cause "unknown tag"}))
         (:tags params)))
 
 (defn-spec get-new-tag any?
 	[params map?]
 	(when-not (str/blank? (:new-tags params))
         (when-not (s/valid? :tags/entryname (:new-tags params))
-            (throw+ (ex-info "Invalid tag" {:type :input :cause :invalid-tag})))
+            (throw+ {:type :input :src "get-new-tag" :cause "Invalid tag"}))
         (:new-tags params)))
 
 (defn-spec extract-tag (s/nilable :shop/tag)
@@ -78,7 +76,7 @@
 		(cond
             ; old has value, new has value
             (and (seq old-tag-id) (not= old-tag-id no-id) (seq new-tag-name))
-                (throw+ (ex-info "Can't have both new and old tag" {:type :tags}))
+                (throw+ {:type :input :src "extract-tag" :cause "Can't have both new and old tag"})
             ; old has value, new is blank
             (and (seq old-tag-id) (not= old-tag-id no-id) (nil? new-tag-name))
                 (get-tag old-tag-id)
@@ -180,9 +178,9 @@
 		(if-let [udata (get-in req [:session :cemerick.friend/identity :authentications current])]
 			(if (s/valid? :shop/user udata)
 				(get-user (:username udata))
-				(throw+ (ex-info (s/explain-str :shop/user udata) {:cause (str udata)})))
-			(throw+ (ex-info "invalid session2" {:cause (str udata)})))
-		(throw+ (ex-info "invalid request" {:cause (str req)}))))
+				(throw+ {:type :input :src "udata" :cause (s/explain-str :shop/user udata)}))
+			(throw+ {:type :input :src "udata" :cause "invalid session2"}))
+		(throw+ {:type :input :src "udata" :cause "invalid request"})))
 
 (defn-spec uid :shop/_id
 	[req map?]

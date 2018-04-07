@@ -51,13 +51,14 @@
 
 ;;-----------------------------------------------------------------------------
 
-(s/def :shop/item    (s/keys :req-un [:shop/_id :shop/created
+(s/def :shop/item    (s/and (s/keys :req-un [:shop/_id :shop/created
                                       :shop/entryname :shop/entrynamelc
                                       :item/tag
                                       :shop/url :item/price
                                       :item/project
                                       :shop/parent
-                                      :item/oneshot]))
+                                      :item/oneshot])
+                            #(not (and (some? (:tag %)) (some? (:project %))))))
 (s/def :shop/items   (s/coll-of :shop/item))
 
 (s/def :item/oneshot  boolean?)
@@ -114,3 +115,5 @@
 (s/def :user/password   (s/nilable :shop/string))
 (s/def :user/properties (s/or :empty (s/and map? empty?) :full (s/map-of keyword? map?)))
 (s/def :user/created    (s/or :str string? :dt :shop/created))
+
+(s/def :shop/dd (s/coll-of (s/cat :str string? :id :shop/_id)))

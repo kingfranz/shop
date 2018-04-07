@@ -6,10 +6,12 @@
               [slingshot.slingshot :refer [throw+ try+]]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [environ.core :refer [env]]
               [clojure.string :as str]
-              [clojure.pprint :as pp]
-              [clojure.stacktrace :as st]))
+              [clojure.pprint :as pp]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -57,17 +59,17 @@
         s))
 
 (defn- err-block-s
-    [header func args]
-    (when-let [output (str? (str/replace (with-out-str (func args)) "\n" "<br>"))]
+    [header s]
+    (when-let [output (some-> s (str/replace "\n" "<br>") str?)]
         [:tr [:td (named-block header [:div.error-msg-s output])]]))
 
 (defn- err-block
-    [header func args]
-    (when-let [output (str? (str/replace (with-out-str (func args)) "\n" "<br>"))]
+    [header s]
+    (when-let [output (some-> s (str/replace "\n" "<br>") str?)]
         [:tr [:td (named-block header [:div.error-msg output])]]))
 
 (defn error-page
-    [request except]
+    [request etype throw-context cause src]
     (try+
         {:status  400
          :headers {"title" "ERROR!"}
@@ -75,8 +77,15 @@
                       [:style css-html css-misc css-admin css-items]
                       [:table
                        [:tr [:td (home-button)]]
-                       (when except (list
-                                        (err-block-s "Cause" st/root-cause except)
-                                        (err-block "Params" pp/pprint (:params request))
-                                        (err-block "Stacktrace" st/print-stack-trace except)))])}
+                       [:tr [:td [:label (str "Type " etype)]]]
+                       (when src [:tr [:td [:label (str "Source " src)]]])
+                       (err-block-s "Cause" cause)
+                       (err-block-s "Msg" (:message throw-context))
+                       (err-block "Params" (with-out-str (pp/pprint (:params request))))
+                       (err-block "Stacktrace" (->> (:stack-trace throw-context)
+                                                    seq
+                                                    (map StackTraceElement->vec)
+                                                    (str/join "<br>")))])}
         (catch Throwable e (println "error-page:" (.getMessage e) "\n" e))))
+
+(st/instrument)

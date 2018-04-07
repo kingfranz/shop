@@ -10,67 +10,80 @@
               [shop2.db.menus :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [slingshot.slingshot :refer [throw+ try+]]
               [clojure.string :as str]
+              [utils.core :as utils]
               [ring.util.response :as ring]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn mk-tag-row
-    [tag]
-    [:tr [:td.tags-row {:colspan 3} tag]])
+(defn-spec ^:private mk-tag-row any?
+    [tag string?]
+    [:tr [:td.tags-row {:colspan 3} [:label tag]]])
 
-(defn mk-name
-    [item]
+(defn-spec ^:private mk-name string?
+    [item :list/item]
     (if (> (or (:numof item) 1) 1)
         (format "%s (%d)" (:entryname item) (:numof item))
         (:entryname item)))
 
-(defn mk-item-a
-    [a-list item active? text]
+(defn-spec ^:private mk-item-a any?
+    [a-list :shop/list, item :list/item, active? boolean?, text string?]
     [:a.item-text
      {:href (str (if active? "/user/list/done/" "/user/list/undo/") (:_id a-list) "/" (:_id item))}
      text])
 
-(defn mk-item-row*
-    [a-list item active?]
-    (list
-        [:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
-        (when active? (list
-                          [:td
-                           [:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
-                          [:td
-                           [:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
-                          (when-not (str/blank? (:url item))
-                              [:td.item-menu-td
-                               [:a.item-text {:href (:url item) :target "_blank"} "Link"]])))))
+(defn-spec ^:private mk-item-row any?
+    [a-list :shop/list, item :list/item, active? boolean?]
+    [:tr {:class (if active? "item-text-tr" "item-text-tr done")}
+    [:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
+    (when active?
+        [:td
+         [:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
+        [:td
+         [:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
+        (when-not (str/blank? (:url item))
+            [:td.item-menu-td
+             [:a.item-text {:href (:url item) :target "_blank"} "Link"]]))])
 
-(defn mk-item-row
-    [a-list item active?]
-    (if active?
-        [:tr.item-text-tr (mk-item-row* a-list item active?)]
-        [:tr.item-text-tr.done (mk-item-row* a-list item active?)]))
-
-(defn- sort-items
-    [item-list]
+(defn-spec ^:private sort-by-key map?
+    [target keyword?, item-list :list/items]
     (->> item-list
-         (group-by #(get-in % [:tag :entryname]))
-         (into (sorted-map))
-         seq))
+         (sort-by :entrynamelc)
+         (group-by #(get-in % [target :entryname]))
+         (into (sorted-map))))
 
-(defn mk-items
-    [a-list row-type]
-    (let [item-list (if (= row-type :active)
-                        (remove #(:finished %) (:items a-list))
-                        (filter #(:finished %) (:items a-list)))]
-        (for [[tag items] (sort-items item-list)]
-            (list
-                (mk-tag-row tag)
-                (for [item (sort-by :entrynamelc items)]
-                    (mk-item-row a-list item (= row-type :active)))))))
+(defn-spec ^:private mk-items any?
+    [a-list :shop/list, active? boolean?]
+    (let [item-list (if active?
+                       (remove #(:finished %) (:items a-list))
+                       (filter #(:finished %) (:items a-list)))
+         projs (sort-by-key :project (filter #(some? (:project %)) item-list))
+         tags (sort-by-key :tag (filter #(some? (:tag %)) item-list))
+         no-p-or-t (remove #(or (some? (:tag %)) (some? (:project %))) item-list)]
+       (list
+           (for [[proj items] projs]
+               (list
+                   (mk-tag-row (str "Projekt: " proj))
+                   (for [item items]
+                       (mk-item-row a-list item active?))))
+           (for [[tag items] tags]
+               (list
+                   (mk-tag-row (str "Kategori: " tag))
+                   (for [item items]
+                       (mk-item-row a-list item active?))))
+           (when (seq no-p-or-t)
+               (list
+                   (mk-tag-row "* INGET *")
+                   (for [item no-p-or-t]
+                       (mk-item-row a-list item active?)))))
+       ))
 
-(defn mk-list-tbl
-    [base-id a-list]
+(defn-spec ^:private mk-list-tbl any?
+    [base-id :shop/_id, a-list :shop/list]
     [:table.list-tbl
      ; row with list name
      [:tr
@@ -86,7 +99,7 @@
      [:tr
       [:td
        [:table.width-100p
-        (mk-items a-list :active)]]]
+        (mk-items a-list true)]]]
      [:tr
       [:td
        [:table.width-100p
@@ -95,10 +108,10 @@
          [:td.done-td.align-r {:colspan "1"}
           [:a.link-thin {:href (str "/user/list/clean/" base-id "/" (:_id a-list))} "Rensa"]]]]]]
      ; rows with done items
-     (mk-items a-list :inactive)])
+     (mk-items a-list false)])
 
-(defn show-list-page
-    [request list-id]
+(defn-spec show-list-page any?
+    [request map?, list-id :shop/_id]
     (common-refresh request (:entryname (get-list list-id)) [css-lists]
                     (loop [listid list-id
                            base-id list-id
@@ -134,3 +147,5 @@
     [_ base-list list-id]
     (del-finished-list-items list-id)
     (ring/redirect (str "/user/list/get/" base-list)))
+
+(st/instrument)

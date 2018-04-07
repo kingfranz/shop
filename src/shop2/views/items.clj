@@ -12,6 +12,9 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [clj-time.core :as t]
               [clj-time.local :as l]
               [clj-time.coerce :as c]
@@ -40,8 +43,8 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn- get-list-items
-    [a-list]
+(defn-spec ^:private get-list-items :shop/items
+    [a-list :shop/list]
     (let [items (get-items)
           id-parents (get-parents a-list)
           active-items (->> a-list
@@ -53,8 +56,8 @@
              (filter #(or (nil? (:parent %)) (contains? id-parents (:parent %))))
              (remove #(contains? active-items (:_id %))))))
 
-(defn- mk-add-item
-    [item]
+(defn-spec ^:private mk-add-item any?
+    [item :shop/item]
     [:div.item-div
      [:table.item-table
       [:tr
@@ -65,8 +68,8 @@
        [:td.item-tags-td
         [:div.item-tags (some-> item :tag :entryname)]]]]])
 
-(defn- mk-add-item-no-tag
-    [item]
+(defn-spec ^:private mk-add-item-no-tag any?
+    [item :shop/item]
     [:div.item-div
      [:table.item-table
       [:tr
@@ -75,29 +78,42 @@
        [:td.item-txt-td
         [:div.item-txt (:entryname item)]]]]])
 
-(defn- items-by-tags
-    [items]
+(defn-spec ^:private mk-tag-head any?
+    [tag-str string?]
+    (let [[tag value] (str/split tag-str #"@")]
+       (case tag
+        "TAG" [:label.tag-head-tag value]
+        "PROJECT" [:label.tag-head-proj value]
+        "NONE" [:label.tag-head-none value]
+        (throw+ {:type :db :src "mk-tag-head" :cause "unknown tag meta"}))))
+
+(defn-spec ^:private items-by-tags any?
+    [items (s/map-of string? :shop/items)]
     (for [[k v] items]
         [:tr
          [:td.items-block
           [:table
            [:tr
-            [:td.tags-head {:style "width: 100%"} [:label.tags-head k]]]]
+            [:td.tags-head.width-100p (mk-tag-head k)]]]
           (map mk-add-item-no-tag (sort-by :entrynamelc v))]]))
 
-(defn- mk-letter
-    [items]
+(defn-spec ^:private mk-letter any?
+    [items :shop/items]
     [:tr
      [:td.items-block
       [:p.no-margin (hf/submit-button {:class "isb"} "\u2713")]
       (map mk-add-item (sort-by :entrynamelc items))]])
 
-(defn- items-by-name
-    [alpha]
+(s/def ::found (s/coll-of char? :kind set?))
+(s/def ::items (s/map-of char? :shop/items))
+(s/def ::letters (s/keys :req-un [::found ::items]))
+
+(defn-spec ^:private items-by-name any?
+    [alpha ::letters]
     (map #(mk-letter (get-in alpha [:items %])) (-> alpha :found seq sort)))
 
-(defn- items->alpha
-    [items*]
+(defn-spec ^:private items->alpha ::letters
+    [items* :shop/items]
     (loop [items items*
            acc {:found #{} :items {}}]
         (if (empty? items)
@@ -107,22 +123,28 @@
                   c (if (<= (int \0) (int c*) (int \9)) \0 c*)]
                 (recur (rest items) (-> acc (update :found conj c) (update-in [:items c] conj item)))))))
 
-(defn- item-list
-    [a-list sort-type]
+(defn-spec ^:private get-sort-key string?
+    [item :shop/item]
+    (or (some->> item :tag :entryname (str "TAG@"))
+        (some->> item :project :entryname (str "PROJECT@"))
+        "NONE@* INGET *"))
+
+(defn-spec ^:private item-list any?
+    [a-list :shop/list, sort-type keyword?]
     (if (= sort-type :tags)
         (items-by-tags (->> (get-list-items a-list)
-                            (group-by #(-> % :tag :entryname))
+                            (group-by get-sort-key)
                             (into (sorted-map))))
         (items-by-name (->> (get-list-items a-list) items->alpha))))
 
-(defn- sort-button
-    [st list-id]
+(defn-spec ^:private sort-button any?
+    [st keyword?, list-id :shop/_id]
     (if (= st :tags)
         [:a.link-flex {:href (str "/user/item/add/set-sort/" list-id "/name")} "N"]
         [:a.link-flex {:href (str "/user/item/add/set-sort/" list-id "/tags")} "T"]))
 
-(defn add-items
-    [request list-id]
+(defn-spec add-items any?
+    [request map?, list-id :shop/_id]
     (let [a-list (get-list list-id)
           sort-type (or (some-> request udata :properties :items :sort-type keyword) :name)]
         (common request "Välj sak" [css-items css-tags-tbl]
@@ -148,7 +170,7 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn info-part
+(defn- info-part
     []
     (named-div "Information"
                [:table
@@ -204,8 +226,10 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn set-item-sort
-    [request listid sort-type]
+(defn-spec set-item-sort any?
+    [request map?, listid :shop/_id, sort-type keyword?]
     (set-user-property (uid request) :items {:sort-type sort-type})
     (ring/redirect (str "/user/item/add/" listid)))
 
+
+(st/instrument)

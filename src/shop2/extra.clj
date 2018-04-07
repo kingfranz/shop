@@ -7,7 +7,7 @@
               [clojure.spec.alpha :as s]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
-              ))
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -63,4 +63,17 @@
     (let [result (compare v1 v2)]
         (when-not (zero? result)
             result)))
+
+(defn get-param
+    ([params par-name]
+    (when-let [val (get params par-name)]
+        (cond
+            (= val "true") true
+            (= val "false") false
+            (re-matches #"\d+\.\d+" val) (Double/valueOf val)
+            (re-matches #"\d+" val) (Integer/valueOf val)
+            (f/parse val) (f/parse val)
+            :else val)))
+    ([params par-name idx]
+    (get-param params (utils/mk-tag par-name idx))))
 

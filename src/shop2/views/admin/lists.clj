@@ -11,6 +11,9 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [hiccup.form :as hf]
               [ring.util.anti-forgery :as ruaf]
               [ring.util.response :as ring]
@@ -36,8 +39,8 @@
                 (named-div "Lågprioriterad lista?"
                            (hf/check-box {:class "tags-head"} :low-prio)))))
 
-(defn- mk-parent-map
-    [params]
+(defn-spec ^:private mk-parent-map (s/nilable (s/keys :req-un [:shop/_id :shop/entryname :shop/parent]))
+    [params map?]
     (when-not (= (:parent params) no-id)
         (select-keys (get-list (:parent params)) [:_id :entryname :parent])))
 

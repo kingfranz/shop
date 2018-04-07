@@ -40,10 +40,10 @@
                  [:td (mk-list-dd (:parent item) :parent "item-info")]]
                 [:tr
                  [:td.new-item-td "Project:"]
-                 [:td.url-td (mk-project-dd nil :project "new-item-txt")]]
+                 [:td.url-td (mk-project-dd (some-> item :project :_id) :project "new-item-txt")]]
                 [:tr
                  [:td.new-item-td "One Shot:"]
-                 [:td.url-td (hf/check-box :one-shot "new-cb")]]
+                 [:td.url-td (hf/check-box {:class "new-cb"} :one-shot (:oneshot item))]]
                 ]))
 
 ;;-----------------------------------------------------------------------------
@@ -51,27 +51,27 @@
 (defn-spec extract-id :shop/_id
     [params map?]
     (when-not (item-id-exists? (:_id params))
-        (throw+ (ex-info "invalid id" {:type :input})))
+        (throw+ {:type :input :src "extract-id" :cause "invalid id"}))
     (:_id params))
 
 (defn-spec extract-name :shop/entryname
     [params map?]
     (when (str/blank? (:entryname params))
-        (throw+ (ex-info "invalid name" {:type :input})))
+        (throw+ {:type :input :src "extract-name" :cause "invalid name"}))
     (:entryname params))
 
 (defn-spec extract-parent :shop/parent
     [params map?]
     (when-not (= (:parent params) no-id)
         (when-not (list-id-exists? (:parent params))
-            (throw+ (ex-info "invalid parent" {:type :input})))
+            (throw+ {:type :input :src "extract-parent" :cause "invalid parent"}))
         (:parent params)))
 
 (defn-spec extract-project (s/nilable :shop/project)
     [params map?]
     (when-not (= (:project params) no-id)
         (or (get-project (:project params))
-            (throw+ (ex-info "invalid project" {:type :input})))))
+            (throw+ {:type :input :src "extract-project" :cause "invalid project"}))))
 
 (defn-spec extract-str (s/nilable :shop/string)
     [tag keyword?, params map?]
@@ -110,7 +110,7 @@
                      (set-name (extract-name params))
                      (assoc :parent (extract-parent params)
                             :project (extract-project params)
-                            :oneshot (or (:oneshot params) false)
+                            :oneshot (or (= (:oneshot params) "true") false)
                             :price (extract-num :price params)
                             :url (extract-str :url params)
                             :tag (extract-tag params))))
@@ -202,8 +202,8 @@
                                       (some-> item :project :_id))]
                        ]))])))
 
-(defn- purge-no-id
-    [v]
+(defn-spec ^:private purge-no-id :shop/parent
+    [v :shop/_id]
     (when (and (not= v no-id) (s/valid? :shop/_id v))
         v))
 
@@ -233,4 +233,6 @@
     (ring/redirect "/admin/"))
 
 ;;-----------------------------------------------------------------------------
+
+(st/instrument)
 

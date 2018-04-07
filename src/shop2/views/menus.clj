@@ -11,68 +11,51 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
               [clojure.spec.alpha :as s]
-              [clojure.string :as str]
-              [clojure.set :as set]
-              [clojure.pprint :as pp]
-              [garden.core :as g]
-              [garden.units :as u]
-              [garden.selectors :as sel]
-              [garden.stylesheet :as ss]
-              [garden.color :as color]
-              [garden.arithmetic :as ga]
-              [hiccup.core :as h]
-              [hiccup.def :as hd]
-              [hiccup.element :as he]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
+              [clj-time.format :as f]
               [hiccup.form :as hf]
-              [hiccup.page :as hp]
-              [hiccup.util :as hu]
+              [utils.core :as utils]
               [ring.util.anti-forgery :as ruaf]
-              [ring.util.response :as ring]))
+              [ring.util.response :as ring]
+              [clojure.string :as str]
+              [clj-time.core :as t]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn- mk-mtag
-    [s dt]
-    (keyword (str s "-" (menu-date-key dt))))
+(defn-spec ^:private dt->str string?
+    [dt :shop/date]
+    (f/unparse (f/with-zone (f/formatters :year-month-day) (t/default-time-zone)) dt))
 
-(defn- mk-recipe-link
-    [menu r-link?]
+(defn-spec ^:private mk-recipe-link any?
+    [menu :shop/x-menu]
     (when (:recipe menu)
         [:a.link-thin {:href (str "/user/recipe/" (:_id (:recipe menu)))}
          (:entryname (:recipe menu))]))
 
-(defn- mk-recipe-add-del
-    [menu r-link?]
+(defn-spec ^:private mk-recipe-add-del any?
+    [menu :shop/x-menu, r-link? boolean?]
     (when r-link?
         (if (:recipe menu)
             [:a.link-thin {:href (str "/user/menu/recipe-/" (menu-date-key (:date menu)))} "-"]
             [:a.link-thin {:href (str "/user/menu/choose-recipe/" (menu-date-key (:date menu)))} "+"]
             )))
 
-(defn- mk-menu-row
-    [menu r-link?]
-    ; "Tue 03-22" "Steamed fish, rice, sauce, greens" ""
-    (let [date-id (when (is-today? (:date menu)) "today")]
-        [:tr
-         [:td.menu-date-td
-          [:label.menu-date {:id date-id} (menu-date-short menu)]]
-         (if r-link?
-             [:td.menu-text-td
-              (hf/hidden-field (mk-mtag "id" (:date menu)) (:_id menu))
-              (hf/text-field {:class "menu-text"}
-                             (mk-mtag "txt" (:date menu))
-                             (:entryname menu))]
-             [:td.menu-text-td
-              [:label.menu-text-old (:entryname menu)]])
-         [:td.menu-ad-td (mk-recipe-add-del menu r-link?)]
-         [:td.menu-link-td (mk-recipe-link menu r-link?)]
-         ]))
+(defn-spec ^:private mk-menu-row any?
+    [menu :shop/x-menu, r-link? boolean?]
+    [:tr
+     [:td.menu-date-td
+      [:label.menu-date (menu-date-short menu)]]
+     (if r-link?
+         [:td.menu-text-td
+          (hf/text-field {:class "menu-text"}
+                         (utils/mk-tag "txt" (dt->str (:date menu)))
+                         (:entryname menu))]
+         [:td.menu-text-td
+          [:label.menu-text-old (:entryname menu)]])
+     [:td.menu-ad-td (mk-recipe-add-del menu r-link?)]
+     [:td.menu-link-td (mk-recipe-link menu)]])
 
 (defn edit-menu
     [request]
@@ -93,16 +76,15 @@
 
 (defn edit-menu!
     [{params :params}]
-    (let [db-menus (get-menus (today) (new-menu-end))]
-        (doseq [dt (menu-new-range)
-                :let [id (get params (mk-mtag "id" dt))
-                      txt (get params (mk-mtag "txt" dt))
-                      db-menu (some #(when (= (:date %) dt) %) db-menus)]
-                :when (and (seq txt) (not= txt (:entryname db-menu)))]
-            ;(println "update-menu!:" (mk-mtag "txt" dt) id txt db-menu)
-            (if (seq id)
-                (update-menu (set-name db-menu txt))
-                (add-menu (assoc (create-entity txt) :date dt :recipe nil)))))
+    (doseq [dt (menu-new-range)
+            :let [txt     (get-param params "txt" (dt->str dt))
+                  db-menu (get-menu dt)]
+            :when (and (not (str/blank? txt))
+                       (or (nil? db-menu)
+                           (not= txt (:entryname db-menu))))]
+        (if (some? db-menu)
+            (update-menu (set-name db-menu txt))
+            (add-menu (assoc (create-entity txt) :date dt :recipe nil))))
     (ring/redirect "/user/menu/edit"))
 
 ;;-----------------------------------------------------------------------------
@@ -136,3 +118,5 @@
 
 ;;-----------------------------------------------------------------------------
 
+
+(st/instrument)

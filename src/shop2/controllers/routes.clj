@@ -62,6 +62,9 @@
                   (cc/GET "/new" request
                       (new-recipe request))
 
+                  (cc/GET "/delete/:id" request
+                      (delete-recipe! request (-> request :params :id)))
+
                   (cc/POST "/edit" request
                       (edit-recipe! request))
 

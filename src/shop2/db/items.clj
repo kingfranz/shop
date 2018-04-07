@@ -2,8 +2,6 @@
 	(:require 	 [slingshot.slingshot :refer [throw+ try+]]
                  [clojure.spec.alpha :as s]
                  [orchestra.core :refer [defn-spec]]
-                 [clojure.spec.alpha :as s]
-                 [orchestra.core :refer [defn-spec]]
                  [orchestra.spec.test :as st]
                  [cheshire.core :refer :all]
                  [taoensso.timbre :as log]
@@ -32,7 +30,7 @@
                :price   price
                :oneshot oneshot)))
 
-(defn-spec get-item-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+(defn-spec get-item-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
 	(mc-find-maps "get-item-names" "items" {} {:_id true :entryname true}))
 
@@ -41,8 +39,8 @@
 	(mc-find-maps "get-items" "items" {}))
 
 (defn get-raw-items
-           []
-           (mc-find-maps "get-raw-items" "items" {}))
+    []
+    (mc-find-maps "get-raw-items" "items" {}))
 
 (defn-spec get-item :shop/item
 	[id :shop/_id]

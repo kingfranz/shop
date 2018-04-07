@@ -44,15 +44,15 @@
 (defn- count-chars
     [pw c-class]
     (if (nil? (re-find c-class pw))
-        (throw+ (ex-info (str "PW must contain at least one of " c-class) {:cause :password :type :db}))
+        (throw+ {:type :db :src "count-chars" :cause (str "PW must contain at least one of " c-class)})
         pw))
 
 (defn- verify-passwd
     [pw]
     (if (not= (str/trim pw) pw)
-        (throw+ (ex-info "PW can't begin or end with space" {:cause :password :type :db}))
+        (throw+ {:type :db :src "verify-password" :cause "PW can't begin or end with space"})
         (if (< (count pw) 8)
-            (throw+ (ex-info "PW must be 8 chars or more" {:cause :password :type :db}))
+            (throw+ {:type :db :src "verify-password" :cause "PW must be 8 chars or more"})
             (-> pw
                 (count-chars #"[a-zåäö]")
                 (count-chars #"[A-ZÅÄÖ]")
@@ -63,7 +63,7 @@
 (defn-spec create-user :shop/user
     [username :shop/username, passwd :shop/password, roles :shop/roles]
     (when (some? (get-user username))
-        (throw+ (ex-info "duplicate username" {:cause :username :type :db})))
+        (throw+ {:type :db :src "create-user" :cause "duplicate username"}))
     (let [user (assoc (mk-std-field)
                    :username (str/trim username)
                    ;:password (creds/hash-bcrypt (verify-passwd passwd))

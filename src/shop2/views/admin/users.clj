@@ -23,7 +23,7 @@
     [request userid]
     (let [user (get-user-by-id userid)]
         (when (nil? user)
-            (throw+ (ex-info "Unknown user" {:type :input})))
+            (throw+ {:type :input :src "edit-user" :cause "unknown user"}))
         (common request "Edit user" [css-tags-tbl css-items]
                 (hf/form-to
                     [:post "/admin/user/edited"]
@@ -53,7 +53,7 @@
 (defn edit-user!
     [{params :params}]
     (when (not= (:password params) (:password2 params))
-        (throw+ (ex-info "PW 1 and 2 doesn't match" {:type :input})))
+        (throw+ {:type :input :src "edit-user!" :cause "PW 1 and 2 doesn't match"}))
     (set-user-name (:userid params) (str/trim (:username params)))
     (set-user-password (:userid params) (:password params))
     (set-user-roles (:userid params) (if (:admin params) #{:user :admin} #{:user}))
@@ -90,9 +90,9 @@
 (defn new-user!
     [{params :params}]
     (when (str/blank? (:username params))
-        (throw+ (ex-info "username is blank" {:type :input})))
+        (throw+ {:type :input :src "new-user!" :cause "username is blank"}))
     (when (not= (:password params) (:password2 params))
-        (throw+ (ex-info "PW 1 and 2 doesn't match" {:type :input})))
+        (throw+ {:type :input :src "new-user!" :cause "PW 1 and 2 doesn't match"}))
     (create-user (str/trim (:username params))
                  (:password params)
                  (if (:admin params) #{:user :admin} #{:user}))

@@ -41,17 +41,17 @@
 	[menu-dt :shop/date]
 	(mc-update "remove-recipe-from-menu" "menus" {:date menu-dt} {$unset {:recipe nil}}))
 
-(defn-spec get-menus :shop/x-menus
-    [from :shop/date, to :shop/date]
-    (let [db-menus (->> (mc-find-maps "get-menus" "menus" {:date {$gte from $lt to}})
-                        (map fix-date))
-          new-menus (set/difference (set (time-range from to (t/days 1)))
-                                    (set (map :date db-menus)))]
-        (sort-by :date (concat db-menus (map (fn [dt] {:date dt}) new-menus)))))
+(defn-spec get-menu (s/nilable :shop/menu)
+    [date :shop/date]
+    (some->> (mc-find-one-as-map "get-menu" "menus" {:date date})
+             (fix-date)))
 
-(defn-spec get-db-menus :shop/menus
-    []
-    (->> (mc-find-maps "get-db-menus" "menus")
-         (map fix-date)))
+(defn-spec get-menus :shop/x-menus
+           [from :shop/date, to :shop/date]
+           (let [db-menus (->> (mc-find-maps "get-menus" "menus" {:date {$gte from $lt to}})
+                               (map fix-date))
+                 new-menus (set/difference (set (time-range from to (t/days 1)))
+                                           (set (map :date db-menus)))]
+               (sort-by :date (concat db-menus (map (fn [dt] {:date dt}) new-menus)))))
 
 (st/instrument)

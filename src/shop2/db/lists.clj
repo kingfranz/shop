@@ -35,7 +35,7 @@
            []
            (mc-find-maps "get-lists" "lists"))
 
-(defn-spec get-list-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+(defn-spec get-list-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
            []
            (mc-find-maps "get-list-names" "lists" {} {:_id true :entryname true}))
 
@@ -165,19 +165,19 @@
     [list-id :shop/_id, item-id :shop/_id]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
-        (throw+ (ex-info "unknown list" {:type :db :src "list-item+"})))
+        (throw+ {:type :db :src "list-item+" :cause "unknown list"}))
     ; make sure the item is already in the list
     (if (find-list-item-by-id list-id item-id)
         ; yes it was
         (mod-item list-id item-id 1)
         ; no
-        (throw+ (ex-info "unknown item" {:type :db :src "list-item+"}))))
+        (throw+ {:type :db :src "list-item+" :cause "unknown item"})))
 
 (defn-spec list-item- any?
     [list-id :shop/_id, item-id :shop/_id]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
-        (throw+ (ex-info "unknown list" {:type :db :src "list-item-"})))
+        (throw+ {:type :db :src "list-item-" :cause "unknown list"}))
     ; make sure the item is already in the list
     (if-let [item (find-list-item-by-id list-id item-id)]
         ; yes it was
@@ -185,19 +185,19 @@
             (finish-list-item list-id item-id)
             (mod-item list-id item-id -1))
         ; no
-        (throw+ (ex-info "unknown item" {:type :db :src "list-item-"}))))
+        (throw+ {:type :db :src "list-item-" :cause "unknown item"})))
 
 (defn-spec item->list any?
     [list-id :shop/_id, item-id :shop/_id]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
-        (throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
+        (throw+ {:type :db :src "item->list" :cause "unknown list"}))
     ; find the item if it's already in the list
     (if (find-list-item-by-id list-id item-id)
         ; yes it was
         (if (item-finished? list-id item-id)
             (unfinish-list-item list-id item-id)
-            (throw+ (ex-info "item already in list" {:type :db :src "item->list"})))
+            (throw+ {:type :db :src "item->list" :cause "item already in list"}))
         ; no, we need to add it
         (do
             (add-item-usage list-id item-id :add-to 1)
@@ -205,16 +205,16 @@
                              {$addToSet {:items (assoc (get-item item-id) :numof 1 :finished nil)}}))))
 
 (defn-spec oneshot->list any?
-    [list-id :shop/_id, item :shop/_id]
+    [list-id :shop/_id, item :shop/item]
     ; make sure it's a valid list
     (when-not (list-id-exists? list-id)
-        (throw+ (ex-info "unknown list" {:type :db :src "item->list"})))
+        (throw+ {:type :db :src "item->list" :cause "unknown list"}))
     ; find the item if it's already in the list
     (if-let [litem (find-list-item-by-name list-id (:entryname item))]
         ; yes it was
         (if (:finished litem)
             (unfinish-list-item list-id (:_id litem))
-            (throw+ (ex-info "item already in list" {:type :db :src "item->list"})))
+            (throw+ {:type :db :src "item->list" :cause "item already in list"}))
         ; no, we need to add it
         (mc-update-by-id "item->list" "lists" list-id
                          {$addToSet {:items (assoc item :numof 1 :finished nil)}})))

@@ -17,6 +17,8 @@
               [ring.util.response :as ring]
               [environ.core :refer [env]]
               [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [clojure.string :as str]
               [utils.core :as utils]))
 
@@ -119,8 +121,8 @@
                       [:td.width-200px
                        (mk-list-dd (:parent tag) (utils/mk-tag (:_id tag) "parent") "fz24 width-100p")]])])))
 
-(defn- purge-no-id
-    [v]
+(defn-spec ^:private purge-no-id :shop/parent
+    [v :shop/_id]
     (when (and (not= v no-id) (s/valid? :shop/_id v))
         v))
 
@@ -139,3 +141,5 @@
     (ring/redirect "/admin/"))
 
 ;;-----------------------------------------------------------------------------
+
+(st/instrument)

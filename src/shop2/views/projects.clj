@@ -12,34 +12,41 @@
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
               [slingshot.slingshot :refer [throw+ try+]]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [clojure.string :as str]
               [clojure.edn :refer [read-string] :as edn]
               [hiccup.form :as hf]
               [ring.util.anti-forgery :as ruaf]
               [ring.util.response :as ring]
-              [utils.core :as utils]
-              [clojure.spec.alpha :as s]))
+              [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
-(def pri-name "proj-pri-")
-(def txt-name "proj-txt-")
-(def parent-name "proj-par-")
+(def ^:private pri-name "proj-pri-")
+(def ^:private txt-name "proj-txt-")
+(def ^:private parent-name "proj-par-")
 
-(defn- mk-prio-dd
-    [id prio]
+(defn-spec ^:private mk-prio-dd any?
+    [id (s/or :id :shop/_id :new #(= % "new")), prio integer?]
     (hf/drop-down {:class "proj-pri-val"} (utils/mk-tag pri-name id) (range 1 6) prio))
 
-(defn- mk-name-field
-    [id ename]
+(defn-spec ^:private mk-name-field any?
+    [id :shop/_id, ename :shop/entryname]
     (hf/text-field {:class "proj-txt-val"} (utils/mk-tag txt-name id) ename))
 
-(defn- proj-checkmark
-    [id]
+(defn-spec ^:private proj-checkmark any?
+    [id :shop/_id]
     [:a {:class "proj-check-val" :href (str "/user/project/finish/" id)} "&#10004"])
 
-(defn- mk-project-row
-    [id prio ename parent proj-dd check?]
+(defn-spec ^:private mk-project-row any?
+    [id :shop/parent
+     prio integer?
+     ename string? ;:shop/entryname
+     parent :shop/parent
+     proj-dd :shop/dd
+     check? boolean?]
     [:table.width-100p
      [:tr
       (when (nil? id)
@@ -57,59 +64,66 @@
                      proj-dd
                      parent)]]])
 
-(defn- mk-proj-row
-    [proj proj-dd rf]
-    (let [parent [:li (rf (:_id proj) nil (:entryname proj) (:parent proj) proj-dd (empty? (:children proj)))]
-          children (mapcat #(mk-proj-row % proj-dd rf) (:children proj))]
+(defn-spec ^:private mk-proj-row any?
+    [proj :shop/project, proj-dd :shop/dd]
+    (let [parent [:li (mk-project-row (:_id proj) (:priority proj) (:entryname proj) (:parent proj) proj-dd (empty? (:children proj)))]
+          children (mapcat #(mk-proj-row % proj-dd) (:children proj))]
         (if (empty? children)
             (list parent)
             (concat (list parent) (list [:ul children])))))
 
-(defn- mk-proj-prio-row
-    [proj]
+(defn-spec ^:private mk-proj-prio-row any?
+    [proj :shop/project, proj-dd :shop/dd]
     [:tr
-     [:td.proj-pri-td (mk-prio-dd (:_id proj) (:priority proj))]
+     [:td.proj-pri-td
+      (mk-prio-dd (:_id proj) (:priority proj))]
      [:td.proj-check-td
-      [:a {:class "proj-check-val" :href (str "/user/project/finish/" (:_id proj))} "&#10004"]]
-     [:td.proj-txt-td (mk-name-field (:_id proj) (:entryname proj))]])
+      [:a.proj-check-val {:href (str "/user/project/finish/" (:_id proj))} "&#10004"]]
+     [:td.proj-txt-td
+      (mk-name-field (:_id proj) (:entryname proj))]
+     [:td.width-150px.r-align
+      (hf/drop-down {:style "width:150px;text-align:right;"}
+                    (utils/mk-tag parent-name (:_id proj))
+                    proj-dd
+                    (:parent proj))]])
 
-(defn- mk-finished-row
-    [proj]
+(defn-spec ^:private mk-finished-row any?
+    [proj :shop/project]
     [:tr
      [:td
       [:a.finished-proj
        {:href (str "/user/project/unfinish/" (:_id proj))}
        (str (:priority proj) " " (:entryname proj))]]])
 
-(defn- finished?
-    [p]
+(defn-spec ^:private finished? boolean?
+    [p :shop/project]
     (some? (:finished p)))
 
-(defn- proj-head
-    [proj]
+(defn-spec ^:private proj-head any?
+    [proj :shop/project]
     [:label.proj-head-val (:entryname proj)])
 
-(defn- proj-tree-sort
-    [p1 p2]
+(defn-spec ^:private proj-tree-sort integer?
+    [p1 :shop/project, p2 :shop/project]
     (or (comp-nil (empty? (:children p1)) (empty? (:children p2)))
         (compare (:entrynamelc p1) (:entrynamelc p2))))
 
-(defn- mk-proj-tree
-    [target projects]
+(defn-spec ^:private mk-proj-tree any?
+    [target :shop/parent, projects :shop/projects]
     (for [proj (->> projects (filter #(= (:parent %) target)) (sort-by :entrynamelc))]
         (assoc proj :children (mk-proj-tree (:_id proj) (remove #(= (:_id %) (:_id proj)) projects)))))
 
-(defn- by-proj
-    [projects proj-dd]
+(defn-spec ^:private by-proj any?
+    [projects :shop/projects proj-dd :shop/dd]
     (let [proj-tree (mk-proj-tree nil projects)]
         [:ul
          (for [proj proj-tree]
-             (mk-proj-row proj proj-dd mk-project-row))]))
+             (mk-proj-row proj proj-dd))]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn- mk-display
-    [proj]
+(defn-spec ^:private mk-display any?
+    [proj :shop/project]
     (let [parent   [:li [:label.proj-txt-td (:entryname proj)]]
           children (mapcat mk-display (:children proj))]
         (if (empty? (:children proj))
@@ -124,29 +138,26 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn- prio-head
-    [pri]
+(defn-spec ^:private prio-head any?
+    [pri integer?]
     [:label.proj-head-val (str "Prioritet " pri)])
 
-(defn- by-prio
-    [projects]
+(defn-spec ^:private by-prio any?
+    [projects :shop/projects, proj-dd :shop/dd]
     (let [by-pri (group-by :priority projects)]
         [:table
          (for [pri-key (sort (keys by-pri))]
              (list
                  [:tr
                   [:th.proj-head-th {:colspan 4} (prio-head pri-key)]]
-                 (map mk-proj-prio-row (->> pri-key
-                                       (get by-pri)
-                                       ;(sort-by identity proj-comp)
-                                       ))))]))
+                 (map #(mk-proj-prio-row % proj-dd) (get by-pri pri-key))))]))
 
-(defn want-by-proj?
-    [req]
+(defn-spec ^:private want-by-proj? boolean?
+    [req map?]
     (some->> req udata :properties :projects :group-type keyword (= :proj)))
 
-(defn edit-projects
-    [request]
+(defn-spec edit-projects any?
+    [request map?]
     (let [active-projects (get-active-projects)
           finished-projects (get-finished-projects)]
         (common request "Projekt" [css-projects css-items css-misc]
@@ -170,7 +181,7 @@
                        [:td
                         (if (want-by-proj? request)
                             (by-proj active-projects proj-dd)
-                            (by-prio active-projects))]]
+                            (by-prio active-projects proj-dd))]]
                       [:tr
                        [:td.items-block
                         [:table
@@ -181,66 +192,85 @@
                          (map mk-finished-row finished-projects)]]]
                       ])))))
 
-(defn set-group-type
-    [request group-type]
+(defn-spec set-group-type any?
+    [request map?, group-type keyword?]
     (when (or (= group-type :prio) (= group-type :proj))
         (set-user-property (uid request) :projects {:group-type group-type}))
     (ring/redirect "/user/project/edit"))
 
 ;;-----------------------------------------------------------------------------
 
-(defn- param-val
-    [p n k]
+(defn-spec ^:private param-val (s/nilable string?)
+    [p map?, n string?, k string?]
     (get p (utils/mk-tag n k)))
 
-(defn- get-priority
-    [params tag-key]
+(defn-spec ^:private get-priority integer?
+    [params map?, proj :shop/project]
     (try+
-        (->> (param-val params pri-name tag-key)
+        (->> (:_id proj)
+             (param-val params pri-name)
              (Integer/valueOf))
-        (catch Throwable _ 5)))
+        (catch Throwable _ (:priority proj))))
 
-(defn- get-parent
-    [params tag-key]
+(defn-spec ^:private get-priority-new integer?
+    [params map?]
     (try+
-        (when-let [id (param-val params parent-name tag-key)]
+        (Integer/valueOf (param-val params pri-name "new"))
+        (catch Throwable _ 1)))
+
+(defn-spec ^:private get-parent :shop/parent
+    [params map?, proj :shop/project]
+    (try+
+        (if-let [id (param-val params parent-name (:_id proj))]
             (if (or (= id no-id) (not (s/valid? :shop/_id id)))
                 nil
                 (when (project-id-exist? id)
-                    id)))
+                    id))
+            (:parent proj))
+        (catch Throwable _ (:parent proj))))
+
+(defn-spec ^:private get-parent-new :shop/parent
+    [params map?]
+    (try+
+        (if-let [id (param-val params parent-name "new")]
+            (if (or (= id no-id) (not (s/valid? :shop/_id id)))
+                nil
+                (when (project-id-exist? id)
+                    id))
+            nil)
         (catch Throwable _ nil)))
 
-(defn- do-proj-update
-    [params pkey]
-    (try+
-        (let [db-proj (get-project pkey)
-              pname (param-val params txt-name pkey)
-              prio (get-priority params pkey)
-              parent (get-parent params pkey)]
-            (when (or (and (s/valid? :shop/entryname pname)
-                           (not= pname (:entryname db-proj)))
-                      (not= prio (:priority db-proj))
-                      (not= parent (:parent db-proj)))
-                (update-project (-> db-proj
-                                    (set-name pname)
-                                    (assoc :priority prio
-                                           :parent parent)))))
-        (catch Throwable _)))
+(defn-spec ^:private do-proj-update any?
+    [params map?, proj-id :shop/_id]
+    (let [db-proj (get-project proj-id)
+          pname (param-val params txt-name proj-id)
+          prio (get-priority params db-proj)
+          parent (get-parent params db-proj)]
+        (when (or (and (s/valid? :shop/entryname pname)
+                       (not= pname (:entryname db-proj)))
+                  (not= prio (:priority db-proj))
+                  (not= parent (:parent db-proj)))
+            (update-project (-> db-proj
+                                (set-name pname)
+                                (assoc :priority prio
+                                       :parent parent))))))
 
-(defn- do-new-proj
-    [params]
+(defn-spec ^:private do-new-proj any?
+    [params map?]
     (let [npname (get params (utils/mk-tag txt-name "new"))
-          parent (get-parent params "new")
-          prio (get-priority params "new")]
+          parent (get-parent-new params)
+          prio (get-priority-new params)]
         (when (s/valid? :shop/entryname npname)
             (add-project (create-project-obj npname parent prio)))))
 
 (defn edit-projects!
     [{params :params}]
-    (doseq [pkey (edn/read-string (:project-ids params))]
-        (do-proj-update params pkey))
+    (doseq [proj-id (edn/read-string (:project-ids params))]
+        (do-proj-update params proj-id))
     (do-new-proj params)
     (ring/redirect "/user/project/edit"))
+
+;;-----------------------------------------------------------------------------
 
 (defn unfinish-proj
     [_ id]
@@ -256,3 +286,8 @@
     [_]
     (clear-projects)
     (ring/redirect "/user/project/edit"))
+
+;;-----------------------------------------------------------------------------
+
+
+(st/instrument)

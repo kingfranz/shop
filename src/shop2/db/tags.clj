@@ -21,7 +21,7 @@
 	[id :shop/_id]
 	(mc-find-map-by-id "get-tag" "tags" id))
 
-(defn-spec get-tag-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+(defn-spec get-tag-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
            []
            (mc-find-maps "get-tag-names" "tags" {} {:_id true :entryname true}))
 
@@ -52,9 +52,9 @@
 		  db-tag     (get-by-enlc "tags" tag-namelc)
           parent     (fix-list-ref parent*)]
         (when (or (str/blank? tag-name) (str/includes? tag-name " "))
-            (throw+ (ex-info "update-tag: invalid name" {:type :db})))
+            (throw+ {:type :db :src "update-tag" :cause "invalid name"}))
 		(when (and (some? db-tag) (not= (:_id db-tag) tag-id))
-			(throw+ (ex-info "duplicate name" {:type :db})))
+			(throw+ {:type :db :src "update-tag" :cause "duplicate name"}))
         (mc-update-by-id "update-tag" "tags" tag-id
 			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}}))))
 
@@ -62,9 +62,9 @@
     ([tag-name :shop/entryname]
         (add-tag tag-name nil))
     ([tag-name :shop/entryname, parent (s/nilable string?)]
-    (let [new-tag    (assoc (create-entity (str/capitalize tag-name))
+    (let [new-tag (assoc (create-entity (str/capitalize tag-name))
                             :parent (fix-list-ref parent))
-          db-tag     (get-by-enlc "tags" (:entrynamelc new-tag))]
+          db-tag  (get-by-enlc "tags" (:entrynamelc new-tag))]
 		(if (some? db-tag)
 			db-tag
 			(do

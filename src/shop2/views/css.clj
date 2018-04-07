@@ -179,11 +179,32 @@
                          :width full
                          }]
      [:.tags-head {
-                      :font-size (u/px 24)
-                      :background-color     (grey% 30)
-                      :color                :white
-                      :width full
-                      }]
+                   :font-size (u/px 24)
+                   :background-color     (grey% 30)
+                   :color                :white
+                   :width full
+                   }]
+     ;-----------------------------------------------------
+     [:.tag-head-none {
+                       :font-size        (u/px 24)
+                       :background-color (grey% 30)
+                       :color            :grey
+                       :width            full
+                       }]
+     [:.tag-head-tag {
+                      :font-size        (u/px 24)
+                      :background-color (grey% 30)
+                      :color            :white
+                      :width            full
+                       }]
+     [:.tag-head-proj {
+                       :font-size        (u/px 24)
+                       :background-color (grey% 30)
+                       :color            :yellow
+                       :width            full
+                       }]
+
+     ;-----------------------------------------------------
      [:.item-info-th {
                       :font-size (u/px 24)
                       :padding (u/px 10)

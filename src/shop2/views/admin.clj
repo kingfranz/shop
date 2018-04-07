@@ -11,35 +11,20 @@
               [shop2.db.menus :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.db.recipes :refer :all]
-              [clj-time.core :as t]
-              [clj-time.local :as l]
-              [clj-time.coerce :as c]
-              [clj-time.format :as f]
-              [clj-time.periodic :as p]
-              [garden.core :as g]
-              [garden.units :as u]
-              [garden.selectors :as sel]
-              [garden.stylesheet :as ss]
-              [garden.color :as color]
-              [garden.arithmetic :as ga]
-              [hiccup.core :as h]
-              [hiccup.def :as hd]
-              [hiccup.element :as he]
+              [clojure.spec.alpha :as s]
+              [orchestra.core :refer [defn-spec]]
+              [orchestra.spec.test :as st]
               [hiccup.form :as hf]
               [hiccup.page :as hp]
-              [hiccup.util :as hu]
               [ring.util.anti-forgery :as ruaf]
               [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]
-              [ring.util.response :as ring]
               [environ.core :refer [env]]
-              [clojure.string :as str]
-              [clojure.set :as set]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn- admin-block
-    [header new-url bulk edit-url data]
+(defn-spec admin-block any?
+    [header string?, new-url string?, bulk (s/nilable string?), edit-url string?, data :shop/dd]
     (named-block header
                  (list
                      [:div.item-div
@@ -56,7 +41,22 @@
                           [:div.item-div
                            (hf/drop-down {:class "ddown-col"} :target data)])])))
 
-(def script "function post(params) {\n var form = document.createElement(\"form\");\n    form.setAttribute(\"method\", 'post');\n    form.setAttribute(\"action\", '/login');\n    for(var key in params) {\n        if(params.hasOwnProperty(key)) {\n            var hiddenField = document.createElement(\"input\");\n            hiddenField.setAttribute(\"type\", \"hidden\");\n            hiddenField.setAttribute(\"name\", key);\n            hiddenField.setAttribute(\"value\", params[key]);\n            form.appendChild(hiddenField);}}\n    document.body.appendChild(form);\n    form.submit();}\n\nfunction loadKey(aft) {\n    var un = localStorage.getItem(\"shopuser\");\n    var pk = localStorage.getItem(\"shoppass\");\n    if(un && pk) { post({username: un, password: pk, '__anti-forgery-token': aft}); }}")
+(def ^:private script (str "function post(params) {\n"
+                           " var form = document.createElement(\"form\");\n"
+                           "    form.setAttribute(\"method\", 'post');\n"
+                           "    form.setAttribute(\"action\", '/login');\n"
+                           "    for(var key in params) {\n"
+                           "        if(params.hasOwnProperty(key)) {\n"
+                           "            var hiddenField = document.createElement(\"input\");\n"
+                           "            hiddenField.setAttribute(\"type\", \"hidden\");\n"
+                           "            hiddenField.setAttribute(\"name\", key);\n"
+                           "            hiddenField.setAttribute(\"value\", params[key]);\n"
+                           "            form.appendChild(hiddenField);}}\n"
+                           "    document.body.appendChild(form);\n"
+                           "    form.submit();}\n\nfunction loadKey(aft) {\n"
+                           "    var un = localStorage.getItem(\"shopuser\");\n"
+                           "    var pk = localStorage.getItem(\"shoppass\");\n"
+                           "    if(un && pk) { post({username: un, password: pk, '__anti-forgery-token': aft}); }}"))
 
 (defn renew-password
     [request]
@@ -163,3 +163,5 @@
                 [:td {:colspan 2} (hf/submit-button {:class "login-txt"} "Logga in")]]]])]))
 
 ;;-----------------------------------------------------------------------------
+
+(st/instrument)

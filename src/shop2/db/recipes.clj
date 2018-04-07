@@ -14,7 +14,7 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn-spec get-recipe-names (s/* (s/keys :req-un [:shop/_id :shop/entryname]))
+(defn-spec get-recipe-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
 	(mc-find-maps "get-recipe-names" "recipes" {} {:_id true :entryname true}))
 
@@ -31,6 +31,10 @@
 	(mc-insert "add-recipe" "recipes" entry)
 	entry)
 
+(defn-spec delete-recipe any?
+    [id :shop/_id]
+    (mc-remove-by-id "delete-recipe" "recipes" id))
+
 (defn-spec update-recipe :shop/recipe
 	[recipe :shop/recipe]
 	(mc-replace-by-id "update-recipe" "recipes" recipe)
@@ -39,5 +43,7 @@
                {$set {:recipe (select-keys recipe [:_id :entryname])}}
                {:multi true})
     recipe)
+
+;;-----------------------------------------------------------------------------
 
 (st/instrument)

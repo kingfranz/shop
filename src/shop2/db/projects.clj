@@ -24,14 +24,6 @@
                :finished nil
                :cleared  nil)))
 
-(defn- upd-proj
-    [old-proj]
-    (if (s/valid? :shop/project old-proj)
-        old-proj
-        (-> old-proj
-           (dissoc :tag)
-           (assoc :parent nil))))
-
 (defn-spec get-projects :shop/projects
            []
            (mc-find-maps "get-projects" "projects" {:cleared nil}))
@@ -39,10 +31,6 @@
 (defn-spec project-id-exist? boolean?
            [id :shop/_id]
            (some? (mc-find-one-as-map "get-project-id-exist?" "projects" {:_id id} {:_id true})))
-
-(defn get-raw-projects
-           []
-           (mc-find-maps "get-raw-projects" "projects" {}))
 
 (defn-spec proj-comp integer?
     [p1 :shop/project, p2 :shop/project]
@@ -70,7 +58,7 @@
     (->> (mc-find-maps "get-project-names" "projects" {:finished nil} {:_id true :entryname true})
         (sort-by :entryname)))
 
-(defn-spec get-projects-dd (s/coll-of (s/cat :str string? :id :shop/_id))
+(defn-spec get-projects-dd :shop/dd
     []
     (->> (get-project-names)
          (map (fn [l] [(:entryname l) (:_id l)]))
