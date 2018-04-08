@@ -2,18 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a79396c0-6f0a-44b7-af7c-a2d168fe7ab2" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/shop2/db/notes.clj" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/shop2/views/notes.clj" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/update-server.sh" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/vmserver.service" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__garden_1_3_5.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__prone_1_5_1.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/project.clj" afterPath="$PROJECT_DIR$/project.clj" />
       <change beforePath="$PROJECT_DIR$/shop2.iml" afterPath="$PROJECT_DIR$/shop2.iml" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" afterPath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/recipes.clj" afterPath="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/spec.clj" afterPath="$PROJECT_DIR$/src/shop2/spec.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/css.clj" afterPath="$PROJECT_DIR$/src/shop2/views/css.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/home.clj" afterPath="$PROJECT_DIR$/src/shop2/views/home.clj" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -53,8 +46,8 @@
       <file leaf-file-name="project.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="11" column="5" lean-forward="false" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
+            <state relative-caret-position="180">
+              <caret line="10" column="2" lean-forward="false" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -241,6 +234,7 @@
         <option value="$PROJECT_DIR$/src/shop2/views/notes.clj" />
         <option value="$PROJECT_DIR$/vmserver.service" />
         <option value="$PROJECT_DIR$/project.clj" />
+        <option value="$USER_HOME$/.ssh/known_hosts" />
       </list>
     </option>
   </component>
@@ -371,7 +365,7 @@
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="TEXT&#10;JSON&#10;Clojure" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../utils/src/utils/core.clj" />
+    <property name="last_opened_file_path" value="$USER_HOME$/.ssh/known_hosts" />
     <property name="project.structure.last.edited" value="Global Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -468,7 +462,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32952183" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="REPL" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17033678" sideWeight="0.5044743" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32952183" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32913843" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32848233" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Leiningen" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6414286" sideWeight="0.49552572" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -548,7 +542,8 @@
     <MESSAGE value="projects redone" />
     <MESSAGE value="removed niglet" />
     <MESSAGE value="added delete-recipe and more error checks" />
-    <option name="LAST_COMMIT_MESSAGE" value="added delete-recipe and more error checks" />
+    <MESSAGE value="added notes" />
+    <option name="LAST_COMMIT_MESSAGE" value="added notes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -557,7 +552,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/load.html" />
     <entry file="file://$PROJECT_DIR$/load2.html" />
     <entry file="file://$PROJECT_DIR$/resources/public/save.js" />
     <entry file="file://$PROJECT_DIR$/user.txt">
@@ -876,10 +870,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.ssh/known_hosts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/project.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="11" column="5" lean-forward="false" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
+        <state relative-caret-position="180">
+          <caret line="10" column="2" lean-forward="false" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="2" />
           <folding />
         </state>
       </provider>

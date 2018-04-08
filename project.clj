@@ -21,8 +21,8 @@
                    [clj-time "0.14.2"]
                    [environ "1.1.0"]
                    [com.novemberain/monger "3.1.0"]
-                   [prone "1.5.0"]
-                   [garden "1.3.4"]
+                   [prone "1.5.1"]
+                   [garden "1.3.5"]
                    [cheshire "5.8.0"]
                    [com.cemerick/friend "0.2.3"]
                    [com.taoensso/timbre "4.10.0"]
@@ -37,12 +37,8 @@
               [lein-ring "0.11.0"]
               [lein-pprint "1.1.2"]
               [lein-environ "1.1.0"]]
-    ;:ring {
-    ;       :handler       shop2.core/application
-    ;       :auto-reload?  false
-    ;       :auto-refresh? false
-    ;       :port          3000}
-    :profiles {:uberjar {:aot :all}}
+    :profiles {:uberjar {:aot :all}
+               :dev {:ring {:stacktrace-middleware prone.middleware/wrap-exceptions}}}
     )
 
 ; {:jvm-opts ["-Dclojure.spec.compile-asserts=true -XX:-OmitStackTraceInFastThrow"]}
