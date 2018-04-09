@@ -20,9 +20,9 @@
                (assoc :url url
                       :items items)))
 
-(defn-spec get-recipe-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
+(defn-spec get-recipe-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname :shop/entrynamelc]))
 	[]
-	(mc-find-maps "get-recipe-names" "recipes" {} {:_id true :entryname true}))
+	(mc-find-maps "get-recipe-names" "recipes" {} {:_id true :entryname true :entrynamelc true}))
 
 (defn-spec get-recipes :shop/recipes
 	[]
