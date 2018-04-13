@@ -20,53 +20,87 @@
               [hiccup.form :as hf]
               [ring.util.anti-forgery :as ruaf]
               [ring.util.response :as ring]
-              [utils.core :as utils]))
+              [utils.core :as utils]
+              [clj-time.format :as f]
+              [clj-time.core :as t]
+              [clj-time.local :as l]))
 
 ;;-----------------------------------------------------------------------------
 
 (def ^:private pri-name "proj-pri-")
 (def ^:private txt-name "proj-txt-")
 (def ^:private parent-name "proj-par-")
+(def ^:private date-name "proj-date-")
 
 (defn-spec ^:private mk-prio-dd any?
-    [id (s/or :id :shop/_id :new #(= % "new")), prio integer?]
-    (hf/drop-down {:class "proj-pri-val"} (utils/mk-tag pri-name id) (range 1 6) prio))
+    [proj (s/nilable (s/keys :req-un [:shop/_id :shop/priority]))]
+    (hf/drop-down {:class "fnt-18px"}
+                  (utils/mk-tag pri-name (or (:_id proj) "new"))
+                  (range 1 6)
+                  (or (:priority proj) 1)))
+
+(defn- dt-diff
+    [dt]
+    (if (t/before? dt (end-of-today))
+        (utils/neg (t/in-hours (t/interval dt (end-of-today))))
+        (t/in-hours (t/interval (end-of-today) dt))))
+
+(defn- txt-style
+    [proj]
+    (cond
+        (nil? proj) "base-txt"
+        (nil? (:deadline proj)) "base-txt"
+        (neg? (dt-diff (:deadline proj))) "red-txt"
+        (< (dt-diff (:deadline proj)) 24) "orange-txt"
+        (< (dt-diff (:deadline proj)) (* 24 7)) "yellow-txt"
+        :else "base-txt"
+        ))
+
+(defn- proj-name-style
+    [proj]
+    (if (empty? (:children proj))
+        (str (txt-style proj) " fnt-24px")
+        (str (txt-style proj) " fnt-24px" " bold")))
 
 (defn-spec ^:private mk-name-field any?
-    [id :shop/_id, ename :shop/entryname]
-    (hf/text-field {:class "proj-txt-val"} (utils/mk-tag txt-name id) ename))
+    [proj (s/nilable (s/keys :req-un [:shop/_id :shop/entryname]))]
+    (hf/text-field {:class (proj-name-style proj)}
+                   (utils/mk-tag txt-name (or (:_id proj) "new"))
+                   (:entryname proj)))
+
+(defn-spec ^:private mk-date-field any?
+    [proj (s/nilable (s/keys :req-un [:shop/_id :shop/deadline]))]
+    (hf/text-field {:class "fnt-12px invert-txt width-100px"}
+                   (utils/mk-tag date-name (or (:_id proj) "new"))
+                   (dt->str (:deadline proj))))
+
+(defn-spec ^:private mk-parent-field any?
+    [proj (s/nilable (s/keys :req-un [:shop/_id :shop/parent])), proj-dd :shop/dd]
+    (hf/drop-down {:class "fnt-12px width-100px"}
+                  (utils/mk-tag parent-name (or (:_id proj) "new"))
+                  proj-dd
+                  (:parent proj)))
 
 (defn-spec ^:private proj-checkmark any?
     [id :shop/_id]
-    [:a {:class "proj-check-val" :href (str "/user/project/finish/" id)} "&#10004"])
+    [:a.proj-check-val {:href (str "/user/project/finish/" id)} "&#10004"])
 
 (defn-spec ^:private mk-project-row any?
-    [id :shop/parent
-     prio integer?
-     ename string? ;:shop/entryname
-     parent :shop/parent
-     proj-dd :shop/dd
-     check? boolean?]
+    [proj (s/nilable :shop/project), proj-dd :shop/dd]
     [:table.width-100p
      [:tr
-      (when (nil? id)
-          [:td.proj-pri-td (mk-prio-dd "new" prio)])
-      [:td.proj-check-td
-       (when (and id check?)
-           (proj-checkmark id))]
-      [:td.proj-txt-td
-       (hf/text-field {:class (if check? "proj-txt-val" "proj-txt-val bold")}
-                      (utils/mk-tag txt-name (if id id "new"))
-                      ename)]
-      [:td.width-150px.r-align
-       (hf/drop-down {:style "width:150px;text-align:right;"}
-                     (utils/mk-tag parent-name (if id id "new"))
-                     proj-dd
-                     parent)]]])
+      (when (nil? proj)
+          [:td.proj-pri-td (mk-prio-dd nil)])
+      [:td.width-20px
+       (when (and proj (empty? (:children proj)))
+           (proj-checkmark (:_id proj)))]
+      [:td.width-300px (mk-name-field proj)]
+      [:td.r-align.width-100px (mk-date-field proj)]
+      [:td.r-align.width-100px (mk-parent-field proj proj-dd)]]])
 
 (defn-spec ^:private mk-proj-row any?
     [proj :shop/project, proj-dd :shop/dd]
-    (let [parent [:li (mk-project-row (:_id proj) (:priority proj) (:entryname proj) (:parent proj) proj-dd (empty? (:children proj)))]
+    (let [parent [:li (mk-project-row proj proj-dd)]
           children (mapcat #(mk-proj-row % proj-dd) (:children proj))]
         (if (empty? children)
             (list parent)
@@ -75,17 +109,13 @@
 (defn-spec ^:private mk-proj-prio-row any?
     [proj :shop/project, proj-dd :shop/dd]
     [:tr
-     [:td.proj-pri-td
-      (mk-prio-dd (:_id proj) (:priority proj))]
-     [:td.proj-check-td
+     [:td.width-50px
+      (mk-prio-dd proj)]
+     [:td.width-20px
       [:a.proj-check-val {:href (str "/user/project/finish/" (:_id proj))} "&#10004"]]
-     [:td.proj-txt-td
-      (mk-name-field (:_id proj) (:entryname proj))]
-     [:td.width-150px.r-align
-      (hf/drop-down {:style "width:150px;text-align:right;"}
-                    (utils/mk-tag parent-name (:_id proj))
-                    proj-dd
-                    (:parent proj))]])
+     [:td.width-400px (mk-name-field proj)]
+     [:td.width-150px.r-align (mk-date-field proj)]
+     [:td.width-150px.r-align (mk-parent-field proj proj-dd)]])
 
 (defn-spec ^:private mk-finished-row any?
     [proj :shop/project]
@@ -122,9 +152,18 @@
 
 ;;-----------------------------------------------------------------------------
 
+(defn-spec ^:private mk-display-row any?
+           [proj :shop/project]
+           [:table
+            [:tr
+             [:td
+              [:label {:class (proj-name-style proj)} (:entryname proj)]]
+             [:td
+              [:label.proj-txt-td (dt->str (:deadline proj))]]]])
+
 (defn-spec ^:private mk-display any?
     [proj :shop/project]
-    (let [parent   [:li [:label.proj-txt-td (:entryname proj)]]
+    (let [parent   [:li [:label {:class (proj-name-style proj)} (:entryname proj)]]
           children (mapcat mk-display (:children proj))]
         (if (empty? (:children proj))
             (list parent)
@@ -176,7 +215,7 @@
                         (hf/submit-button {:class "button"} "Updatera!")]]
                       [:tr
                        [:td.items-block
-                        (mk-project-row nil 1 "" nil proj-dd true)]]
+                        (mk-project-row nil proj-dd)]]
                       [:tr
                        [:td
                         (if (want-by-proj? request)
@@ -204,24 +243,31 @@
     [p map?, n string?, k string?]
     (get p (utils/mk-tag n k)))
 
-(defn-spec ^:private get-priority integer?
-    [params map?, proj :shop/project]
+(defn-spec ^:private get-priority (s/int-in 1 6)
+    [params map?, proj (s/nilable :shop/project)]
     (try+
-        (->> (:_id proj)
+        (->> (or (:_id proj) "new")
              (param-val params pri-name)
              (Integer/valueOf))
-        (catch Throwable _ (:priority proj))))
+        (catch Throwable _ (or (:priority proj) 1))))
 
-(defn-spec ^:private get-priority-new integer?
-    [params map?]
-    (try+
-        (Integer/valueOf (param-val params pri-name "new"))
-        (catch Throwable _ 1)))
+(defn- str->dt
+    [s]
+    (let [ldt (f/parse-local-date s)]
+        (t/date-time (t/year ldt) (t/month ldt) (t/day ldt) 23 59 59)))
 
-(defn-spec ^:private get-parent :shop/parent
-    [params map?, proj :shop/project]
+(defn-spec ^:private get-deadline :project/deadline
+           [params map?, proj (s/nilable :shop/project)]
+           (try+
+               (->> (or (:_id proj) "new")
+                    (param-val params date-name)
+                    (str->dt))
+               (catch Throwable _ (:deadline proj))))
+
+(defn-spec ^:private get-parent (s/nilable :shop/parent)
+    [params map?, proj (s/nilable :shop/project)]
     (try+
-        (if-let [id (param-val params parent-name (:_id proj))]
+        (if-let [id (param-val params parent-name (or (:_id proj) "new"))]
             (if (or (= id no-id) (not (s/valid? :shop/_id id)))
                 nil
                 (when (project-id-exist? id)
@@ -229,39 +275,32 @@
             (:parent proj))
         (catch Throwable _ (:parent proj))))
 
-(defn-spec ^:private get-parent-new :shop/parent
-    [params map?]
-    (try+
-        (if-let [id (param-val params parent-name "new")]
-            (if (or (= id no-id) (not (s/valid? :shop/_id id)))
-                nil
-                (when (project-id-exist? id)
-                    id))
-            nil)
-        (catch Throwable _ nil)))
-
 (defn-spec ^:private do-proj-update any?
     [params map?, proj-id :shop/_id]
-    (let [db-proj (get-project proj-id)
-          pname (param-val params txt-name proj-id)
-          prio (get-priority params db-proj)
-          parent (get-parent params db-proj)]
+    (let [db-proj  (get-project proj-id)
+          pname    (param-val params txt-name proj-id)
+          prio     (get-priority params db-proj)
+          parent   (get-parent params db-proj)
+          deadline (get-deadline params db-proj)]
         (when (or (and (s/valid? :shop/entryname pname)
                        (not= pname (:entryname db-proj)))
                   (not= prio (:priority db-proj))
-                  (not= parent (:parent db-proj)))
+                  (not= parent (:parent db-proj))
+                  (not= deadline (:deadline db-proj)))
             (update-project (-> db-proj
                                 (set-name pname)
                                 (assoc :priority prio
-                                       :parent parent))))))
+                                       :parent   parent
+                                       :deadline deadline))))))
 
 (defn-spec ^:private do-new-proj any?
     [params map?]
-    (let [npname (get params (utils/mk-tag txt-name "new"))
-          parent (get-parent-new params)
-          prio (get-priority-new params)]
+    (let [npname   (get params (utils/mk-tag txt-name "new"))
+          parent   (get-parent params nil)
+          prio     (get-priority params nil)
+          deadline (get-deadline params nil)]
         (when (s/valid? :shop/entryname npname)
-            (add-project (create-project-obj npname parent prio)))))
+            (add-project (create-project-obj npname parent prio deadline)))))
 
 (defn edit-projects!
     [{params :params}]

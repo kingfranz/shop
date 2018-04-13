@@ -48,7 +48,6 @@
 (defn edit-tag
     [request tag-id]
     (let [tag (get-tag tag-id)]
-        (println "edit-tag:" tag)
         (common request "Edit tag" [css-tags css-tags-tbl]
                 (hf/form-to
                     [:post "/admin/tag/edited"]

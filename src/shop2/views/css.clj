@@ -38,12 +38,6 @@
                       }]
      [:.spacer {
 			:width (u/px 30)}]
-		[:.vspace {
-			:height (u/px 30)}]
-		[:.r-align {
-			:text-align :right}]
-		[:.v-align {
-			:text-align :left}]
 		[:.home-margin {
 			:padding [[0 0 0 (u/px 12)]]}]
 		[:.menu-txt {
@@ -523,6 +517,8 @@
 
         [:.width-100p {:width (u/percent 100)}]
         [:.width-90p {:width (u/percent 90)}]
+        [:.width-20px {:width (u/px 20)}]
+        [:.width-50px {:width (u/px 50)}]
         [:.width-100px {:width (u/px 100)}]
         [:.width-150px {:width (u/px 150)}]
         [:.width-200px {:width (u/px 200)}]
@@ -534,7 +530,44 @@
                    (assoc :font-size (u/px 24))
                    (dissoc :padding :margin))]
         [:p.no-margin {:margin 0}]
+        [:.bgrnd-white {:background-color :white}]
+        [:.bgrnd-grey {:background-color :grey}]
+        [:.border-1 {:border [[(u/px 1) :white :solid]]}]
         [:.bold {:font-weight :bold}]
+        [:.fnt-12px {:font-size (u/px 12)}]
+        [:.fnt-18px {:font-size (u/px 18)}]
+        [:.fnt-24px {:font-size (u/px 24)}]
+        [:.base-txt {
+                     :color :white
+                     :background-color transparent
+                     :border :none
+                     }]
+        [:.invert-txt {
+                       :color :black
+                       :background-color :white
+                       :border :none
+                       }]
+        [:.yellow-txt {
+                       :color :yellow
+                       :background-color transparent
+                       :border :none
+                       }]
+        [:.orange-txt {
+                       :color :orange
+                       :background-color transparent
+                       :border :none
+                       }]
+        [:.red-txt {
+                       :color :red
+                       :background-color transparent
+                       :border :none
+                       }]
+        [:.vspace {
+                   :height (u/px 30)}]
+        [:.r-align {
+                    :text-align :right}]
+        [:.v-align {
+                    :text-align :left}]
         ))
 
 (def css-html
@@ -618,19 +651,7 @@
 			:font-size (u/px 36)}
 			(ss/at-media {:screen true :max-width (u/px 700)}
 	    		[:& {:font-size (u/px 24)}])]
-		[:.proj-pri-td {
-			:width (u/px 50)
-		}]
-		[:.proj-check-td {
-			:width (u/px 20)
-		}]
-		[:.proj-txt-td {
-			:width (u/px 500)
-		}]
-		[:.proj-tags-td {
-			:width (u/px 200)
-		}]
-        [:div.horizontalgap {
+		[:div.horizontalgap {
                              :float :left
                              :overflow :hidden
                              :height (u/px 1)

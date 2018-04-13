@@ -12,9 +12,14 @@
 ;;-----------------------------------------------------------------------------
 
 (defn today
-	[]
-	(let [now (l/local-now)]
-		(t/date-time (t/year now) (t/month now) (t/day now))))
+    []
+    (let [now (l/local-now)]
+        (t/date-time (t/year now) (t/month now) (t/day now))))
+
+(defn end-of-today
+    []
+    (let [now (l/local-now)]
+        (t/date-time (t/year now) (t/month now) (t/day now) 23 59 59)))
 
 (def menu-frmt-short (f/formatter "EEE dd"))
 

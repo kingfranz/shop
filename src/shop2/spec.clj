@@ -83,11 +83,13 @@
 (s/def :shop/project    (s/keys :req-un [:shop/_id :shop/created
                                          :shop/entryname :shop/entrynamelc
                                          :shop/parent
-                                         :project/priority :shop/finished :project/cleared]))
+                                         :project/priority :project/deadline
+                                         :shop/finished :project/cleared]))
 
 (s/def :shop/projects   (s/coll-of :shop/project))
 
 (s/def :project/priority (s/int-in 1 6))
+(s/def :project/deadline (s/nilable :shop/date))
 (s/def :project/cleared  (s/nilable :shop/date))
 
 ;;-----------------------------------------------------------------------------

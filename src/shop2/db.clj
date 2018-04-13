@@ -55,7 +55,7 @@
 	(log/trace (apply str caller ": " (fname mc-func) " " tbl " " (first args) "\n"))
 	(let [ret (apply mc-func shopdb tbl (first args))
           txt* (pr-str ret)
-          txt  (if (> (count txt*) 500) (str (doall (take 500 txt*)) " ## and much more") txt*)]
+          txt  (if (> (count txt*) 500) (str (subs txt* 0 500) " ## and much more") txt*)]
 		(log/trace caller "returned:" txt "\n")
 		ret))
 

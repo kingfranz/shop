@@ -17,16 +17,24 @@
 ;;-----------------------------------------------------------------------------
 
 (defn-spec create-project-obj :shop/project
-    [pname :shop/entryname, parent :shop/parent, priority :project/priority]
+    [pname :shop/entryname
+     parent :shop/parent
+     priority :project/priority
+     deadline :shop/deadline]
     (-> (create-entity pname)
         (assoc :parent   parent
                :priority priority
+               :deadline deadline
                :finished nil
                :cleared  nil)))
 
+(defn-spec ^:private upd-proj :shop/project
+           [db-proj any?]
+           (update db-proj :deadline #(if % % nil)))
+
 (defn-spec get-projects :shop/projects
            []
-           (mc-find-maps "get-projects" "projects" {:cleared nil}))
+           (map upd-proj (mc-find-maps "get-projects" "projects" {:cleared nil})))
 
 (defn-spec project-id-exist? boolean?
            [id :shop/_id]
@@ -35,6 +43,7 @@
 (defn-spec proj-comp integer?
     [p1 :shop/project, p2 :shop/project]
     (or (comp-nil (some? (:finished p1)) (some? (:finished p2)))
+        (comp-nil (:deadline p1) (:deadline p2))
         (comp-nil (:priority p1) (:priority p2))
         (comp-nil (:created p1) (:created p2))
         0))
@@ -42,21 +51,23 @@
 (defn-spec get-active-projects :shop/projects
            []
            (->> (mc-find-maps "get-active-projects" "projects" {:finished nil})
+                (map upd-proj)
                 (sort-by identity proj-comp)))
 
 (defn-spec get-finished-projects :shop/projects
            []
            (->> (mc-find-maps "get-finished-projects" "projects" {:finished {$ne nil} :cleared nil})
+                (map upd-proj)
                 (sort-by identity proj-comp)))
 
 (defn-spec get-project (s/nilable :shop/project)
 	[id :shop/_id]
-    (mc-find-one-as-map "get-project" "projects" {:_id id}))
+    (upd-proj (mc-find-one-as-map "get-project" "projects" {:_id id})))
 
 (defn-spec get-project-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
     []
     (->> (mc-find-maps "get-project-names" "projects" {:finished nil} {:_id true :entryname true})
-        (sort-by :entryname)))
+         (sort-by :entryname)))
 
 (defn-spec get-projects-dd :shop/dd
     []

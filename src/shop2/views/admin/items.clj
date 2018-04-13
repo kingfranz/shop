@@ -97,10 +97,7 @@
                      (homeback-button "/admin")
                      [:a.link-head {:href (str "/admin/item/delete/" item-id)} "Ta bort"]
                      (hf/submit-button {:class "button"} "Uppdatera")]
-                    [:div
-                     (admin-info-part item)
-                     (named-div "Ny kategori:" (hf/text-field {:class "item-info"} :new-tag))
-                     (tags-tbl nil (:tag item))]
+                    (tags-tbl (admin-info-part item) nil (:tag item))
                     ))))
 
 (defn edit-item!
@@ -133,9 +130,7 @@
                                             (sort-by :entrynamelc)
                                             (map (fn [l] [(:entryname l) (:_id l)]))
                                             (concat [["" no-id]])))
-                 (admin-info-part nil)
-                 (named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
-                 (tags-tbl nil nil)])))
+                 (tags-tbl (admin-info-part nil) nil nil)])))
 
 (defn new-item!
     [{params :params}]

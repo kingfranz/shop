@@ -201,10 +201,7 @@
                 [:div
                  (homeback-button (str "/user/item/add/" list-id))
                  [:a.link-head (hf/submit-button {:class "button"} "Skapa")]]
-                [:div
-                 (info-part)
-                 (named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
-                 (tags-tbl list-id nil)])))
+                (tags-tbl (info-part) list-id nil))))
 
 ;;-----------------------------------------------------------------------------
 

@@ -15,7 +15,9 @@
               [hiccup.form :as hf]
               [environ.core :refer [env]]
               [clojure.string :as str]
-              [utils.core :as utils]))
+              [utils.core :as utils]
+              [clj-time.core :as t]
+              [clj-time.format :as f]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -64,10 +66,10 @@
 
 (defn-spec get-new-tag any?
 	[params map?]
-	(when-not (str/blank? (:new-tags params))
-        (when-not (s/valid? :tags/entryname (:new-tags params))
+	(when-not (str/blank? (:new-tag params))
+        (when-not (s/valid? :tags/entryname (:new-tag params))
             (throw+ {:type :input :src "get-new-tag" :cause "Invalid tag"}))
-        (:new-tags params)))
+        (:new-tag params)))
 
 (defn-spec extract-tag (s/nilable :shop/tag)
 	[params map?]
@@ -110,13 +112,16 @@
         tags))
 
 (defn-spec tags-tbl any?
-    [parent :shop/parent, tag :item/tag]
-    (named-div "Existerande kategorier:"
-                    (->> (get-tags)
-                         (filter-tag-parent parent)
-                         (sort-by :entrynamelc)
-                         (concat [blank-tag])
-                         (map #(mk-tag-entry (:entryname tag) %)))))
+    [info any?, parent :shop/parent, tag :item/tag]
+    [:div
+     info
+     (named-div "Ny kategori:" (hf/text-field {:class "new-tag"} :new-tag))
+     (named-div "Existerande kategorier:"
+            (->> (get-tags)
+                 (filter-tag-parent parent)
+                 (sort-by :entrynamelc)
+                 (concat [blank-tag])
+                 (map #(mk-tag-entry (:entryname tag) %))))])
 
 (defn-spec mk-proj-entry any?
     [target-id :shop/_id, proj :shop/project]
@@ -136,6 +141,12 @@
                      (map #(mk-proj-entry proj-id %))))))
 
 ;;-----------------------------------------------------------------------------
+
+(defn-spec dt->str string?
+    [dt (s/nilable :shop/date)]
+    (if dt
+       (utils/year-month-day dt)
+       ""))
 
 (defn-spec str->num (s/nilable double?)
     [s (s/nilable string?)]

@@ -24,10 +24,6 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn-spec ^:private dt->str string?
-    [dt :shop/date]
-    (f/unparse (f/with-zone (f/formatters :year-month-day) (t/default-time-zone)) dt))
-
 (defn-spec ^:private mk-recipe-link any?
     [menu :shop/x-menu]
     (when (:recipe menu)
