@@ -2,21 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a79396c0-6f0a-44b7-af7c-a2d168fe7ab2" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojars_kingfranz_utils_0_2_8.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/project.clj" afterPath="$PROJECT_DIR$/project.clj" />
-      <change beforePath="$PROJECT_DIR$/shop2.iml" afterPath="$PROJECT_DIR$/shop2.iml" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db.clj" afterPath="$PROJECT_DIR$/src/shop2/db.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/projects.clj" afterPath="$PROJECT_DIR$/src/shop2/db/projects.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/extra.clj" afterPath="$PROJECT_DIR$/src/shop2/extra.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/spec.clj" afterPath="$PROJECT_DIR$/src/shop2/spec.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" afterPath="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/common.clj" afterPath="$PROJECT_DIR$/src/shop2/views/common.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/css.clj" afterPath="$PROJECT_DIR$/src/shop2/views/css.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/items.clj" afterPath="$PROJECT_DIR$/src/shop2/views/items.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/menus.clj" afterPath="$PROJECT_DIR$/src/shop2/views/menus.clj" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/views/projects.clj" afterPath="$PROJECT_DIR$/src/shop2/views/projects.clj" />
+      <change beforePath="$PROJECT_DIR$/update-server.sh" afterPath="$PROJECT_DIR$/update-server.sh" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -36,8 +23,8 @@
       <file leaf-file-name="project.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="25" lean-forward="false" selection-start-line="0" selection-start-column="25" selection-end-line="0" selection-end-column="25" />
+            <state relative-caret-position="126">
+              <caret line="7" column="29" lean-forward="false" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -226,7 +213,6 @@
         <option value="$PROJECT_DIR$/vmserver.service" />
         <option value="$USER_HOME$/.ssh/known_hosts" />
         <option value="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
-        <option value="$PROJECT_DIR$/update-server.sh" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db.clj" />
@@ -239,6 +225,7 @@
         <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/projects.clj" />
         <option value="$PROJECT_DIR$/project.clj" />
+        <option value="$PROJECT_DIR$/update-server.sh" />
       </list>
     </option>
   </component>
@@ -379,7 +366,7 @@
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="cursive.last.file.extension./home/soren/Linux/clojure/shop2/src" value="clj" />
   </component>
-  <component name="ReplState" timestamp="1523641809755">{:repl-history {:ide [], :local [], :remote []}}</component>
+  <component name="ReplState" timestamp="1523690392129">{:repl-history {:ide [], :local [], :remote []}}</component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -462,6 +449,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="85" y="57" width="1549" height="1068" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -551,7 +539,8 @@
     <MESSAGE value="added delete-recipe and more error checks" />
     <MESSAGE value="added notes" />
     <MESSAGE value="added sort of recipe in home screen" />
-    <option name="LAST_COMMIT_MESSAGE" value="added sort of recipe in home screen" />
+    <MESSAGE value="added deadline to projects" />
+    <option name="LAST_COMMIT_MESSAGE" value="added deadline to projects" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -796,14 +785,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/update-server.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/user.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -937,10 +918,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/update-server.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="0" lean-forward="true" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/project.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="25" lean-forward="false" selection-start-line="0" selection-start-column="25" selection-end-line="0" selection-end-column="25" />
+        <state relative-caret-position="126">
+          <caret line="7" column="29" lean-forward="false" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
           <folding />
         </state>
       </provider>
