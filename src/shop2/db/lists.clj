@@ -23,17 +23,27 @@
                       :parent parent
                       :last   last?)))
 
+(defn-spec ^:private upd-item :shop/item
+           [itm any?]
+           (if (nil? (:project itm))
+               itm
+               (update-in itm [:project :deadline] #(if % % nil))))
+
+(defn-spec ^:private upd-lst :shop/list
+           [lst any?]
+           (update lst :items #(mapv upd-item %)))
+
 (defn-spec get-list :shop/list
            [listid :shop/_id]
-           (mc-find-one-as-map "get-list" "lists" {:_id listid}))
+           (upd-lst (mc-find-one-as-map "get-list" "lists" {:_id listid})))
 
 (defn-spec get-list-by-name :shop/list
            [list-name :shop/entryname]
-           (mc-find-one-as-map "get-list" "lists" {:entryname list-name}))
+           (upd-lst (mc-find-one-as-map "get-list" "lists" {:entryname list-name})))
 
 (defn-spec get-lists :shop/lists
            []
-           (mc-find-maps "get-lists" "lists"))
+           (map upd-lst (mc-find-maps "get-lists" "lists")))
 
 (defn-spec get-list-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
            []
@@ -110,13 +120,15 @@
            [list-id :shop/_id, item-id :shop/_id]
            (some->> (mc-find-one-as-map "find-item" "lists" {:_id list-id :items._id item-id} {:items.$ 1})
                     :items
-                    first))
+                    first
+                    upd-item))
 
 (defn-spec find-list-item-by-name (s/nilable :list/item)
            [list-id :shop/_id, item-name :shop/entryname]
            (some->> (mc-find-one-as-map "find-item" "lists" {:_id list-id :items.entryname item-name} {:items.$ 1})
                     :items
-                    first))
+                    first
+                    upd-item))
 
 (defn-spec item-finished? boolean?
            [list-id :shop/_id, item-id :shop/_id]

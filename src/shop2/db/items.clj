@@ -30,13 +30,19 @@
                :price   price
                :oneshot oneshot)))
 
+(defn-spec ^:private upd-item :shop/item
+    [itm any?]
+    (if (nil? (:project itm))
+        itm
+        (update-in itm [:project :deadline] #(if % % nil))))
+
 (defn-spec get-item-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
 	(mc-find-maps "get-item-names" "items" {} {:_id true :entryname true}))
 
 (defn-spec get-items :shop/items
 	[]
-	(mc-find-maps "get-items" "items" {}))
+    (map upd-item (mc-find-maps "get-items" "items" {})))
 
 (defn get-raw-items
     []
@@ -44,7 +50,7 @@
 
 (defn-spec get-item :shop/item
 	[id :shop/_id]
-	(mc-find-one-as-map "get-item" "items" {:_id id}))
+    (upd-item (mc-find-one-as-map "get-item" "items" {:_id id})))
 
 (defn-spec item-id-exists? boolean?
 	[id :shop/_id]
