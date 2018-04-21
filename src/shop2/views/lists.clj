@@ -37,17 +37,17 @@
      text])
 
 (defn-spec ^:private mk-item-row any?
-    [a-list :shop/list, item :list/item, active? boolean?]
-    [:tr {:class (if active? "item-text-tr" "item-text-tr done")}
-    [:td.item-text-td (mk-item-a a-list item active? (mk-name item))]
-    (when active?
-        [:td
-         [:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
-        [:td
-         [:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
-        (when-not (str/blank? (:url item))
-            [:td.item-menu-td
-             [:a.item-text {:href (:url item) :target "_blank"} "Link"]]))])
+           [a-list :shop/list, item :list/item, active? boolean?]
+           [:tr {:class (if active? "bgrnd-white" "bgrnd-grey line-thru")}
+            [:td.width-90p (mk-item-a a-list item active? (mk-name item))]
+            (when active?
+                (list [:td
+                       [:a.arrow {:href (str "/user/list/up/" (:_id a-list) "/" (:_id item))} "▲"]]
+                      [:td
+                       [:a.arrow {:href (str "/user/list/down/" (:_id a-list) "/" (:_id item))} "▼"]]
+                      (when-not (str/blank? (:url item))
+                          [:td.width-30p
+                           [:a.item-text {:href (:url item) :target "_blank"} "Link"]])))])
 
 (defn-spec ^:private sort-by-key map?
     [target keyword?, item-list :list/items]
@@ -82,37 +82,47 @@
                        (mk-item-row a-list item active?)))))
        ))
 
+(defn-spec ^:private mk-list-header any?
+           [a-list :shop/list]
+           ; row with list name
+           [:tr
+            [:td
+             [:table.width-100p
+              [:tr
+               [:th.l-align (home-button)]
+               [:th.list-name-th
+                [:label.list-name (:entryname a-list)]]
+               [:th.r-align
+                [:a.link-flex {:href (str "/user/item/add/" (:_id a-list))} "+"]]]]]])
+
+(defn-spec ^:private mk-done-header any?
+           [base-id :shop/_id, a-list :shop/list]
+           ; row with list name
+           [:tr
+            [:td
+             [:table.width-100p
+              [:tr
+               [:td.done-td "Avklarade"]
+               [:td.done-td.r-align
+                [:a.link-thin {:href (str "/user/list/clean/" base-id "/" (:_id a-list))} "Rensa"]]]]]])
+
 (defn-spec ^:private mk-list-tbl any?
     [base-id :shop/_id, a-list :shop/list]
     [:table.list-tbl
      ; row with list name
-     [:tr
-      [:td
-       [:table.width-100p
-        [:tr
-         [:th.align-l (home-button)]
-         [:th.list-name-th
-          [:label.list-name (:entryname a-list)]]
-         [:th.align-r
-          [:a.link-flex {:href (str "/user/item/add/" (:_id a-list))} "+"]]]]]]
+     (mk-list-header a-list)
      ; rows with not-done items
      [:tr
       [:td
        [:table.width-100p
         (mk-items a-list true)]]]
-     [:tr
-      [:td
-       [:table.width-100p
-        [:tr
-         [:td.done-td {:colspan "1"} "Avklarade"]
-         [:td.done-td.align-r {:colspan "1"}
-          [:a.link-thin {:href (str "/user/list/clean/" base-id "/" (:_id a-list))} "Rensa"]]]]]]
+     (mk-done-header base-id a-list)
      ; rows with done items
      (mk-items a-list false)])
 
 (defn-spec show-list-page any?
     [request map?, list-id :shop/_id]
-    (common-refresh request (:entryname (get-list list-id)) [css-lists]
+    (common-refresh request (:entryname (get-list list-id)) [css-lists css-items]
                     (loop [listid list-id
                            base-id list-id
                            acc []]

@@ -1,4 +1,4 @@
-(defproject shop2 "1.11.1"
+(defproject shop2 "1.12.0"
     :description "Shopping list"
     :url "http://soahojen.se"
     :license {:name "Eclipse Public License"
@@ -18,15 +18,15 @@
                    [ring/ring-codec "1.1.0"]
                    [metosin/ring-http-response "0.9.0"]
                    [slingshot "0.12.2"]
-                   [clj-time "0.14.2"]
+                   [clj-time "0.14.3"]
                    [environ "1.1.0"]
                    [com.novemberain/monger "3.1.0"]
-                   [prone "1.5.1"]
+                   [prone "1.5.2"]
                    [garden "1.3.5"]
                    [cheshire "5.8.0"]
                    [com.cemerick/friend "0.2.3"]
                    [com.taoensso/timbre "4.10.0"]
-                   [compojure "1.6.0"]]
+                   [compojure "1.6.1"]]
     :main shop2.core
     :aot [shop2.core]
     ;:main ^:skip-aot shop2.core

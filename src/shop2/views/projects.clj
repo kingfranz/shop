@@ -22,6 +22,7 @@
               [ring.util.response :as ring]
               [utils.core :as utils]
               [clj-time.format :as f]
+              [clj-time.coerce :as c]
               [clj-time.core :as t]
               [clj-time.local :as l]))
 
@@ -31,6 +32,55 @@
 (def ^:private txt-name "proj-txt-")
 (def ^:private parent-name "proj-par-")
 (def ^:private date-name "proj-date-")
+
+;;-----------------------------------------------------------------------------
+
+(defn- dt->long
+    [dt]
+    (if (nil? dt)
+        1000000000
+        (- (c/to-long dt) (c/to-long (l/local-now)))))
+
+(defn- proj-date-sort
+    [projs]
+    (->> projs
+         (maplist-sort [#(dt->long (:deadline %))
+                        #(:priority %)
+                        #(dt->long (:created %))
+                        (fn [_] 0)])))
+
+(defn proj-prio-sort
+    [projs]
+    (->> projs
+         (maplist-sort [#(:priority %)
+                        #(dt->long (:created %))
+                        (fn [_] 0)])))
+
+(defn- proj-sort-type
+    [req]
+    (some->> req udata :properties :projects :group-type keyword))
+
+(defn- proj-sort-btn
+    [req small?]
+    (if small?
+        (case (proj-sort-type req)
+            :proj [:a.link-flex {:href "/user/project/prio/home"} "P"]
+            :prio [:a.link-flex {:href "/user/project/date/home"} "D"]
+            :date [:a.link-flex {:href "/user/project/proj/home"} "T"])
+        (case (proj-sort-type req)
+            :proj [:a.link-flex {:href "/user/project/prio/proj"} "Prio Sort"]
+            :prio [:a.link-flex {:href "/user/project/date/proj"} "Date Sort"]
+            :date [:a.link-flex {:href "/user/project/proj/proj"} "Proj Sort"])))
+
+(defn small-proj-sort-btn
+    [req]
+    (proj-sort-btn req true))
+
+(defn large-proj-sort-btn
+    [req]
+    (proj-sort-btn req false))
+
+;;-----------------------------------------------------------------------------
 
 (defn-spec ^:private mk-prio-dd any?
     [proj (s/nilable (s/keys :req-un [:shop/_id :shop/priority]))]
@@ -48,12 +98,12 @@
 (defn- txt-style
     [proj]
     (cond
-        (nil? proj) "base-txt"
-        (nil? (:deadline proj)) "base-txt"
-        (neg? (dt-diff (:deadline proj))) "red-txt"
-        (< (dt-diff (:deadline proj)) 24) "orange-txt"
+        (nil? proj)                             "base-txt"
+        (nil? (:deadline proj))                 "base-txt"
+        (neg? (dt-diff (:deadline proj)))       "red-txt"
+        (< (dt-diff (:deadline proj)) 24)       "orange-txt"
         (< (dt-diff (:deadline proj)) (* 24 7)) "yellow-txt"
-        :else "base-txt"
+        :else                                   "base-txt"
         ))
 
 (defn- proj-name-style
@@ -64,12 +114,12 @@
 
 (defn-spec ^:private mk-name-field any?
     [proj (s/nilable (s/keys :req-un [:shop/_id :shop/entryname]))]
-    (hf/text-field {:class (proj-name-style proj)}
+    (hf/text-field {:class (str (proj-name-style proj) " width-100p")}
                    (utils/mk-tag txt-name (or (:_id proj) "new"))
                    (:entryname proj)))
 
 (defn-spec ^:private mk-date-field any?
-    [proj (s/nilable (s/keys :req-un [:shop/_id :shop/deadline]))]
+    [proj (s/nilable (s/keys :req-un [:shop/_id :project/deadline]))]
     (hf/text-field {:class "fnt-12px invert-txt width-100px"}
                    (utils/mk-tag date-name (or (:_id proj) "new"))
                    (dt->str (:deadline proj))))
@@ -90,11 +140,11 @@
     [:table.width-100p
      [:tr
       (when (nil? proj)
-          [:td.proj-pri-td (mk-prio-dd nil)])
+          [:td.width-50px (mk-prio-dd nil)])
       [:td.width-20px
        (when (and proj (empty? (:children proj)))
            (proj-checkmark (:_id proj)))]
-      [:td.width-300px (mk-name-field proj)]
+      [:td.width-400px (mk-name-field proj)]
       [:td.r-align.width-100px (mk-date-field proj)]
       [:td.r-align.width-100px (mk-parent-field proj proj-dd)]]])
 
@@ -113,9 +163,9 @@
       (mk-prio-dd proj)]
      [:td.width-20px
       [:a.proj-check-val {:href (str "/user/project/finish/" (:_id proj))} "&#10004"]]
-     [:td.width-400px (mk-name-field proj)]
-     [:td.width-150px.r-align (mk-date-field proj)]
-     [:td.width-150px.r-align (mk-parent-field proj proj-dd)]])
+     [:td.width-100p (mk-name-field proj)]
+     [:td.width-100px.r-align (mk-date-field proj)]
+     [:td.width-100px.r-align (mk-parent-field proj proj-dd)]])
 
 (defn-spec ^:private mk-finished-row any?
     [proj :shop/project]
@@ -154,11 +204,13 @@
 
 (defn-spec ^:private mk-display-row any?
            [proj :shop/project]
-           [:table
+           [:table.width-100p
             [:tr
+             [:td.width-20px
+              [:label (:priority proj)]]
              [:td
               [:label {:class (proj-name-style proj)} (:entryname proj)]]
-             [:td
+             [:td.r-align.width-150px
               [:label.proj-txt-td (dt->str (:deadline proj))]]]])
 
 (defn-spec ^:private mk-display any?
@@ -169,11 +221,30 @@
             (list parent)
             (concat (list parent) (list [:ul children])))))
 
-(defn display-projects
+(defn- display-by-proj
     []
     [:ul
-      (for [proj (mk-proj-tree nil (get-active-projects))]
-          (mk-display proj))])
+     (for [proj (mk-proj-tree nil (get-active-projects))]
+         (mk-display proj))])
+
+(defn- display-by-prio
+    []
+    (->> (get-active-projects)
+         (proj-prio-sort)
+         (map mk-display-row)))
+
+(defn- display-by-date
+    []
+    (->> (get-active-projects)
+         (proj-date-sort)
+         (map mk-display-row)))
+
+(defn display-projects
+    [req]
+    (case (proj-sort-type req)
+        :proj (display-by-proj)
+        :prio (display-by-prio)
+        :date (display-by-date)))
 
 ;;-----------------------------------------------------------------------------
 
@@ -183,59 +254,83 @@
 
 (defn-spec ^:private by-prio any?
     [projects :shop/projects, proj-dd :shop/dd]
-    (let [by-pri (group-by :priority projects)]
-        [:table
+    (let [by-pri (->> projects
+                      (filter #(empty? (:children %)))
+                      (group-by :priority))]
+        [:table.width-100p
          (for [pri-key (sort (keys by-pri))]
              (list
                  [:tr
-                  [:th.proj-head-th {:colspan 4} (prio-head pri-key)]]
+                  [:td.width-100p.border-1.border-r8.height-50px {:colspan 5} (prio-head pri-key)]]
                  (map #(mk-proj-prio-row % proj-dd) (get by-pri pri-key))))]))
 
-(defn-spec ^:private want-by-proj? boolean?
-    [req map?]
-    (some->> req udata :properties :projects :group-type keyword (= :proj)))
+;;-----------------------------------------------------------------------------
+
+(defn-spec ^:private proj-date-row any?
+           [proj :shop/project, proj-dd :shop/dd]
+           [:tr
+            [:td.width-50px
+             (mk-prio-dd proj)]
+            [:td.width-20px
+             [:a.proj-check-val {:href (str "/user/project/finish/" (:_id proj))} "&#10004"]]
+            [:td.width-100p (mk-name-field proj)]
+            [:td.width-100px.r-align (mk-date-field proj)]
+            [:td.width-100px.r-align (mk-parent-field proj proj-dd)]])
+
+(defn-spec ^:private by-date any?
+           [projects :shop/projects, proj-dd :shop/dd]
+           [:table.width-100p
+            (->> projects
+                 (filter #(empty? (:children %)))
+                 (proj-date-sort)
+                 (map #(proj-date-row % proj-dd)))])
+
+;;-----------------------------------------------------------------------------
+
+(defn-spec ^:private show-projects any?
+    [req map?, active-projects :shop/projects, proj-dd :shop/dd]
+    (case (proj-sort-type req)
+        :proj (by-proj active-projects proj-dd)
+        :prio (by-prio active-projects proj-dd)
+        :date (by-date active-projects proj-dd)))
+
+;;-----------------------------------------------------------------------------
 
 (defn-spec edit-projects any?
-    [request map?]
-    (let [active-projects (get-active-projects)
-          finished-projects (get-finished-projects)]
-        (common request "Projekt" [css-projects css-items css-misc]
-             (hf/form-to
-                 [:post "/user/project/edit"]
-                 (ruaf/anti-forgery-field)
-                 (hf/hidden-field :project-ids (->> active-projects (map :_id) pr-str))
-                 (let [proj-dd (get-projects-dd)]
-                     [:table.proj-tbl
-                      [:tr
-                       [:td
-                        (home-button)
-                        (if (want-by-proj? request)
-                            [:a.link-flex {:href "/user/project/prio"} "Pri-Sort"]
-                            [:a.link-flex {:href "/user/project/proj"} "Proj-Sort"])
-                        (hf/submit-button {:class "button"} "Updatera!")]]
-                      [:tr
-                       [:td.items-block
-                        (mk-project-row nil proj-dd)]]
-                      [:tr
-                       [:td
-                        (if (want-by-proj? request)
-                            (by-proj active-projects proj-dd)
-                            (by-prio active-projects proj-dd))]]
-                      [:tr
-                       [:td.items-block
-                        [:table
-                         [:tr
-                          [:td
-                           [:label.proj-head-val "Avklarade"]
-                           [:a.link-flex {:href "/user/project/clear"} "Rensa"]]]
-                         (map mk-finished-row finished-projects)]]]
-                      ])))))
+           [request map?]
+           (let [active-projects (get-active-projects)
+                 finished-projects (get-finished-projects)]
+               (common request "Projekt" [css-projects css-items css-misc]
+                       (hf/form-to
+                           [:post "/user/project/edit"]
+                           (ruaf/anti-forgery-field)
+                           (hf/hidden-field :project-ids (->> active-projects (map :_id) pr-str))
+                           (let [proj-dd (get-projects-dd)]
+                               [:table.proj-tbl
+                                [:tr
+                                 [:td
+                                  (home-button)
+                                  (large-proj-sort-btn request)
+                                  (hf/submit-button {:class "button"} "Updatera!")]]
+                                [:tr
+                                 [:td (mk-project-row nil proj-dd)]]
+                                [:tr
+                                 [:td (show-projects request active-projects proj-dd)]]
+                                [:tr
+                                 [:td
+                                  [:label.proj-head-val "Avklarade"]
+                                  [:a.link-flex {:href "/user/project/clear"} "Rensa"]]]
+                                (map mk-finished-row finished-projects)
+                                ])))))
 
 (defn-spec set-group-type any?
-    [request map?, group-type keyword?]
-    (when (or (= group-type :prio) (= group-type :proj))
-        (set-user-property (uid request) :projects {:group-type group-type}))
-    (ring/redirect "/user/project/edit"))
+    [request map?, group-type string?, target string?]
+    (when (and (contains? #{"prio" "proj" "date"} group-type)
+               (contains? #{"proj" "home"} target))
+        (set-user-property (uid request) :projects {:group-type (keyword group-type)})
+        (if (= target "proj")
+            (ring/redirect "/user/project/edit")
+            (ring/redirect "/user/home"))))
 
 ;;-----------------------------------------------------------------------------
 

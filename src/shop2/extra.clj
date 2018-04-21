@@ -69,6 +69,26 @@
         (when-not (zero? result)
             result)))
 
+(defn comp-nil*
+    [v1 v2]
+    (let [result (compare v1 v2)]
+        (printf "%30s %30s %30s %30s %d\n" (str v2) (str (type v2)) (str v1) (str (type v1)) result)
+        (when-not (zero? result)
+            result)))
+
+(defn- xxx
+    [rules x1 x2]
+    (if (empty? rules)
+        nil
+        (if-let [res (comp-nil ((first rules) x1) ((first rules) x2))]
+            res
+            (xxx (rest rules) x1 x2))))
+
+(defn maplist-sort
+    [rules coll]
+    (sort-by identity (fn [v1 v2] (xxx rules v1 v2)) coll))
+    ;(sort-by identity (fn [v1 v2] (utils/find-first some? (map (fn [r] (comp-nil* (r v1) (r v2))) rules))) coll))
+
 (defn get-param
     ([params par-name]
     (when-let [val (get params par-name)]

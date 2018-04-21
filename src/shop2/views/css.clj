@@ -213,9 +213,6 @@
 
 (def css-lists
 	(g/css
-		[:.item-text-tr {
-			:background :white
-			:border     [[(u/px 2) :solid :lightgrey]]}]
 		[:.item-text {
 			:text-align :left
 			:text-decoration :none
@@ -223,13 +220,6 @@
 			:color      :black
 			:font-size  (u/px 24)
 			:padding    (u/px 5)}]
-		[:.item-text-td {
-			:width (u/percent 90)}]
-		[:.item-menu-td {
-			:width (u/percent 30)}]
-		[:.done {
-			:background-color (grey% 50)
-			:text-decoration :line-through}]
 		[:.done-td {:padding [[(u/px 20) 0 (u/px 10) 0]]}]
 		[:.tags-row {
 			:text-align :left
@@ -277,15 +267,12 @@
 			:font-size (u/px 24)
 			:padding [[(u/px 20) 0 (u/px 10) 0]]
 		}]
-		[:.list-plus {:font-size (u/px 36)}]
 		[:.arrow {
 			:display :block
 			:text-decoration :none
 			:color :black
 			:width (u/px 25)
 		}]
-		[:.align-r {:text-align :right}]
-		[:.align-l {:text-align :left}]
 		))
 
 ;;-----------------------------------------------------------------------------
@@ -471,52 +458,53 @@
 	:cursor               :pointer})
 
 (def css-misc
-	(g/css
-		[:a.link-thin:link
-		 :a.link-thin:visited (mk-lnk 0 6 0 0 18 1)]
-		[:a.link-thin:hover
-		 :a.link-thin:active {:background-color :green}]
-		[:a.link-thick:link
-		 :a.link-thick:visited (mk-lnk 0 6 6 0 24 1)]
-		[:a.link-thick:hover
-		 :a.link-thick:active {:background-color :green}]
-		[:a.link-head:link
-		 :a.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
-		[:a.link-head:hover
-		 :a.link-head:active {:background-color :green}]
-		[:a.link-flex:link
-		 :a.link-flex:visited (mk-lnk 6 12 4 2 36 2)]
-		[:a.link-flex:hover
-		 :a.link-flex:active {:background-color :green}]
-		[:a.link-shop:link
-		 :a.link-shop:visited (mk-lnk 6 12 4 10 24 2)]
-		[:a.link-shop:hover
-		 :a.link-shop:active {:background-color :green}]
-		[:a.link-icon:link
-		 :a.link-icon:visited (assoc (mk-lnk 6 12 4 2 36 2) :width (u/px 60))]
-		[:a.link-icon:hover
-		 :a.link-icon:active {:background-color :green}]
-		[:a.link-half:link
-		 :a.link-half:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 120))]
-		[:a.link-half:hover
-		 :a.link-half:active {:background-color :green}]
-		[:div.link-head:link
-		 :div.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
-		[:div.link-head:hover
-		 :div.link-head:active {:background-color :green}]
-		[:a.link-home:link
-		 :a.link-home:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/percent 90))]
-		[:a.link-home:hover
-		 :a.link-home:active {:background-color :green}]
-     [:.button (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 250))]
-     [:.button:hover {:background-color :green}]
-     [:.button-120 (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 120))]
-     [:.button-120:hover {:background-color :green}]
-     [:.button-s (mk-lnk 8 16 4 2 32 2)]
-     [:.button-s:hover {:background-color :green}]
+    (g/css
+        [:a.link-thin:link
+         :a.link-thin:visited (mk-lnk 0 6 0 0 18 1)]
+        [:a.link-thin:hover
+         :a.link-thin:active {:background-color :green}]
+        [:a.link-thick:link
+         :a.link-thick:visited (mk-lnk 0 6 6 0 24 1)]
+        [:a.link-thick:hover
+         :a.link-thick:active {:background-color :green}]
+        [:a.link-head:link
+         :a.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
+        [:a.link-head:hover
+         :a.link-head:active {:background-color :green}]
+        [:a.link-flex:link
+         :a.link-flex:visited (mk-lnk 6 12 4 2 36 2)]
+        [:a.link-flex:hover
+         :a.link-flex:active {:background-color :green}]
+        [:a.link-shop:link
+         :a.link-shop:visited (mk-lnk 6 12 4 10 24 2)]
+        [:a.link-shop:hover
+         :a.link-shop:active {:background-color :green}]
+        [:a.link-icon:link
+         :a.link-icon:visited (assoc (mk-lnk 6 12 4 2 36 2) :width (u/px 60))]
+        [:a.link-icon:hover
+         :a.link-icon:active {:background-color :green}]
+        [:a.link-half:link
+         :a.link-half:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 120))]
+        [:a.link-half:hover
+         :a.link-half:active {:background-color :green}]
+        [:div.link-head:link
+         :div.link-head:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/px 250))]
+        [:div.link-head:hover
+         :div.link-head:active {:background-color :green}]
+        [:a.link-home:link
+         :a.link-home:visited (assoc (mk-lnk 8 16 4 2 36 2) :width (u/percent 90))]
+        [:a.link-home:hover
+         :a.link-home:active {:background-color :green}]
+        [:.button (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 250))]
+        [:.button:hover {:background-color :green}]
+        [:.button-120 (assoc (mk-lnk 8 16 4 2 32 2) :width (u/px 120))]
+        [:.button-120:hover {:background-color :green}]
+        [:.button-s (mk-lnk 8 16 4 2 32 2)]
+        [:.button-s:hover {:background-color :green}]
 
         [:.width-100p {:width (u/percent 100)}]
         [:.width-90p {:width (u/percent 90)}]
+        [:.width-30p {:width (u/percent 30)}]
         [:.width-20px {:width (u/px 20)}]
         [:.width-50px {:width (u/px 50)}]
         [:.width-100px {:width (u/px 100)}]
@@ -524,7 +512,7 @@
         [:.width-200px {:width (u/px 200)}]
         [:.width-300px {:width (u/px 300)}]
         [:.width-400px {:width (u/px 400)}]
-        [:.fz24 {:font-size (u/px 24)}]
+        [:.height-50px {:height (u/px 50)}]
 
         [:.isb (-> (mk-lnk 8 16 4 2 32 2)
                    (assoc :font-size (u/px 24))
@@ -533,40 +521,45 @@
         [:.bgrnd-white {:background-color :white}]
         [:.bgrnd-grey {:background-color :grey}]
         [:.border-1 {:border [[(u/px 1) :white :solid]]}]
+        [:.border-2 {:border [[(u/px 2) :solid :lightgrey]]}]
+        [:.border-r8 {:border-radius (u/px 8)}]
         [:.bold {:font-weight :bold}]
         [:.fnt-12px {:font-size (u/px 12)}]
         [:.fnt-18px {:font-size (u/px 18)}]
         [:.fnt-24px {:font-size (u/px 24)}]
+
+        [:.line-thru {:text-decoration :line-through}]
+
         [:.base-txt {
-                     :color :white
+                     :color            :white
                      :background-color transparent
-                     :border :none
+                     :border           :none
                      }]
         [:.invert-txt {
-                       :color :black
+                       :color            :black
                        :background-color :white
-                       :border :none
+                       :border           :none
                        }]
         [:.yellow-txt {
-                       :color :yellow
+                       :color            :yellow
                        :background-color transparent
-                       :border :none
+                       :border           :none
                        }]
         [:.orange-txt {
-                       :color :orange
+                       :color            :orange
                        :background-color transparent
-                       :border :none
+                       :border           :none
                        }]
         [:.red-txt {
-                       :color :red
-                       :background-color transparent
-                       :border :none
-                       }]
+                    :color            :red
+                    :background-color transparent
+                    :border           :none
+                    }]
         [:.vspace {
                    :height (u/px 30)}]
         [:.r-align {
                     :text-align :right}]
-        [:.v-align {
+        [:.l-align {
                     :text-align :left}]
         ))
 
@@ -637,16 +630,6 @@
 			:width (u/px (+ 43 22 501 202))}
 			(ss/at-media {:screen true :max-width (u/px 700)}
 	    		[:& {:width full}])]
-		[:.proj-head-td {
-			:width half
-			:text-align :center
-		}]
-		[:.proj-head-th {
-			:height (u/px 50)
-			:width full
-			:border [[(u/px 1) :white :solid]]
-		    :border-radius (u/px 8)
-		}]
 		[:.proj-head-val {
 			:font-size (u/px 36)}
 			(ss/at-media {:screen true :max-width (u/px 700)}
@@ -657,12 +640,6 @@
                              :height (u/px 1)
                              :width (u/px 0)
                              }]
-		[:.proj-pri-val {
-			:width full
-			:font-size (u/px 18)
-			:text-align :center
-			:color :black
-		}]
 		[:.proj-check-val {
 			:width full
 			:border :none

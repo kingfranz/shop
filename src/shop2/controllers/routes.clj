@@ -98,11 +98,8 @@
                   (cc/GET "/edit" request
                       (edit-projects request))
 
-                  (cc/GET "/proj" request
-                      (set-group-type request :proj))
-
-                  (cc/GET "/prio" request
-                      (set-group-type request :prio))
+                  (cc/GET "/:type/:target" request
+                      (set-group-type request (-> request :params :type) (-> request :params :target)))
 
                   (cc/POST "/edit" request
                       (edit-projects! request))

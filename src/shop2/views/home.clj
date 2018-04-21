@@ -110,30 +110,36 @@
 (defn- lo-admin
     [req]
     (if (-> req udata :roles (contains? :admin))
-        [:a.link-flex.admin-btn {:href "/admin/"} (he/image "/images/settingsw.png")]
-        [:a.link-flex.admin-btn {:href "/logout"} (he/image "/images/logout.png")]))
+        [:a.link-flex {:href "/admin/"} (he/image "/images/settingsw.png")]
+        [:a.link-flex {:href "/logout"} (he/image "/images/logout.png")]))
+
+(defn- box-head
+    [lnk txt extra]
+     [:table.width-100p
+      [:tr.width-100p
+       (when extra [:td extra])
+       [:td.width-100p [:a.link-home.width-100p {:href lnk} txt]]]])
 
 (defn home-page
     [request]
     (common-refresh request "Shopping" [css-home-tree css-home css-menus]
                     [:div.column
                      (if (want-tree? request)
-                         [:a.link-home {:href "/user/home/prio"} "Num"]
-                         [:a.link-home {:href "/user/home/tree"} "Tree"])
-                     (lo-admin request)
+                         (box-head "/user/home/prio" "Num" (lo-admin request))
+                         (box-head "/user/home/tree" "Tree" (lo-admin request)))
                      [:div.home-box (list-tree request)]]
                     [:div.column
-                     [:p.header [:a.link-home {:href "/user/menu/edit"} "Veckomeny"]]
+                     (box-head "/user/menu/edit" "Veckomeny" nil)
                      [:div.home-box (menu-list)]]
                     [:div.column
-                     [:p.header [:a.link-home {:href "/user/project/edit"} "Projekt"]]
-                     [:div.home-box (display-projects)]]
+                     (box-head "/user/project/edit" "Projekt" (small-proj-sort-btn request))
+                     [:div.home-box (display-projects request)]]
                     [:div.column
                      [:div.column
-                      [:p.header [:a.link-home {:href "/user/recipe/new"} "Recept"]]
+                      (box-head "/user/recipe/new" "Recept" nil)
                       [:div.home-box (recipe-list)]]
                      [:div.column
-                      [:p.header [:a.link-home {:href "/user/note/new"} "Note"]]
+                      (box-head "/user/note/new" "Note" nil)
                       [:div.home-box (note-list)]]]
                     ))
 

@@ -163,10 +163,10 @@
                 [:table
                  [:tr
                   [:th [:label "X"]]
-                  [:th.width-400px [:label.fz24.width-100p "Name"]]
-                  [:th.width-200px [:label.fz24.width-100p "Tags"]]
-                  [:th.width-200px [:label.fz24.width-100p "Parent"]]
-                  [:th.width-200px [:label.fz24.width-100p "Project"]]
+                  [:th.width-400px [:label.fnt-24px.width-100p "Name"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Tags"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Parent"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Project"]]
                   ]
                  (let [tags-dd  (get-tags-dd)
                        lists-dd (get-lists-dd)
@@ -177,21 +177,21 @@
                         (hf/check-box {:class "new-cb"}
                                       (utils/mk-tag (:_id item) "delete"))]
                        [:td.width-400px
-                        (hf/text-field {:class "fz24 width-100p"}
+                        (hf/text-field {:class "fnt-24px width-100p"}
                                        (utils/mk-tag (:_id item) "name")
                                        (:entryname item))]
                        [:td.width-200px
-                        (hf/drop-down {:class "fz24 width-100p"}
+                        (hf/drop-down {:class "fnt-24px width-100p"}
                                       (utils/mk-tag (:_id item) "tag")
                                       tags-dd
                                       (some-> item :tag :_id))]
                        [:td.width-200px
-                        (hf/drop-down {:class "fz24 width-100p"}
+                        (hf/drop-down {:class "fnt-24px width-100p"}
                                       (utils/mk-tag (:_id item) "parent")
                                       lists-dd
                                       (:parent item))]
                        [:td.width-200px
-                        (hf/drop-down {:class "fz24 width-100p"}
+                        (hf/drop-down {:class "fnt-24px width-100p"}
                                        (utils/mk-tag (:_id item) "project")
                                       projs-dd
                                       (some-> item :project :_id))]

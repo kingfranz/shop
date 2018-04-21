@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module cursive.leiningen.project.LeiningenProjectsManager.displayName="shop2:1.11.1" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="WEB_MODULE" version="4">
+<module cursive.leiningen.project.LeiningenProjectsManager.displayName="shop2:1.12.0" cursive.leiningen.project.LeiningenProjectsManager.isLeinModule="true" type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/target/default/classes" />
     <output-test url="file://$MODULE_DIR$/target/default/classes" />
@@ -15,11 +15,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Leiningen: aopalliance:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: cheshire:5.8.0" level="project" />
-    <orderEntry type="library" name="Leiningen: clj-time:0.14.2" level="project" />
+    <orderEntry type="library" name="Leiningen: clj-time:0.14.3" level="project" />
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
     <orderEntry type="library" name="Leiningen: clojurewerkz/support:1.1.0" level="project" />
-    <orderEntry type="library" name="Leiningen: clout:2.1.2" level="project" />
+    <orderEntry type="library" name="Leiningen: clout:2.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/friend:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-core:2.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.dataformat/jackson-dataformat-cbor:2.9.0" level="project" />
@@ -35,7 +35,7 @@
     <orderEntry type="library" name="Leiningen: commons-fileupload:1.3.3" level="project" />
     <orderEntry type="library" name="Leiningen: commons-io:2.5" level="project" />
     <orderEntry type="library" name="Leiningen: commons-logging:1.1.1" level="project" />
-    <orderEntry type="library" name="Leiningen: compojure:1.6.0" level="project" />
+    <orderEntry type="library" name="Leiningen: compojure:1.6.1" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-equality:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: crypto-random:1.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: environ:1.1.0" level="project" />
@@ -43,9 +43,9 @@
     <orderEntry type="library" name="Leiningen: garden:1.3.5" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.2.0" level="project" />
-    <orderEntry type="library" name="Leiningen: instaparse:1.4.0" level="project" />
+    <orderEntry type="library" name="Leiningen: instaparse:1.4.8" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.33" level="project" />
-    <orderEntry type="library" name="Leiningen: joda-time:2.9.7" level="project" />
+    <orderEntry type="library" name="Leiningen: joda-time:2.9.9" level="project" />
     <orderEntry type="library" name="Leiningen: medley:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: metosin/ring-http-response:0.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.jcip/jcip-annotations:1.0" level="project" />
@@ -71,7 +71,7 @@
     <orderEntry type="library" name="Leiningen: org.mongodb/mongodb-driver:3.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.openid4java/openid4java-nodeps:0.9.6" level="project" />
     <orderEntry type="library" name="Leiningen: potemkin:0.4.3" level="project" />
-    <orderEntry type="library" name="Leiningen: prone:1.5.1" level="project" />
+    <orderEntry type="library" name="Leiningen: prone:1.5.2" level="project" />
     <orderEntry type="library" name="Leiningen: realize:1.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: riddley:0.1.12" level="project" />
     <orderEntry type="library" name="Leiningen: ring-logger-timbre:0.7.6" level="project" />

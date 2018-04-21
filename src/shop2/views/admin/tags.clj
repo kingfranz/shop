@@ -34,9 +34,9 @@
                  (admin-home-button)
                  (hf/submit-button {:class "button"} "Skapa")]
                 (named-div "Namn:"
-                           (hf/text-field {:class "fz24 width-200px"} :entryname))
+                           (hf/text-field {:class "fnt-24px width-200px"} :entryname))
                 (named-div "Parent:"
-                           (mk-list-dd nil :parent "fz24 width-200px")))))
+                           (mk-list-dd nil :parent "fnt-24px width-200px")))))
 
 (defn new-tag!
     [{params :params}]
@@ -72,7 +72,7 @@
                       [:td {:style "padding: 40px 25px; width: 50px"}
                        [:label "Parent"]]
                       [:td
-                       (mk-list-dd (:parent tag) :parent "fz24 width-200px")]]]))))
+                       (mk-list-dd (:parent tag) :parent "fnt-24px width-200px")]]]))))
 
 (defn edit-tag!
     [{params :params}]
@@ -105,8 +105,8 @@
                 [:table
                  [:tr
                   [:th [:label "X"]]
-                  [:th.width-200px [:label.fz24.width-100p "Name"]]
-                  [:th.width-200px [:label.fz24.width-100p "Parent"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Name"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Parent"]]
                   ]
                  (for [tag (->> (get-tags) (sort-by :entrynamelc))]
                      [:tr
@@ -114,11 +114,11 @@
                        (hf/check-box {:class "new-cb"}
                                      (utils/mk-tag (:_id tag) "delete"))]
                       [:td.width-200px
-                       (hf/text-field {:class "fz24 width-100p"}
+                       (hf/text-field {:class "fnt-24px width-100p"}
                                       (utils/mk-tag (:_id tag) "name")
                                       (:entryname tag))]
                       [:td.width-200px
-                       (mk-list-dd (:parent tag) (utils/mk-tag (:_id tag) "parent") "fz24 width-100p")]])])))
+                       (mk-list-dd (:parent tag) (utils/mk-tag (:_id tag) "parent") "fnt-24px width-100p")]])])))
 
 (defn-spec ^:private purge-no-id :shop/parent
     [v :shop/_id]

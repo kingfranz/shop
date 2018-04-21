@@ -20,7 +20,7 @@
     [pname :shop/entryname
      parent :shop/parent
      priority :project/priority
-     deadline :shop/deadline]
+     deadline :project/deadline]
     (-> (create-entity pname)
         (assoc :parent   parent
                :priority priority
@@ -40,25 +40,13 @@
            [id :shop/_id]
            (some? (mc-find-one-as-map "get-project-id-exist?" "projects" {:_id id} {:_id true})))
 
-(defn-spec proj-comp integer?
-    [p1 :shop/project, p2 :shop/project]
-    (or (comp-nil (some? (:finished p1)) (some? (:finished p2)))
-        (comp-nil (:deadline p1) (:deadline p2))
-        (comp-nil (:priority p1) (:priority p2))
-        (comp-nil (:created p1) (:created p2))
-        0))
-
 (defn-spec get-active-projects :shop/projects
            []
-           (->> (mc-find-maps "get-active-projects" "projects" {:finished nil})
-                (map upd-proj)
-                (sort-by identity proj-comp)))
+           (map upd-proj (mc-find-maps "get-active-projects" "projects" {:finished nil})))
 
 (defn-spec get-finished-projects :shop/projects
            []
-           (->> (mc-find-maps "get-finished-projects" "projects" {:finished {$ne nil} :cleared nil})
-                (map upd-proj)
-                (sort-by identity proj-comp)))
+           (map upd-proj (mc-find-maps "get-finished-projects" "projects" {:finished {$ne nil} :cleared nil})))
 
 (defn-spec get-project (s/nilable :shop/project)
 	[id :shop/_id]

@@ -37,16 +37,16 @@
                         [:a.link-flex {:href (str "/admin/" userid)} "Ta bort"]
                         [:a.link-flex (hf/submit-button {:class "button"} "Uppdatera")]]]]
                      [:tr
-                      [:th.width-200px [:label.fz24.width-100p "Name"]]
+                      [:th.width-200px [:label.fnt-24px.width-100p "Name"]]
                       [:td (hf/text-field {:class "new-item-txt"} :username (:username user))]]
                      [:tr
-                      [:th.width-200px [:label.fz24.width-100p "Password"]]
+                      [:th.width-200px [:label.fnt-24px.width-100p "Password"]]
                       [:td (hf/password-field {:class "new-item-txt"} :password)]]
                      [:tr
-                      [:th.width-200px [:label.fz24.width-100p "PW again"]]
+                      [:th.width-200px [:label.fnt-24px.width-100p "PW again"]]
                       [:td (hf/password-field {:class "new-item-txt"} :password2)]]
                      [:tr
-                      [:th.width-200px [:label.fz24.width-100p "Admin?"]]
+                      [:th.width-200px [:label.fnt-24px.width-100p "Admin?"]]
                       [:td.new-cb
                        (hf/check-box {:class "new-cb"} :admin (contains? (:roles user) :admin))]]]))))
 
@@ -74,16 +74,16 @@
                     (admin-home-button)
                     [:a.link-flex (hf/submit-button {:class "button"} "sKAPA")]]]]
                  [:tr
-                  [:th.width-200px [:label.fz24.width-100p "Name"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Name"]]
                   [:td (hf/text-field {:class "new-item-txt"} :username)]]
                  [:tr
-                  [:th.width-200px [:label.fz24.width-100p "Password"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Password"]]
                   [:td (hf/password-field {:class "new-item-txt"} :password)]]
                  [:tr
-                  [:th.width-200px [:label.fz24.width-100p "PW again"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "PW again"]]
                   [:td (hf/password-field {:class "new-item-txt"} :password2)]]
                  [:tr
-                  [:th.width-200px [:label.fz24.width-100p "Admin?"]]
+                  [:th.width-200px [:label.fnt-24px.width-100p "Admin?"]]
                   [:td.new-cb
                    (hf/check-box {:class "new-cb"} :admin)]]])))
 
