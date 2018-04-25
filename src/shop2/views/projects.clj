@@ -1,7 +1,8 @@
 (ns shop2.views.projects
     (:refer-clojure :exclude [read-string])
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
+              [shop2.db.misc :refer :all]
               [shop2.db.user :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
@@ -66,11 +67,13 @@
         (case (proj-sort-type req)
             :proj [:a.link-flex {:href "/user/project/prio/home"} "P"]
             :prio [:a.link-flex {:href "/user/project/date/home"} "D"]
-            :date [:a.link-flex {:href "/user/project/proj/home"} "T"])
+            :date [:a.link-flex {:href "/user/project/proj/home"} "T"]
+            [:a.link-flex {:href "/user/project/proj/home"} "T"])
         (case (proj-sort-type req)
             :proj [:a.link-flex {:href "/user/project/prio/proj"} "Prio Sort"]
             :prio [:a.link-flex {:href "/user/project/date/proj"} "Date Sort"]
-            :date [:a.link-flex {:href "/user/project/proj/proj"} "Proj Sort"])))
+            :date [:a.link-flex {:href "/user/project/proj/proj"} "Tree Sort"]
+            [:a.link-flex {:href "/user/project/proj/proj"} "Tree Sort"])))
 
 (defn small-proj-sort-btn
     [req]
@@ -182,11 +185,6 @@
 (defn-spec ^:private proj-head any?
     [proj :shop/project]
     [:label.proj-head-val (:entryname proj)])
-
-(defn-spec ^:private proj-tree-sort integer?
-    [p1 :shop/project, p2 :shop/project]
-    (or (comp-nil (empty? (:children p1)) (empty? (:children p2)))
-        (compare (:entrynamelc p1) (:entrynamelc p2))))
 
 (defn-spec ^:private mk-proj-tree any?
     [target :shop/parent, projects :shop/projects]

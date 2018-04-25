@@ -1,6 +1,6 @@
 (ns shop2.views.menus
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
@@ -23,6 +23,10 @@
               [clj-time.core :as t]))
 
 ;;-----------------------------------------------------------------------------
+
+(defn menu-new-range
+    []
+    (time-range (today) (new-menu-end) (t/days 1)))
 
 (defn-spec ^:private mk-recipe-link any?
     [menu :shop/x-menu]

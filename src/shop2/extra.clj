@@ -7,7 +7,45 @@
               [clojure.spec.alpha :as s]
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
-              [utils.core :as utils]))
+              [utils.core :as utils]
+              [hiccup.form :as hf]
+              [shop2.spec :refer :all]
+              [shop2.db.misc :as db-m]
+              [shop2.db.tags :as dbt]
+              [shop2.db.lists :as dbl]
+              [shop2.db.projects :as dbp]
+              [mongolib.core :as db]
+              [clojure.string :as str]))
+
+;;-----------------------------------------------------------------------------
+
+(defn-spec get-tags-dd (s/coll-of (s/cat :str string? :id :shop/_id))
+           []
+           (->> (dbt/get-tag-names)
+                (sort-by :entryname)
+                (map (fn [l] [(:entryname l) (:_id l)]))
+                (concat [["" db-m/no-id]])))
+
+(defn-spec get-lists-dd (s/coll-of (s/cat :str string? :id :shop/_id))
+           []
+           (->> (dbl/get-list-names)
+                (sort-by :entryname)
+                (map (fn [l] [(:entryname l) (:_id l)]))
+                (concat [["" db-m/no-id]])))
+
+(defn-spec get-projects-dd :shop/dd
+           []
+           (->> (dbp/get-project-names)
+                (map (fn [l] [(:entryname l) (:_id l)]))
+                (concat [["" db-m/no-id]])))
+
+(defn-spec mk-project-dd any?
+           [current-id (s/nilable :shop/_id), dd-name keyword?, dd-class string?]
+           (hf/drop-down {:class dd-class} dd-name (get-projects-dd) current-id))
+
+(defn-spec mk-list-dd any?
+           [current-id (s/nilable :shop/_id), dd-name keyword?, dd-class string?]
+           (hf/drop-down {:class dd-class} dd-name (get-lists-dd) current-id))
 
 ;;-----------------------------------------------------------------------------
 
@@ -31,14 +69,6 @@
 	[dt]
 	(f/unparse (f/with-zone (f/formatter :date) (t/default-time-zone)) dt))
 
-(defn time-range
-	"Return a lazy sequence of DateTime's from start to end, incremented
-	by 'step' units of time."
-	[start end step]
-	(let [inf-range (p/periodic-seq start step)
-		  below-end? (fn [t] (t/within? (t/interval start end) t))]
-		(take-while below-end? inf-range)))
-
 (defn is-today?
 	[dt]
 	(= dt (today)))
@@ -53,9 +83,7 @@
 	[]
 	(t/plus (today) (t/days delta-days)))
 
-(defn menu-new-range
-	[]
-	(time-range (today) (new-menu-end) (t/days 1)))
+;;-----------------------------------------------------------------------------
 
 (defn assoc-str-if
 	[m k txt]
@@ -63,16 +91,11 @@
 		(assoc m k txt)
 		m))
 
+;;-----------------------------------------------------------------------------
+
 (defn comp-nil
     [v1 v2]
     (let [result (compare v1 v2)]
-        (when-not (zero? result)
-            result)))
-
-(defn comp-nil*
-    [v1 v2]
-    (let [result (compare v1 v2)]
-        (printf "%30s %30s %30s %30s %d\n" (str v2) (str (type v2)) (str v1) (str (type v1)) result)
         (when-not (zero? result)
             result)))
 
@@ -87,7 +110,8 @@
 (defn maplist-sort
     [rules coll]
     (sort-by identity (fn [v1 v2] (xxx rules v1 v2)) coll))
-    ;(sort-by identity (fn [v1 v2] (utils/find-first some? (map (fn [r] (comp-nil* (r v1) (r v2))) rules))) coll))
+
+;;-----------------------------------------------------------------------------
 
 (defn get-param
     ([params par-name]
@@ -101,4 +125,6 @@
             :else val)))
     ([params par-name idx]
     (get-param params (utils/mk-tag par-name idx))))
+
+;;-----------------------------------------------------------------------------
 

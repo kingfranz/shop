@@ -7,34 +7,27 @@
               [cheshire.core :refer :all]
               [taoensso.timbre :as log]
               [monger.operators :refer :all]
-              [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [shop2.db.misc :refer :all]
+              [mongolib.core :as db]
               [utils.core :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
 (defn-spec get-tags :shop/tags
 	[]
-	(mc-find-maps "get-tags" "tags"))
+	(db/mc-find-maps "get-tags" "tags"))
 
 (defn-spec get-tag :shop/tag
 	[id :shop/_id]
-	(mc-find-map-by-id "get-tag" "tags" id))
+	(db/mc-find-map-by-id "get-tag" "tags" id))
 
 (defn-spec get-tag-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
            []
-           (mc-find-maps "get-tag-names" "tags" {} {:_id true :entryname true}))
-
-(defn-spec get-tags-dd (s/coll-of (s/cat :str string? :id :shop/_id))
-    []
-    (->> (get-tag-names)
-         (sort-by :entryname)
-         (map (fn [l] [(:entryname l) (:_id l)]))
-         (concat [["" no-id]])))
+           (db/mc-find-maps "get-tag-names" "tags" {} {:_id true :entryname true}))
 
 (defn-spec get-listid-by-name (s/nilable :shop/_id)
     [list-name :shop/string]
-    (mc-find-one-as-map "get-list" "lists" {:entryname list-name} {:_id true}))
+    (db/mc-find-one-as-map "get-list" "lists" {:entryname list-name} {:_id true}))
 
 (defn-spec fix-list-ref (s/nilable :shop/_id)
     [lst (s/nilable string?)]
@@ -45,7 +38,7 @@
 
 (defn-spec update-tag any?
     ([tag :shop/tag]
-     (mc-replace-by-id "update-tag" "tags" tag))
+     (db/mc-replace-by-id "update-tag" "tags" tag))
     ([tag-id :shop/_id, tag-name* :tags/entryname, parent* :shop/parent]
 	(let [tag-name   (->> tag-name* str/trim str/capitalize)
 		  tag-namelc (mk-enlc tag-name)
@@ -55,7 +48,7 @@
             (throw+ {:type :db :src "update-tag" :cause "invalid name"}))
 		(when (and (some? db-tag) (not= (:_id db-tag) tag-id))
 			(throw+ {:type :db :src "update-tag" :cause "duplicate name"}))
-        (mc-update-by-id "update-tag" "tags" tag-id
+        (db/mc-update-by-id "update-tag" "tags" tag-id
 			{$set {:entryname tag-name :entrynamelc tag-namelc :parent parent}}))))
 
 (defn-spec add-tag :shop/tag
@@ -68,21 +61,21 @@
 		(if (some? db-tag)
 			db-tag
 			(do
-				(mc-insert "add-tag" "tags" new-tag)
+				(db/mc-insert "add-tag" "tags" new-tag)
 				new-tag)))))
 
 (defn-spec delete-tag any?
 	[id :shop/_id]
-	(mc-remove-by-id "delete-tag" "tags" id))
+	(db/mc-remove-by-id "delete-tag" "tags" id))
 
 (defn-spec delete-tag-all any?
 	[id :shop/_id]
 	(delete-tag id)
-	(mc-update "delete-tag-all" "lists"    {} {$pull {:tag {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" "recipes"  {} {$pull {:tag {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" "menus"    {} {$pull {:tag {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" "projects" {} {$pull {:tag {:_id id}}} {:multi true})
-	(mc-update "delete-tag-all" "items"    {} {$pull {:tag {:_id id}}} {:multi true})
+	(db/mc-update "delete-tag-all" "lists"    {} {$pull {:tag {:_id id}}} {:multi true})
+	(db/mc-update "delete-tag-all" "recipes"  {} {$pull {:tag {:_id id}}} {:multi true})
+	(db/mc-update "delete-tag-all" "menus"    {} {$pull {:tag {:_id id}}} {:multi true})
+	(db/mc-update "delete-tag-all" "projects" {} {$pull {:tag {:_id id}}} {:multi true})
+	(db/mc-update "delete-tag-all" "items"    {} {$pull {:tag {:_id id}}} {:multi true})
 	)
 
 (st/instrument)

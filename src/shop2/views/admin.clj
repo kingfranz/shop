@@ -1,6 +1,6 @@
 (ns shop2.views.admin
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               [shop2.db.user :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
@@ -60,7 +60,7 @@
 
 (defn renew-password
     [request]
-    (let [uuid (mk-id)
+    (let [uuid (db/mk-id)
           username (:username (udata request))
           user-cmd (format "localStorage.setItem(\"shopuser\", \"%s\");" username)
           pass-cmd (format "localStorage.setItem(\"shoppass\", \"%s\");" uuid)]

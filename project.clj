@@ -8,6 +8,8 @@
                    [hiccup "1.0.5"]
                    [ring/ring-core "1.6.3"]
                    [org.clojars.kingfranz/utils "0.2.8"]
+                   ;[org.clojars.kingfranz/mongolib "0.1.1"]
+                   [org.clojars.kingfranz/shopdb "0.1.0"]
                    [org.clojure/spec.alpha "0.1.143"]
                    [orchestra "2017.11.12-1"]
                    [http-kit "2.2.0"]

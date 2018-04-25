@@ -5,8 +5,8 @@
                  [orchestra.spec.test :as st]
                  [cheshire.core :refer :all]
                  [taoensso.timbre :as log]
-                 [shop2.extra :refer :all]
-                 [shop2.db :refer :all]
+                 [shop2.db.misc :refer :all]
+                  [mongolib.core :as db]
                  [shop2.db.tags :refer :all]
                  [utils.core :as utils]
             ))
@@ -30,6 +30,17 @@
                :price   price
                :oneshot oneshot)))
 
+(defn-spec add-item-usage any?
+           [list-id (s/nilable :shop/_id), item-id :shop/_id, action keyword?, numof integer?]
+           (db/mc-insert "add-item-usage" "item-usage"
+                      (assoc (db/mk-std-field)
+                          :listid list-id
+                          :itemid item-id
+                          :action action
+                          :numof numof)))
+
+;;-----------------------------------------------------------------------------
+
 (defn-spec ^:private upd-item :shop/item
     [itm any?]
     (if (nil? (:project itm))
@@ -38,40 +49,40 @@
 
 (defn-spec get-item-names (s/coll-of (s/keys :req-un [:shop/_id :shop/entryname]))
 	[]
-	(mc-find-maps "get-item-names" "items" {} {:_id true :entryname true}))
+	(db/mc-find-maps "get-item-names" "items" {} {:_id true :entryname true}))
 
 (defn-spec get-items :shop/items
 	[]
-    (map upd-item (mc-find-maps "get-items" "items" {})))
+    (map upd-item (db/mc-find-maps "get-items" "items" {})))
 
 (defn get-raw-items
     []
-    (mc-find-maps "get-raw-items" "items" {}))
+    (db/mc-find-maps "get-raw-items" "items" {}))
 
 (defn-spec get-item :shop/item
 	[id :shop/_id]
-    (upd-item (mc-find-one-as-map "get-item" "items" {:_id id})))
+    (upd-item (db/mc-find-one-as-map "get-item" "items" {:_id id})))
 
 (defn-spec item-id-exists? boolean?
 	[id :shop/_id]
-	(= (get (mc-find-map-by-id "item-id-exists?" "items" id {:_id true}) :_id) id))
+	(= (get (db/mc-find-map-by-id "item-id-exists?" "items" id {:_id true}) :_id) id))
 
 (defn-spec add-item :shop/item
 	[entry :shop/item]
 	(when (:tag entry)
         (add-tag (-> entry :tag :entryname)))
 	(add-item-usage nil (:_id entry) :create 0)
-	(mc-insert "add-item" "items" entry)
+	(db/mc-insert "add-item" "items" entry)
 	entry)
 
 (defn-spec update-item any?
 	[entry :shop/item]
 	(add-item-usage nil (:_id entry) :update 0)
-    (mc-replace-by-id "update-item" "items" entry))
+    (db/mc-replace-by-id "update-item" "items" entry))
 
 (defn-spec delete-item any?
 	[item-id :shop/_id]
 	(add-item-usage nil item-id :delete 0)
-	(mc-remove-by-id "delete-item" "items" item-id))
+	(db/mc-remove-by-id "delete-item" "items" item-id))
 
 (st/instrument)

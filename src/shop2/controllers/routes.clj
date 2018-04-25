@@ -15,7 +15,7 @@
               [shop2.views.admin.lists :refer :all]
               [shop2.views.admin.items :refer :all]
               [shop2.views.admin.tags :refer :all]
-              [shop2.db :refer :all]))
+              [mongolib.core :as db]))
 
 ;;-----------------------------------------------------------------------------
 

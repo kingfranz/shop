@@ -1,6 +1,6 @@
 (ns shop2.views.common
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               [shop2.db.user :refer :all]
               [shop2.db.lists :refer :all]
               [shop2.db.tags :refer :all]

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: org.clojars.kingfranz/shopdb:0.1.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/clojars/kingfranz/shopdb/0.1.0/shopdb-0.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

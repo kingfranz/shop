@@ -1,5 +1,5 @@
 (ns shop2.core
-    (:require [shop2.db :refer :all]
+    (:require [mongolib.core :as db]
               [shop2.db.user :refer :all]
               [shop2.db.projects :refer :all]
               [shop2.db.items :refer :all]
@@ -116,6 +116,7 @@
 ;; entry point, lein run will pick up and start from here
 (defn -main
     [& args]
+    (db/setup (env :database-db) (env :database-ip) (env :database-user) (env :database-pw))
 	(-> all-routes
         (wrap-fallback-exception)
         (wrap-anti-forgery)

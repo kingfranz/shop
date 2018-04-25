@@ -1,5 +1,5 @@
 (ns shop2.views.admin.tags
-    (:require [shop2.db :refer :all]
+    (:require [mongolib.core :as db]
               [shop2.extra :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]

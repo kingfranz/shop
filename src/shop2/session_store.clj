@@ -4,7 +4,7 @@
               [environ.core :refer [env]]
               [ring.middleware.session.store :as store]
               [clojure.pprint :refer [pprint]]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               ))
 
 ;;-----------------------------------------------------------------------------
@@ -31,7 +31,7 @@
     (store/read-session [_ key]
         (read-store-data key))
     (store/write-session [_ key data]
-        (let [key (or key (mk-id))]
+        (let [key (or key (db/mk-id))]
             (save-store-data key data)
             key))
     (store/delete-session [_ key]

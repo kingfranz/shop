@@ -1,6 +1,6 @@
 (ns shop2.views.home
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               [shop2.db.user :refer :all]
               [shop2.db.lists :refer :all]
               [shop2.views.projects :refer :all]
@@ -43,13 +43,6 @@
              [:ul
               (map #(sub-tree lists %) sub-lists)])]))
 
-(defn-spec list-cmp integer?
-    [l1 :shop/list-with-count, l2 :shop/list-with-count]
-    (or (comp-nil (:last l1) (:last l2))
-        (comp-nil (:count l2) (:count l1))
-        (comp-nil (:entryname l1) (:entryname l2))
-        0))
-
 (defn-spec list-row any?
     [a-list :shop/list-with-count]
     [:table.width-90p
@@ -61,7 +54,11 @@
 (defn-spec list-tbl any?
     [lists :shop/lists-with-count]
     [:table.width-100p
-     (for [a-list (sort-by identity list-cmp lists)]
+     (for [a-list (maplist-sort [#(:last %)
+                                 #(utils/neg (:count %))
+                                 #(:entryname %)
+                                 (fn [_] 0)]
+                                lists)]
          [:tr [:td (list-row a-list)]])])
 
 (defn-spec list-tree any?

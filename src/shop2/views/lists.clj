@@ -1,6 +1,6 @@
 (ns shop2.views.lists
     (:require [shop2.extra :refer :all]
-              [shop2.db :refer :all]
+              [mongolib.core :as db]
               [shop2.views.layout :refer :all]
               [shop2.views.common :refer :all]
               [shop2.views.css :refer :all]
@@ -14,6 +14,7 @@
               [orchestra.core :refer [defn-spec]]
               [orchestra.spec.test :as st]
               [slingshot.slingshot :refer [throw+ try+]]
+              [hiccup.form :as hf]
               [clojure.string :as str]
               [utils.core :as utils]
               [ring.util.response :as ring]))
