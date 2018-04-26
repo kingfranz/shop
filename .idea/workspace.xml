@@ -5,24 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a79396c0-6f0a-44b7-af7c-a2d168fe7ab2" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojars_kingfranz_mongolib_0_1_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shop2/db/misc.clj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/project.clj" beforeDir="false" afterPath="$PROJECT_DIR$/project.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shop2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/shop2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/controllers/routes.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/routes.clj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shop2/core.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/core.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db.clj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/items.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/items.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/lists.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/lists.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/menus.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/menus.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/notes.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/notes.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/projects.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/projects.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/recipes.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/recipes.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/tags.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/tags.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/db/user.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/db/user.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/items.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/lists.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/menus.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/misc.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/notes.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/projects.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/recipes.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/tags.clj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/db/user.clj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shop2/extra.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/extra.clj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shop2/session_store.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/session_store.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shop2/spec.clj" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/admin.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/views/admin.clj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/views/admin/items.clj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" afterDir="false" />
@@ -56,16 +53,16 @@
         <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="160">
-              <caret line="92" lean-forward="true" selection-start-line="92" selection-end-line="92" />
+              <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="admin.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
+      <file leaf-file-name="menus.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
+            <state relative-caret-position="90">
+              <caret line="5" column="43" lean-forward="true" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -74,43 +71,34 @@
         <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/lists.clj">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="108">
-              <caret line="6" column="14" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
+              <caret line="6" column="2" lean-forward="true" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="items.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/db/items.clj">
+      <file leaf-file-name="tags.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/tags.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="13" column="45" selection-start-line="13" selection-start-column="45" selection-end-line="13" selection-end-column="45" />
+            <state relative-caret-position="360">
+              <caret line="20" column="7" lean-forward="true" selection-start-line="20" selection-start-column="7" selection-end-line="20" selection-end-column="7" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="projects.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/projects.clj">
+      <file leaf-file-name="common.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="21" column="14" selection-start-line="20" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+            <state relative-caret-position="54">
+              <caret line="3" column="8" lean-forward="true" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="items.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/items.clj">
+      <file leaf-file-name="routes.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/routes.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="session_store.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/session_store.clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+            <state>
+              <caret column="10" selection-start-column="10" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -118,8 +106,8 @@
       <file leaf-file-name="core.clj" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/shop2/core.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="80" lean-forward="true" selection-start-line="80" selection-end-line="80" />
+            <state relative-caret-position="594">
+              <caret line="33" column="16" selection-start-line="33" selection-start-column="16" selection-end-line="33" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -127,17 +115,26 @@
       <file leaf-file-name="project.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+            <state>
+              <caret column="22" selection-start-column="22" selection-end-column="22" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lists.clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/shop2/db/lists.clj">
+      <file leaf-file-name="notes.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/notes.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="21" column="36" lean-forward="true" selection-start-line="21" selection-start-column="36" selection-end-line="21" selection-end-column="36" />
+            <state relative-caret-position="54">
+              <caret line="3" column="46" lean-forward="true" selection-start-line="3" selection-start-column="46" selection-end-line="3" selection-end-column="46" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="items.clj" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/shop2/views/items.clj">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="54">
+              <caret line="3" column="38" selection-start-line="3" selection-start-column="38" selection-end-line="3" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -154,10 +151,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mk-std-field</find>
-      <find>hf/</find>
-      <find>shop2.db</find>
-      <find>[shop2.db :refer :all]</find>
       <find>(mc</find>
       <find>get-.*-dd</find>
       <find>shop2.extra</find>
@@ -184,6 +177,10 @@
       <find>mk-list-dd</find>
       <find>(db</find>
       <find>get-list-dd</find>
+      <find>shop2.db</find>
+      <find>shopdb..</find>
+      <find>shop2.sp</find>
+      <find>.routes</find>
     </findStrings>
     <replaceStrings>
       <replace>tag</replace>
@@ -200,6 +197,7 @@
       <replace>fnt-24px</replace>
       <replace>[mongolib.core :as db]</replace>
       <replace>(db/mc-</replace>
+      <replace>shopdb.</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/src/shop2</dir>
@@ -214,12 +212,10 @@
     <setting file="file://$PROJECT_DIR$/src/shop2/views/items.clj" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/shop2/views/lists.clj" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/shop2/views/projects.clj" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/shop2/db/tags.clj" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_2.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/tags.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/login.js" />
         <option value="$PROJECT_DIR$/shop.txt" />
@@ -238,19 +234,12 @@
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/users.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/layout.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/recipe.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/notes.clj" />
         <option value="$PROJECT_DIR$/vmserver.service" />
         <option value="$USER_HOME$/.ssh/known_hosts" />
-        <option value="$PROJECT_DIR$/src/shop2/views/items.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
         <option value="$PROJECT_DIR$/src/shop2/spec.clj" />
         <option value="$PROJECT_DIR$/update-server.sh" />
         <option value="$PROJECT_DIR$/src/shop2/views/css.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/common.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/recipes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/user.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/lists.clj" />
@@ -260,22 +249,30 @@
         <option value="$PROJECT_DIR$/src/shop2/db/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/notes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/db/menus.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/menus.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/home.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/projects.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/views/admin.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/lists.clj" />
-        <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
         <option value="$PROJECT_DIR$/src/shop2/views/admin/items.clj" />
         <option value="$PROJECT_DIR$/src/shop2/session_store.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/recipe.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/notes.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/items.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/menus.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin/lists.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/admin/tags.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/extra.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/views/common.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/controllers/routes.clj" />
+        <option value="$PROJECT_DIR$/src/shop2/routes.clj" />
         <option value="$PROJECT_DIR$/src/shop2/core.clj" />
         <option value="$PROJECT_DIR$/project.clj" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="76" />
-    <option name="y" value="64" />
+    <option name="x" value="83" />
+    <option name="y" value="167" />
     <option name="width" value="1549" />
     <option name="height" value="960" />
   </component>
@@ -347,20 +344,6 @@
               <item name="shop2" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="shop2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="shop2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="shop2" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -388,6 +371,11 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/shop2" />
+    </key>
   </component>
   <component name="ReplState" timestamp="1524343958351">{:repl-history {:ide [], :local [{:command &quot;(require 'clj-time.local)&quot;, :offset 25, :ns &quot;shop2.core&quot;} {:command &quot;(clj-time.local/parse-local-date \&quot;2018-04-13\&quot;)&quot;, :offset 46, :ns &quot;shop2.core&quot;} {:command &quot;(require [clj-time.local :as l])&quot;, :offset 32, :ns &quot;shop2.core&quot;} {:command &quot;(require '[clj-time.core :as t])&quot;, :offset 32, :ns &quot;shop2.core&quot;} {:command &quot;(require '[clj-time.local :as l])&quot;, :offset 33, :ns &quot;shop2.core&quot;} {:command &quot;(l/parse-local-date \&quot;2018-04-13\&quot;)&quot;, :offset 33, :ns &quot;shop2.core&quot;} {:command &quot;(require '[clj-time.format :as f])&quot;, :offset 34, :ns &quot;shop2.core&quot;} {:command &quot;(f/parse-local-date \&quot;2018-04-13\&quot;)&quot;, :offset 33, :ns &quot;shop2.core&quot;} {:command &quot;(t/year (f/parse-local-date \&quot;2018-04-13\&quot;))&quot;, :offset 42, :ns &quot;shop2.core&quot;} {:command &quot;(sort-by identity compare [2 1 6 3])&quot;, :offset 36, :ns &quot;shop2.core&quot;} {:command &quot;(defn comp-nil\n    [v1 v2]\n    (let [result (compare v2 v1)]\n        (when-not (zero? result)\n            result)))&quot;, :offset 115, :ns &quot;shop2.core&quot;} {:command &quot;(defn- xxx\n    [rules x1 x2]\n    (if (empty? rules)\n        nil\n        (if-let [res (comp-nil ((first rules) x1) ((first rules) x2))]\n            res\n            (xxx (rest rules) x1 x2))))&quot;, :offset 190, :ns &quot;shop2.core&quot;} {:command &quot;(defn maplist-sort\n    [rules coll]\n    (sort-by identity (fn [v1 v2] (xxx rules v1 v2)) coll))&quot;, :offset 95, :ns &quot;shop2.core&quot;} {:command &quot;(defn comp-nil\n    [v1 v2]\n    (let [result (compare v1 v2)]\n        (when-not (zero? result)\n            result)))&quot;, :offset 115, :ns &quot;shop2.core&quot;} {:command &quot;(maplist-sort [#(identity %)] [2 1 6 3])&quot;, :offset 40, :ns &quot;shop2.core&quot;}], :remote []}}</component>
   <component name="RunDashboard">
@@ -457,7 +445,7 @@
     </list>
   </component>
   <component name="ToolWindowManager">
-    <frame x="76" y="64" width="1549" height="960" extended-state="0" />
+    <frame x="83" y="167" width="1549" height="960" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -560,7 +548,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/user.clj" />
     <entry file="file:///var/smhi/smhi-3.log" />
     <entry file="file://$PROJECT_DIR$/req-trace.txt" />
     <entry file="file://$PROJECT_DIR$/mongobackup.sh">
@@ -615,15 +602,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/recipe.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vmserver.service" />
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/notes.clj" />
     <entry file="file://$USER_HOME$/.ssh/known_hosts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
@@ -643,13 +622,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="813">
           <caret line="5820" selection-start-line="5820" selection-end-line="5820" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/tags.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="43" column="7" lean-forward="true" selection-start-line="43" selection-start-column="7" selection-end-line="43" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -686,20 +658,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="900">
           <caret line="50" selection-start-line="50" selection-end-line="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/controllers/routes.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="38" selection-start-line="8" selection-start-column="38" selection-end-line="8" selection-end-column="38" />
         </state>
       </provider>
     </entry>
@@ -752,24 +710,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="22" column="18" selection-start-line="22" selection-start-column="18" selection-end-line="22" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/home.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="8" column="4" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/items.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="163" lean-forward="true" selection-start-line="163" selection-end-line="163" />
         </state>
       </provider>
     </entry>
@@ -780,31 +724,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/lists.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="14" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/views/lists.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
           <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="92" lean-forward="true" selection-start-line="92" selection-end-line="92" />
         </state>
       </provider>
     </entry>
@@ -818,7 +741,7 @@
     <entry file="file://$PROJECT_DIR$/src/shop2/db/lists.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
-          <caret line="21" column="36" lean-forward="true" selection-start-line="21" selection-start-column="36" selection-end-line="21" selection-end-column="36" />
+          <caret line="21" column="36" selection-start-line="21" selection-start-column="36" selection-end-line="21" selection-end-column="36" />
         </state>
       </provider>
     </entry>
@@ -843,17 +766,90 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="9" selection-start-line="5" selection-start-column="9" selection-end-line="5" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/recipe.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="14" selection-start-line="6" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/notes.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="46" lean-forward="true" selection-start-line="3" selection-start-column="46" selection-end-line="3" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/items.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="38" selection-start-line="3" selection-start-column="38" selection-end-line="3" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/menus.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="43" lean-forward="true" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/lists.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="2" lean-forward="true" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/admin/tags.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="20" column="7" lean-forward="true" selection-start-line="20" selection-start-column="7" selection-end-line="20" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/extra.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/views/common.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="8" lean-forward="true" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/shop2/routes.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="10" selection-start-column="10" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/profiles.clj">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/shop2/core.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="80" lean-forward="true" selection-start-line="80" selection-end-line="80" />
+        <state relative-caret-position="594">
+          <caret line="33" column="16" selection-start-line="33" selection-start-column="16" selection-end-line="33" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+        <state>
+          <caret column="22" selection-start-column="22" selection-end-column="22" />
         </state>
       </provider>
     </entry>

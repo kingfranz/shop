@@ -1,4 +1,4 @@
-(defproject shop2 "1.12.0"
+(defproject shop2 "2.0.0"
     :description "Shopping list"
     :url "http://soahojen.se"
     :license {:name "Eclipse Public License"
@@ -8,7 +8,7 @@
                    [hiccup "1.0.5"]
                    [ring/ring-core "1.6.3"]
                    [org.clojars.kingfranz/utils "0.2.8"]
-                   ;[org.clojars.kingfranz/mongolib "0.1.1"]
+                   [org.clojars.kingfranz/mongolib "0.1.1"]
                    [org.clojars.kingfranz/shopdb "0.1.0"]
                    [org.clojure/spec.alpha "0.1.143"]
                    [orchestra "2017.11.12-1"]

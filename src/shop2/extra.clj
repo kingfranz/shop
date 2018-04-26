@@ -9,11 +9,11 @@
               [orchestra.spec.test :as st]
               [utils.core :as utils]
               [hiccup.form :as hf]
-              [shop2.spec :refer :all]
-              [shop2.db.misc :as db-m]
-              [shop2.db.tags :as dbt]
-              [shop2.db.lists :as dbl]
-              [shop2.db.projects :as dbp]
+              [shopdb.spec :refer :all]
+              [shopdb.misc :as db-m]
+              [shopdb.tags :as dbt]
+              [shopdb.lists :as dbl]
+              [shopdb.projects :as dbp]
               [mongolib.core :as db]
               [clojure.string :as str]))
 

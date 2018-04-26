@@ -1,10 +1,10 @@
 (ns shop2.core
     (:require [mongolib.core :as db]
-              [shop2.db.user :refer :all]
-              [shop2.db.projects :refer :all]
-              [shop2.db.items :refer :all]
+              [shopdb.user :refer :all]
+              [shopdb.projects :refer :all]
+              [shopdb.items :refer :all]
               [shop2.views.css :refer :all]
-              [shop2.controllers.routes :refer :all]
+              [shop2.routes :refer :all]
               [shop2.views.layout :refer :all]
               [shop2.session-store :refer :all]
               [utils.core :as utils]
@@ -31,8 +31,7 @@
               [clojure.spec.test.alpha :as s]
               [clojure.string :as str])
     (:use [org.httpkit.server :only [run-server]])
-    (:gen-class)
-    (:import (clojure.lang ExceptionInfo)))
+    (:gen-class))
 
 ;;-----------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-(ns shop2.controllers.routes
+(ns shop2.routes
     (:require [ring.util.response :as ring]
               [slingshot.slingshot :refer [throw+ try+]]
               [compojure.core :as cc]
@@ -14,8 +14,7 @@
               [shop2.views.admin.users :refer :all]
               [shop2.views.admin.lists :refer :all]
               [shop2.views.admin.items :refer :all]
-              [shop2.views.admin.tags :refer :all]
-              [mongolib.core :as db]))
+              [shop2.views.admin.tags :refer :all]))
 
 ;;-----------------------------------------------------------------------------
 
